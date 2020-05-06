@@ -358,28 +358,56 @@ bool Electron::Pass_CutBasedVeto() const{
 //==== Customized ID
 
 bool Electron::Pass_FakeMVAWP(TString wp) const {
-  // Follow the SUSY MVA WP first
+  
+  cout << "[Electron::Pass_FakeMAVWP] need reoptimization for Fall17v2 dataset" << endl;
+
   double sceta = fabs(scEta());
-  double cutA = 0.77, cutB = 0.52;
+  double cutA = -999., cutB = -999., cutC = -999.;
 
   if (wp == "Tight") {
-    if (sceta < 0.8) { cutA = 0.77; cutB = 0.52; }
-	else if (sceta < 1.479) { cutA = 0.56; cutB = 0.11; }
-	else { cutA = 0.48; cutB = -0.01; }
+	cutA = 0.837; cutB = 0.715; cutC = 0.357;
+	if (sceta < 0.8) {
+	  if (MVANoIso() > cutA) return true;
+	  else return false;
+	}
+	else if (sceta < 1.479) {
+	  if (MVANoIso() > cutB) return true;
+	  else return false;
+	}
+	else if (sceta < 2.5) {
+	  if (MVANoIso() > cutC) return true;
+	  else return false;
+    }
+    else {
+      cout << "[Electron::Pass_FakeMVAWP] MVA cut value for electron eta is not set" << endl;
+      exit(EXIT_FAILURE);
+	} 
   }
+
   else if (wp == "Loose") {
-	if (sceta < 0.8) { cutA = -0.48; cutB = -0.85; }
-	else if (sceta < 1.479) { cutA = -0.67; cutB = -0.91; }
-	else { cutA = -0.49; cutB = -0.83; }
+    cutA = -0.92; cutB = -0.88; cutC = -0.78;
+    if (sceta < 0.8) {
+	  if (MVANoIso() > cutA) return true;
+	  else return false;
+    }
+	else if (sceta < 1.479) {
+	  if (MVANoIso() > cutB) return true;
+	  else return false;
+	}
+	else if (sceta < 2.5) {
+	  if (MVANoIso() > cutC) return true;
+	  else return false;
+    }
+    else {
+      cout << "[Electron::Pass_FakeMVAWP] MVA cut value for electron eta is not set" << endl;
+      exit(EXIT_FAILURE);
+    }
   }
-  else {}
 
-  double cutSlope = (cutB - cutA) / 10.;
-  double cutFinal = std::min( cutA, std::max(cutB, cutA + cutSlope*(this->Pt()-15.)));
-
-  // using NoIso MVS, because we apply MiniIso later
-  if (MVANoIso() > cutFinal) return true;
-  else return false;
+  else {
+	cout << "[Electron::Pass_FakeMVAWP] Wrong WP" << endl;
+	exit(EXIT_FAILURE);
+  }
 }
 
 bool Electron::Pass_FakeTight() const {

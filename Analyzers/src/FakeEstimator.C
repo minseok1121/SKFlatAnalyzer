@@ -184,12 +184,7 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 
 	//==== leading electron should pass trigger-safe pt cut
 	if (electrons.size() == 0) return;
-	if (electrons.at(0).Pt() <= TriggerSafePtCut) return;
-
-	//////////////////////////////////////////////////////////////////
-	//==== Event Selection
-	//////////////////////////////////////////////////////////////////
-
+	if (electrons.at(0).Pt() <= TriggerSafePtCut) return; 
 }
 
 FakeEstimator::FakeEstimator(){

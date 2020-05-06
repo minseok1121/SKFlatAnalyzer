@@ -36,7 +36,7 @@ public:
   //==== executeEventFromParameter
   vector<Electron> electrons, electrons_loose;
   vector<Muon> muons;
-  vector<Jet> jets, clean_jets04, clean_jets10;
+  vector<Jet> jets, jets04, jets10;
 };
 
 
