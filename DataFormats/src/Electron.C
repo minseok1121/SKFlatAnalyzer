@@ -158,6 +158,8 @@ bool Electron::PassID(TString ID) const{
   if(ID=="passMVAID_iso_WP80") return passMVAID_iso_WP80();
   if(ID=="passMVAID_iso_WP90") return passMVAID_iso_WP90();
   //==== Customized
+  if(ID=="FakeTightID") return Pass_FakeTight();
+  if(ID=="FakeLooseID") return Pass_FakeLoose();
   if(ID=="SUSYTight") return Pass_SUSYTight();
   if(ID=="SUSYLoose") return Pass_SUSYLoose();
   if(ID=="NOCUT") return true;
@@ -352,6 +354,57 @@ bool Electron::Pass_CutBasedVeto() const{
   }
 
 }
+
+//==== Customized ID
+
+bool Electron::Pass_FakeMVAWP(TString wp) const {
+  // Follow the SUSY MVA WP first
+  double sceta = fabs(scEta());
+  double cutA = 0.77, cutB = 0.52;
+
+  if (wp == "Tight") {
+    if (sceta < 0.8) { cutA = 0.77; cutB = 0.52; }
+	else if (sceta < 1.479) { cutA = 0.56; cutB = 0.11; }
+	else { cutA = 0.48; cutB = -0.01; }
+  }
+  else if (wp == "Loose") {
+	if (sceta < 0.8) { cutA = -0.48; cutB = -0.85; }
+	else if (sceta < 1.479) { cutA = -0.67; cutB = -0.91; }
+	else { cutA = -0.49; cutB = -0.83; }
+  }
+  else {}
+
+  double cutSlope = (cutB - cutA) / 10.;
+  double cutFinal = std::min( cutA, std::max(cutB, cutA + cutSlope*(this->Pt()-15.)));
+
+  // using NoIso MVS, because we apply MiniIso later
+  if (MVANoIso() > cutFinal) return true;
+  else return false;
+}
+
+bool Electron::Pass_FakeTight() const {
+  // Electron_ID = "FakeTightID"
+  // 2DSIP has not been set yet.... not important
+  if (! Pass_FakeMVAWP("Tight")) return false;
+  if (! (RelIso() < 0.06)) return false;
+  if (! (fabs(dXY()) < 0.025 && fabs(dZ()) < 0.1)) return false;
+  if (! PassConversionVeto()) return false;
+  
+  return true;
+}
+
+bool Electron::Pass_FakeLoose() const {
+  // Electron_ID = "PassLooseID"
+  // 2DSIP has not been set yet... not important
+  if(! Pass_FakeMVAWP("Loose")) return false;
+  if (! (RelIso() < 0.4)) return false;
+  if (! (fabs(dXY()) < 0.025 && fabs(dZ()) < 0.1)) return false;
+  if (! PassConversionVeto()) return false;
+
+  return true;
+}
+
+
 
 void Electron::SetRho(double r){
   j_Rho = r;

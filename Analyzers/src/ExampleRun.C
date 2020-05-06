@@ -286,12 +286,15 @@ void ExampleRun::executeEventFromParameter(AnalyzerParameter param){
     this_AllJets = ScaleJets( this_AllJets, -1 );
     //this_AllFatJets = ScaleFatJets( this_AllFatJets, -1 );
   }
+  //==== Turn off for FakeEstimator
+  /*
   else if(param.syst_ == AnalyzerParameter::MuonEnUp){
     this_AllMuons = ScaleMuons( this_AllMuons, +1 );
   }
   else if(param.syst_ == AnalyzerParameter::MuonEnDown){
     this_AllMuons = ScaleMuons( this_AllMuons, -1 );
   }
+  */
   else if(param.syst_ == AnalyzerParameter::ElectronResUp){
     //this_AllElectrons = SmearElectrons( this_AllElectrons, +1 );
   }

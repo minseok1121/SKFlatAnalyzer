@@ -121,6 +121,9 @@ public:
   bool Pass_SUSYMVAWP(TString wp) const;
   bool Pass_SUSYTight() const;
   bool Pass_SUSYLoose() const;
+  bool Pass_FakeMVAWP(TString wp) const;
+  bool Pass_FakeTight() const;
+  bool Pass_FakeLoose() const;
 
   void SetRelPFIso_Rho(double r);
   double EA();

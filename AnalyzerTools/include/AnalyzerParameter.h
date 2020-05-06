@@ -32,13 +32,17 @@ public:
 
   TString Jet_ID, FatJet_ID;
 
+  // Add FlavorDep, JetPtCut, PileUp
+  // erase MuonEnUp, MuonEnDown
   enum Syst{
     Central,
+	FlavorDep, JetPtCut,
     JetResUp, JetResDown,
     JetEnUp, JetEnDown,
-    MuonEnUp, MuonEnDown,
+    //MuonEnUp, MuonEnDown,
     ElectronResUp, ElectronResDown,
     ElectronEnUp, ElectronEnDown,
+	PileUp,
     NSyst
   };
   Syst syst_;

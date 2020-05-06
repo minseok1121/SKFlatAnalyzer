@@ -79,6 +79,12 @@ TString AnalyzerParameter::GetSystType(){
   if(syst_==Syst::Central){
     return "Central";
   }
+  if (syst_==Syst::FlavorDep) {
+	return "FlavorDep";
+  }
+  if (syst_==Syst::JetPtCut) {
+	return "JetPtCut";
+  }
   else if(syst_==Syst::JetResUp){
     return "JetResUp";
   }
@@ -91,12 +97,12 @@ TString AnalyzerParameter::GetSystType(){
   else if(syst_==Syst::JetEnDown){
     return "JetEnDown";
   }
-  else if(syst_==Syst::MuonEnUp){
-    return "MuonEnUp";
-  }
-  else if(syst_==Syst::MuonEnDown){
-    return "MuonEnDown";
-  }
+  //else if(syst_==Syst::MuonEnUp){
+  //  return "MuonEnUp";
+  //}
+  //else if(syst_==Syst::MuonEnDown){
+  //  return "MuonEnDown";
+  //}
   else if(syst_==Syst::ElectronResUp){
     return "ElectronResUp";
   }
@@ -108,6 +114,9 @@ TString AnalyzerParameter::GetSystType(){
   }
   else if(syst_==Syst::ElectronEnDown){
     return "ElectronEnDown";
+  }
+  else if(syst_==Syst::PileUp){
+	return "PileUp";
   }
   else{
     cout << "[AnalyzerParameter::GetSystType] Wrong Syst" << endl;
