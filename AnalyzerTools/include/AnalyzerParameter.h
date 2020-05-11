@@ -36,7 +36,6 @@ public:
   // erase MuonEnUp, MuonEnDown
   enum Syst{
     Central,
-	FlavorDep, JetPtCut,
     JetResUp, JetResDown,
     JetEnUp, JetEnDown,
     //MuonEnUp, MuonEnDown,
@@ -45,6 +44,7 @@ public:
 	PileUp,
     NSyst
   };
+
   Syst syst_;
   TString GetSystType();
 

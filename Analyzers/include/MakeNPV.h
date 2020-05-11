@@ -1,9 +1,9 @@
-#ifndef FakeEstimator_h
-#define FakeEstimator_h
+#ifndef MakeNPV_h
+#define MakeNPV_h
 
 #include "AnalyzerCore.h"
 
-class FakeEstimator : public AnalyzerCore {
+class MakeNPV : public AnalyzerCore {
 
 public:
 
@@ -11,8 +11,8 @@ public:
   void executeEventFromParameter(AnalyzerParameter param);
   void executeEvent();
 
-  FakeEstimator();
-  ~FakeEstimator();
+  MakeNPV();
+  ~MakeNPV();
 
   //==== initializeAnalyzer
   bool RunSysts, RunXsecSyst;
@@ -35,7 +35,7 @@ public:
   //==== executeEventFromParameter
   vector<Electron> electrons, electrons_loose;
   vector<Muon> muons;
-  vector<Jet> jets, clean_jets04, clean_jets10;
+  vector<Jet> jets, clean_jets04;
 };
 
 

@@ -1,7 +1,7 @@
-#include "FakeEstimator.h"
+#include "MakeNPV.h"
 
 /////////////////////////////////////////////////////////////////////////////
-//==== FakeEstimator                                                   ====//
+//==== MakeNPV                                                   ====//
 //==== This analyzer is for evaluation of the fake rate of electorns   ====//
 //==== from jet activity                                               ====// 
 //==== using data                                                      ====//
@@ -11,15 +11,7 @@
 
 // FakeEstiamtor: Central estimation of Fake Rate
 
-void FakeEstimator::initializeAnalyzer(){
-
-	//==== Flag for systematic sources
-	RunSysts = HasFlag("RunSysts");
-	RunXsecSyst = HasFlag("RunXsecSyst");
-
-	cout << "[FakeEstimator::initializeAnalyzer] RunSysts = " << RunSysts << endl;
-	cout << "[FakeEstimator::initializeAnalyzer] RunXsecSyst = " << RunXsecSyst << endl;
-
+void MakeNPV::initializeAnalyzer(){
 
 	//==== ID setting for electrons
 	ElectronIDs = {"passLooseID", "passTightID", "FakeLooseID", "FakeTightID"};
@@ -34,16 +26,16 @@ void FakeEstimator::initializeAnalyzer(){
 		TriggerSafePtCut = 25.;
 	}
 	else if (DataYear == 2018) {
-		cout << "[FakeEstimator::initializeAnalyzer] Trigger is not set for 2018" << endl;
+		cout << "[MakeNPV::initializeAnalyzer] Trigger is not set for 2018" << endl;
 		exit(EXIT_FAILURE);
 	}
 	else {
-		cout << "[FakeEstimator::initializeAnalyzer] Wrong Year" << endl;
+		cout << "[MakeNPV::initializeAnalyzer] Wrong Year" << endl;
 		exit(EXIT_FAILURE);
 	}
 
-	cout << "[FakeEstimator::initializeAnalyzer] HLTElecTriggerName = " << HLTElecTriggerName << endl;
-	cout << "[FakeEstimator::initializeAnalyzer] TriggerSafePtCut = " << TriggerSafePtCut << endl;
+	cout << "[MakeNPV::initializeAnalyzer] HLTElecTriggerName = " << HLTElecTriggerName << endl;
+	cout << "[MakeNPV::initializeAnalyzer] TriggerSafePtCut = " << TriggerSafePtCut << endl;
 
 	//==== B-Tagging
 	std::vector<JetTagging::Parameters> jtps;
@@ -53,7 +45,7 @@ void FakeEstimator::initializeAnalyzer(){
 	cout << "[FakeEstiamtor::initializeAnalyer] Finish initialization" << endl;
 }
 
-void FakeEstimator::executeEvent(){
+void MakeNPV::executeEvent(){
 
 	//==== Copy all objects ====
 	AllMuons = GetAllMuons();
@@ -80,27 +72,10 @@ void FakeEstimator::executeEvent(){
 		
 
 		executeEventFromParameter(param);
-
-		//==== Systematic sources ====
-		//==== need update for MET sources
-		if (RunSysts) {
-			for (unsigned int i = 1; i < AnalyzerParameter::NSyst; i++) {
-				param.syst_ = AnalyzerParameter::Syst(i);
-				param.Name = ElectronID + "_Syst_" + param.GetSystType();
-				cout << "[FakeEstimator::executeEvent] execute " << param.Name << endl;
-				executeEventFromParameter(param);
-			}
-		}
-
-		//==== Xsec syst ====
-		if (RunXsecSyst) {
-			cout << "[FakeEstimator::executeEvent] Xsec systematics is not set yet" << endl;
-			exit(EXIT_FAILURE);
-		}
 	}			
 }
 
-void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
+void MakeNPV::executeEventFromParameter(AnalyzerParameter param){
 
 	if(!PassMETFilter()) return;
 
@@ -114,34 +89,6 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 	vector<Muon> this_AllMuons = AllMuons;
 	vector<Electron> this_AllElectrons = AllElectrons;
 	vector<Jet> this_AllJets = AllJets;
-
-	//==== Normalization Systematic Sources ====
-	if (param.syst_ == AnalyzerParameter::Central) {
-	}
-	else if (param.syst_ == AnalyzerParameter::JetResUp) {
-		this_AllJets = SmearJets( this_AllJets, +1 );
-	}
-	else if(param.syst_ == AnalyzerParameter::JetResDown) {
-		this_AllJets = SmearJets( this_AllJets, -1 );
-	}
-	else if(param.syst_ == AnalyzerParameter::JetEnUp) {
-		this_AllJets = ScaleJets( this_AllJets, +1 );
-	}
-	else if(param.syst_ == AnalyzerParameter::JetEnDown) {
-		this_AllJets = ScaleJets( this_AllJets, -1 );
-	}
-	else if(param.syst_ == AnalyzerParameter::ElectronResUp) {
-		this_AllElectrons = SmearElectrons( this_AllElectrons, +1 );
-	}
-	else if(param.syst_ == AnalyzerParameter::ElectronResDown) {
-		this_AllElectrons = SmearElectrons( this_AllElectrons, -1 );
-	}
-	else if(param.syst_ == AnalyzerParameter::ElectronEnUp) {
-		this_AllElectrons = ScaleElectrons( this_AllElectrons, +1 );
-	}
-	else if(param.syst_ == AnalyzerParameter::ElectronEnDown) {
-		this_AllElectrons = ScaleElectrons( this_AllElectrons, -1 );
-	}
 
 	//==== ID Selection ====
 	muons = SelectMuons(this_AllMuons, MuonID, 10., 2.4);
@@ -165,61 +112,66 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 	if (electrons.size() == 0) return;
 	if (electrons.at(0).Pt() <= TriggerSafePtCut) return;
 
-	/////////////////////////////////////////////////////////////////////
-	//==== Event Selection
-	/////////////////////////////////////////////////////////////////////
-	//==== QCD dominated region
-	//==== 1. Exactly 1 electron
-	//==== 2. At least 1 jet with Pt > 40 GeV
-	//==== 3. Delta(e, j) > 1.0
-	//==== 4. MET < 25 GeV, MT(e, METv) < 25 GeV
-	/////////////////////////////////////////////////////////////////////
-	//==== W boson dominated region
-	//==== 1. Exactly 1 electron
-	//==== 2. At least 1 jet with Pt > 40 GeV
-	//==== 3. Delta(e, j) > 0.4
-	//==== 4. MET > 50 GeV & MT(e, METv) > 70 GeV
-	//////////////////////////////////////////////////////////////////////
-	//==== Z boson dominated region
-	//==== 1. Exactly 2 electrons
-	//==== 2, At least 1 jet with Pt > 40 GeV
-	//==== 3. Delta(e, j ) > 0.4
-	//==== 4. |M(ee) - 91.2| < 15
 	///////////////////////////////////////////////////////////////////////
+	//==== measure nPV reweight ====
+	//==== 1. no loose muon
+	//==== 2. exactly 1 electron
+	//==== 3. jet - with systematic source, but use clean_jets04
+	///////////////////////////////////////////////////////////////////////
+	
 	if (muons.size() != 0) return;
-	double jetPtCut = 40;
 	double weight = 1.;
 
-	//==== QCD dominated & W boson dominated region
 	if (electrons.size() == 1) {
-		Particle elec = Particle(electrons.at(0));
-		double Mt = MT(elec, METv);
 		clean_jets04 = JetsVetoLeptonInside(jets, electrons_loose, muons, 0.4);
-		clean_jets10 = JetsVetoLeptonInside(jets, electrons_loose, muons, 1.0);
 
 		if (clean_jets04.size() == 0) return;
-		if (clean_jets04.at(0).Pt() < jetPtCut) return;
+		if (clean_jets04.at(0).Pt() < 30) return;
 
-		//==== Measure nPV reweight
-		if (nPV > 100) nPV = 100;
-		
+		//==== Get weights
 		if (!IsDATA) {
 			weight *= weight_norm_1invpb*ev.GetTriggerLumi(HLTElecTriggerName);
 			weight *= ev.MCweight();
 			weight *= weight_Prefire;
-			// nPV reweight
 		}
 		
-		JSFillHist(param.Name, "nPV_" + param.Name, nPV, weight, 100, 0, 100);
+		// Measure nPV reweights
+		if (nPV > 100) nPV = 100;
+
+		if (clean_jets04.at(0).Pt() > 30) {
+			JSFillHist(param.Name, "nPV_" + param.Name + "_JetPtCut30", nPV, weight, 100, 0, 100);
+		}
+		if (clean_jets04.at(0).Pt() > 35) {
+			JSFillHist(param.Name, "nPV_" + param.Name + "_JetPtCut35", nPV, weight, 100, 0, 100);
+		}
+		if (clean_jets04.at(0).Pt() > 40) {
+			JSFillHist(param.Name, "nPV_" + param.Name + "_JetPtCut40", nPV, weight, 100, 0, 100);
+			if (NBjets_WithSF_2a > 1) {
+				JSFillHist(param.Name, "nPV_" + param.Name + "_BtagDep", nPV, weight, 100, 0, 100);
+			}
+		}
+		if (clean_jets04.at(0).Pt() > 45) {
+			JSFillHist(param.Name, "nPV_" + param.Name + "_JetPtCut45", nPV, weight, 100, 0, 100);
+		}
+		if (clean_jets04.at(0).Pt() > 50) {
+			JSFillHist(param.Name, "nPV_" + param.Name + "_JetPtCut50", nPV, weight, 100, 0, 100);
+		}
+		if (clean_jets04.at(0).Pt() > 55) {
+			JSFillHist(param.Name, "nPV_" + param.Name + "_JetPtCut55", nPV, weight, 100, 0, 100);
+		}
+		if (clean_jets04.at(0).Pt() > 60) {
+			JSFillHist(param.Name, "nPV_" + param.Name + "_JetPtCut60", nPV, weight, 100, 0, 100);
+		}
+		return;
 	}
-		
+	else return;
 }
 
-FakeEstimator::FakeEstimator(){
+MakeNPV::MakeNPV(){
 
 }
 
-FakeEstimator::~FakeEstimator(){
+MakeNPV::~MakeNPV(){
 
 }
 

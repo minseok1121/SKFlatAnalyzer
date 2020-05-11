@@ -3,7 +3,12 @@
 class AnalyzerCore
 class ExampleRun
 class FakeEstimator
+class FakeEstimator_BtagDep
+class FakeEstimator_JetPtCut30
+class FakeEstimator_JetPtCut50
+class FakeEstimator_JetPtCut60
 class GetEffLumi
+class MakeNPV
 class MeasureJetTaggingEfficiency
 class SKFlatNtuple
 class SKFlatValidation
@@ -14,7 +19,12 @@ class TTAnalyzer
 header AnalyzerCore.h
 header ExampleRun.h
 header FakeEstimator.h
+header FakeEstimator_BtagDep.h
+header FakeEstimator_JetPtCut30.h
+header FakeEstimator_JetPtCut50.h
+header FakeEstimator_JetPtCut60.h
 header GetEffLumi.h
+header MakeNPV.h
 header MeasureJetTaggingEfficiency.h
 header SKFlatNtuple.h
 header SKFlatValidation.h

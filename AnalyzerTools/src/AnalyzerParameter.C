@@ -45,7 +45,6 @@ void AnalyzerParameter::Clear(){
   FatJet_ID = "";
 
   syst_ = Central;
-
 }
 
 AnalyzerParameter::AnalyzerParameter(){
@@ -78,12 +77,6 @@ TString AnalyzerParameter::GetSystType(){
 
   if(syst_==Syst::Central){
     return "Central";
-  }
-  if (syst_==Syst::FlavorDep) {
-	return "FlavorDep";
-  }
-  if (syst_==Syst::JetPtCut) {
-	return "JetPtCut";
   }
   else if(syst_==Syst::JetResUp){
     return "JetResUp";
@@ -125,6 +118,7 @@ TString AnalyzerParameter::GetSystType(){
   }
 
 }
+
 
 AnalyzerParameter::~AnalyzerParameter(){
 }
