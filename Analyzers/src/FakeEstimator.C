@@ -22,6 +22,8 @@ void FakeEstimator::initializeAnalyzer(){
 
 	//==== Systematic sources
 	Systs = {"BtagDep", "JetPtCut30", "JetPtCut40", "JetPtCut50", "JetPtCut60"};
+	PromptNorms = {"Central", "JetResUp", "JetResDown", "JetEnUp", "JetEnDown", 
+		"ElectronResUp", "ElectronResDown", "ElectronEnUp", "ElectronEnDown", "PileUp"};
 	//==== ID setting for electrons
 	ElectronIDs = {"passLooseID", "passTightID", "FakeLooseID", "FakeTightID"};
 	
@@ -90,7 +92,7 @@ void FakeEstimator::executeEvent(){
 			for (unsigned int i = 1; i < AnalyzerParameter::NSyst; i++) {
 				param.syst_ = AnalyzerParameter::Syst(i);
 				param.Name = ElectronID + "_Syst_" + param.GetSystType();
-				cout << "[FakeEstimator::executeEvent] execute " << param.Name << endl;
+				//cout << "[FakeEstimator::executeEvent] execute " << param.Name << endl;
 				executeEventFromParameter(param);
 			}
 		}
@@ -202,6 +204,9 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 		if ( Mt < 25 && METv.Pt() < 25) {
 			clean_jets10 = JetsVetoLeptonInside(jets, electrons_loose, muons, 1.0);
 			double corrPt = GetCorrPt(electrons.at(0));
+			double elecEta = fabs(electrons.at(0).Eta());
+			double ptbins[4] = {25., 35., 50., 70.};
+			double etabins[4] = {0., 0.8, 1.479, 2.5};
 
 			if (clean_jets10.size() == 0) return;
 			if (clean_jets10.at(0).Pt() < 30) return;
@@ -210,14 +215,23 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 				weight *= weight_norm_1invpb*ev.GetTriggerLumi(HLTElecTriggerName);
 				weight *= ev.MCweight();
 				weight *= weight_Prefire;
-				weight *= GetNPVReweight(ElectronID, "JetPtCut40");
+				if (param.syst_ == AnalyzerParameter::PileUp) weight *= GetPileUpWeight(nPileUp, 0);
+				else weight *= GetNPVReweight(ElectronID, "JetPtCut40");
 			}
 
 			if (clean_jets10.at(0).Pt() > jetPtCuts.at(1)) {
 				FillHist(Systs.at(1), "corrPt_QCD_enriched_" + param.Name , corrPt, weight, 48, 0., 240.);
+				FillHist(Systs.at(1), "electron_eta_QCD_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(1), "leading_jet_pt_QCD_enriched_" + param.Name, clean_jets10.at(0).Pt(), weight, 48, 0., 240.);
+				FillHist(Systs.at(1), "leading_jet_eta_QCD_enriched_" + param.Name, clean_jets10.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(1), "passID_QCD_enriched_" + param.Name, corrPt, elecEta, weight, 3, ptbins, 3, etabins);
 			}
 			if (clean_jets10.at(0).Pt() > jetPtCuts.at(2)) {
 				FillHist(Systs.at(2), "corrPt_QCD_enriched_" + param.Name, corrPt, weight, 48, 0., 240.);
+				FillHist(Systs.at(2), "electron_eta_QCD_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(2), "leading_jet_pt_QCD_enriched_" + param.Name, clean_jets10.at(0).Pt(), weight, 48, 0., 240.);
+				FillHist(Systs.at(2), "leading_jet_eta_QCD_enriched_" + param.Name, clean_jets10.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(2), "passID_QCD_enriched_" + param.Name, corrPt, elecEta, weight, 3, ptbins, 3, etabins);
 				
 				//==== B-tagging source
 				for (unsigned int i = 0; i < clean_jets10.size(); i++) {
@@ -228,17 +242,33 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 
 				if (IsDATA && NBjets_NoSF != 0) {
 					FillHist(Systs.at(0), "corrPt_QCD_enriched_" + param.Name, corrPt, weight, 48, 0., 240.);
+					FillHist(Systs.at(0), "electron_eta_QCD_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+					FillHist(Systs.at(0), "leading_jet_pt_QCD_enriched_" + param.Name, clean_jets10.at(0).Pt(), weight, 48, 0., 240.);
+					FillHist(Systs.at(0), "leading_jet_eta_QCD_enriched_" + param.Name, clean_jets10.at(0).Eta(), weight, 20, -2.5, 2.5);
+					FillHist(Systs.at(0), "passID_QCD_enriched_" + param.Name, corrPt, elecEta, weight, 3, ptbins, 3, etabins);
 				}
 				if (!IsDATA && NBjets_WithSF_2a != 0) {
 					FillHist(Systs.at(0), "corrPt_QCD_enriched_" + param.Name, corrPt, weight, 48, 0., 240.);
+					FillHist(Systs.at(0), "electron_eta_QCD_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+					FillHist(Systs.at(0), "leading_jet_pt_QCD_enriched_" + param.Name, clean_jets10.at(0).Pt(), weight, 48, 0., 240.);
+					FillHist(Systs.at(0), "leading_jet_eta_QCD_enriched_" + param.Name, clean_jets10.at(0).Eta(), weight, 20, -2.5, 2.5);
+					FillHist(Systs.at(0), "passID_QCD_enriched_" + param.Name, corrPt, elecEta, weight, 3, ptbins, 3, etabins);
 				}
 			}
 
 			if (clean_jets10.at(0).Pt() > jetPtCuts.at(3)) {
 				FillHist(Systs.at(3), "corrPt_QCD_enriched_" + param.Name, corrPt, weight, 48, 0., 240.);
+				FillHist(Systs.at(3), "electron_eta_QCD_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(3), "leading_jet_pt_QCD_enriched_" + param.Name, clean_jets10.at(0).Pt(), weight, 48, 0., 240.);
+				FillHist(Systs.at(3), "leading_jet_eta_QCD_enriched_" + param.Name, clean_jets10.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(3), "passID_QCD_enriched_" + param.Name, corrPt, elecEta, weight, 3, ptbins, 3, etabins);
 			}
 			if (clean_jets10.at(0).Pt() > jetPtCuts.at(4)) {
 				FillHist(Systs.at(4), "corrPt_QCD_enriched_" + param.Name, corrPt, weight, 48, 0., 240.);
+				FillHist(Systs.at(4), "electron_eta_QCD_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(4), "leading_jet_pt_QCD_enriched_" + param.Name, clean_jets10.at(0).Pt(), weight, 48, 0., 240.);
+				FillHist(Systs.at(4), "leading_jet_eta_QCD_enriched_" + param.Name, clean_jets10.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(4), "passID_QCD_enriched_" + param.Name, corrPt, elecEta, weight, 3, ptbins, 3, etabins);
 			}
 			return;
 		}
@@ -247,6 +277,10 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 		//==== W boson dominated window
 		else if (Mt > 70 && METv.Pt() >50) {
 			clean_jets04 = JetsVetoLeptonInside(jets, electrons_loose, muons, 0.4);
+			double corrPt = GetCorrPt(electrons.at(0));
+			double elecEta = fabs(electrons.at(0).Eta());
+			double ptbins[4] = {25., 35., 50., 70.};
+			double etabins[4] = {0., 0.8, 1.479, 2.5};
 
 			if (clean_jets04.size() == 0) return;
 			if (clean_jets04.at(0).Pt() < 30) return;
@@ -255,15 +289,31 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 				weight *= weight_norm_1invpb*ev.GetTriggerLumi(HLTElecTriggerName);
 				weight *= ev.MCweight();
 				weight *= weight_Prefire;
-				weight *= GetNPVReweight(ElectronID, "JetPtCut40");
+				if (param.syst_ == AnalyzerParameter::PileUp) weight *= GetPileUpWeight(nPileUp, 0);
+				else weight *= GetNPVReweight(ElectronID, "JetPtCut40");
 			}
 
 			if (clean_jets04.at(0).Pt() > jetPtCuts.at(1)) {
+				FillHist(Systs.at(1), "PromptNorm_" + param.Name, 1, weight, 2, 0., 2.);
 				FillHist(Systs.at(1), "Mt_W_enriched_" + param.Name, Mt, weight, 36, 60., 240);
+				FillHist(Systs.at(1), "electron_pt_W_enriched_" + param.Name, corrPt, weight, 48, 0., 240.);
+				FillHist(Systs.at(1), "electron_eta_W_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(1), "leading_jet_pt_W_enriched_" + param.Name, clean_jets04.at(0).Pt(), weight, 48, 0., 240.);
+				FillHist(Systs.at(1), "leading_jet_eta_W_enriched_" + param.Name, clean_jets04.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(1), "MET_W_enriched_" + param.Name, METv.Pt(), weight, 48, 0., 240.);
+				FillHist(Systs.at(1), "MET_phi_W_enriched_" + param.Name, METv.Phi(), weight, 32, -4, 4);
+				FillHist(Systs.at(1), "passID_W_enriched_" + param.Name, corrPt, elecEta, weight, 3, ptbins, 3, etabins);
 			}
 			if (clean_jets04.at(0).Pt() > jetPtCuts.at(2)) {
-				FillHist(Systs.at(2), "Mt_W_enriched_" + param.Name, Mt, weight, 36, 60., 240);
-				
+			    FillHist(Systs.at(2), "PromptNorm_" + param.Name, 1, weight, 2, 0., 2.);
+				FillHist(Systs.at(2), "Mt_W_enriched_" + param.Name, Mt, weight, 36, 60., 240); 
+				FillHist(Systs.at(2), "electron_pt_W_enriched_" + param.Name, corrPt, weight, 48, 0., 240.);
+				FillHist(Systs.at(2), "electron_eta_W_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(2), "leading_jet_pt_W_enriched_" + param.Name, clean_jets04.at(0).Pt(), weight, 48, 0., 240.);
+				FillHist(Systs.at(2), "leading_jet_eta_W_enriched_" + param.Name, clean_jets04.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(2), "MET_W_enriched_" + param.Name, METv.Pt(), weight, 48, 0., 240.);
+				FillHist(Systs.at(2), "MET_phi_W_enriched_" + param.Name, METv.Phi(), weight, 32, -4, 4);
+				FillHist(Systs.at(2), "passID_W_enriched_" + param.Name, corrPt, elecEta, weight, 3, ptbins, 3, etabins);
 				//==== B-tagging source
 				for (unsigned int i = 0; i < clean_jets04.size(); i++) {
 					double this_discr = clean_jets04.at(i).GetTaggerResult(JetTagging::DeepCSV);
@@ -272,18 +322,50 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 				}
 
 				if (IsDATA && NBjets_NoSF != 0) {
-					FillHist(Systs.at(0), "Mt_W_enriched_" + param.Name, Mt, weight, 36, 60., 240);
+					FillHist(Systs.at(0), "PromptNorm_" + param.Name, 1, weight, 2, 0., 2.);
+					FillHist(Systs.at(0), "Mt_W_enriched_" + param.Name, Mt, weight, 36, 60., 240); 
+					FillHist(Systs.at(0), "electron_pt_W_enriched_" + param.Name, corrPt, weight, 48, 0., 240.);
+					FillHist(Systs.at(0), "electron_eta_W_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+					FillHist(Systs.at(0), "leading_jet_pt_W_enriched_" + param.Name, clean_jets04.at(0).Pt(), weight, 48, 0., 240.);
+					FillHist(Systs.at(0), "leading_jet_eta_W_enriched_" + param.Name, clean_jets04.at(0).Eta(), weight, 20, -2.5, 2.5);
+					FillHist(Systs.at(0), "MET_W_enriched_" + param.Name, METv.Pt(), weight, 48, 0., 240.);
+					FillHist(Systs.at(0), "MET_phi_W_enriched_" + param.Name, METv.Phi(), weight, 32, -4, 4);
+					FillHist(Systs.at(0), "passID_W_enriched_" + param.Name, corrPt, elecEta, weight, 3, ptbins, 3, etabins);
 				}
 				if (!IsDATA && NBjets_WithSF_2a != 0) {
-					FillHist(Systs.at(0), "Mt_W_enriched_" + param.Name, Mt, weight, 36, 60., 240);
+					FillHist(Systs.at(0), "PromptNorm_" + param.Name, 1, weight, 2, 0., 2.);
+					FillHist(Systs.at(0), "Mt_W_enriched_" + param.Name, Mt, weight, 36, 60., 240); 
+					FillHist(Systs.at(0), "electron_pt_W_enriched_" + param.Name, corrPt, weight, 48, 0., 240.);
+					FillHist(Systs.at(0), "electron_eta_W_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+					FillHist(Systs.at(0), "leading_jet_pt_W_enriched_" + param.Name, clean_jets04.at(0).Pt(), weight, 48, 0., 240.);
+					FillHist(Systs.at(0), "leading_jet_eta_W_enriched_" + param.Name, clean_jets04.at(0).Eta(), weight, 20, -2.5, 2.5);
+					FillHist(Systs.at(0), "MET_W_enriched_" + param.Name, METv.Pt(), weight, 48, 0., 240.);
+					FillHist(Systs.at(0), "MET_phi_W_enriched_" + param.Name, METv.Phi(), weight, 32, -4, 4);
+					FillHist(Systs.at(0), "passID_W_enriched_" + param.Name, corrPt, elecEta, weight, 3, ptbins, 3, etabins);
 				}
 
 			}
 			if (clean_jets04.at(0).Pt() > jetPtCuts.at(3)) {
-				FillHist(Systs.at(3), "Mt_W_enriched_" + param.Name, Mt, weight, 36, 60., 240);
+				FillHist(Systs.at(3), "PromptNorm_" + param.Name, 1, weight, 2, 0., 2.);
+				FillHist(Systs.at(3), "Mt_W_enriched_" + param.Name, Mt, weight, 36, 60., 240); 
+				FillHist(Systs.at(3), "electron_pt_W_enriched_" + param.Name, corrPt, weight, 48, 0., 240.);
+				FillHist(Systs.at(3), "electron_eta_W_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(3), "leading_jet_pt_W_enriched_" + param.Name, clean_jets04.at(0).Pt(), weight, 48, 0., 240.);
+				FillHist(Systs.at(3), "leading_jet_eta_W_enriched_" + param.Name, clean_jets04.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(3), "MET_W_enriched_" + param.Name, METv.Pt(), weight, 48, 0., 240.);
+				FillHist(Systs.at(3), "MET_phi_W_enriched_" + param.Name, METv.Phi(), weight, 32, -4, 4);
+				FillHist(Systs.at(3), "passID_W_enriched_" + param.Name, corrPt, elecEta, weight, 3, ptbins, 3, etabins);
 			}
 			if (clean_jets04.at(0).Pt() > jetPtCuts.at(4)) {
-				FillHist(Systs.at(4), "Mt_W_enriched_" + param.Name, Mt, weight, 36, 60., 240);
+				FillHist(Systs.at(4), "PromptNorm_" + param.Name, 1, weight, 2, 0., 2.);
+				FillHist(Systs.at(4), "Mt_W_enriched_" + param.Name, Mt, weight, 36, 60., 240); 
+				FillHist(Systs.at(4), "electron_pt_W_enriched_" + param.Name, corrPt, weight, 48, 0., 240.);
+				FillHist(Systs.at(4), "electron_eta_W_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(4), "leading_jet_pt_W_enriched_" + param.Name, clean_jets04.at(0).Pt(), weight, 48, 0., 240.);
+				FillHist(Systs.at(4), "leading_jet_eta_W_enriched_" + param.Name, clean_jets04.at(0).Eta(), weight, 20, -2.5, 2.5);
+				FillHist(Systs.at(4), "MET_W_enriched_" + param.Name, METv.Pt(), weight, 48, 0., 240.);
+				FillHist(Systs.at(4), "MET_phi_W_enriched_" + param.Name, METv.Phi(), weight, 32, -4, 4);
+				FillHist(Systs.at(4), "passID_W_enriched_" + param.Name, corrPt, elecEta, weight, 3, ptbins, 3, etabins);
 			}
 
 			return;
@@ -304,20 +386,45 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 			weight *= weight_norm_1invpb*ev.GetTriggerLumi(HLTElecTriggerName);
 			weight *= ev.MCweight();
 			weight *= weight_Prefire;
-			weight *= GetNPVReweight(ElectronID, "JetPtCut40");
+			if (param.syst_ == AnalyzerParameter::PileUp) weight *= GetPileUpWeight(nPileUp, 0);
+			else weight *= GetNPVReweight(ElectronID, "JetPtCut40");
 		}
 
 		if (clean_jets04.at(0).Pt() > jetPtCuts.at(1)) {
 			FillHist(Systs.at(1), "M(ee)_Z_enriched_" + param.Name, ZCand.M(), weight, 20, 70., 110.);
+			FillHist(Systs.at(1), "leading_electron_pt_Z_enriched_" + param.Name, electrons.at(0).Pt(), weight, 48, 0., 240.);
+			FillHist(Systs.at(1), "leading_electron_eta_Z_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+			FillHist(Systs.at(1), "subleading_electron_pt_Z_enriched_" + param.Name, electrons.at(1).Pt(), weight, 48, 0., 240.);
+			FillHist(Systs.at(1), "subleading_electron_eta_Z_enriched_" + param.Name, electrons.at(1).Eta(), weight, 20, -2.5, 2.5);
+			FillHist(Systs.at(1), "leading_jet_pt_Z_enriched_" + param.Name, clean_jets04.at(0).Pt(), weight, 48, 0., 240.);
+			FillHist(Systs.at(1), "leading_jet_eta_Z_enriched_" + param.Name, clean_jets04.at(0).Eta(), weight, 20, -2.5, 2.5);
 		}
 		if (clean_jets04.at(0).Pt() > jetPtCuts.at(2)) {
 			FillHist(Systs.at(2), "M(ee)_Z_enriched_" + param.Name, ZCand.M(), weight, 20, 70., 110.);
+			FillHist(Systs.at(2), "leading_electron_pt_Z_enriched_" + param.Name, electrons.at(0).Pt(), weight, 48, 0., 240.);
+			FillHist(Systs.at(2), "leading_electron_eta_Z_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+			FillHist(Systs.at(2), "subleading_electron_pt_Z_enriched_" + param.Name, electrons.at(1).Pt(), weight, 48, 0., 240.);
+			FillHist(Systs.at(2), "subleading_electron_eta_Z_enriched_" + param.Name, electrons.at(1).Eta(), weight, 20, -2.5, 2.5);
+			FillHist(Systs.at(2), "leading_jet_pt_Z_enriched_" + param.Name, clean_jets04.at(0).Pt(), weight, 48, 0., 240.);
+			FillHist(Systs.at(2), "leading_jet_eta_Z_enriched_" + param.Name, clean_jets04.at(0).Eta(), weight, 20, -2.5, 2.5);
 		}
 		if (clean_jets04.at(0).Pt() > jetPtCuts.at(3)) {
 			FillHist(Systs.at(3), "M(ee)_Z_enriched_" + param.Name, ZCand.M(), weight, 20, 70., 110.);
+			FillHist(Systs.at(3), "leading_electron_pt_Z_enriched_" + param.Name, electrons.at(0).Pt(), weight, 48, 0., 240.);
+			FillHist(Systs.at(3), "leading_electron_eta_Z_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+			FillHist(Systs.at(3), "subleading_electron_pt_Z_enriched_" + param.Name, electrons.at(1).Pt(), weight, 48, 0., 240.);
+			FillHist(Systs.at(3), "subleading_electron_eta_Z_enriched_" + param.Name, electrons.at(1).Eta(), weight, 20, -2.5, 2.5);
+			FillHist(Systs.at(3), "leading_jet_pt_Z_enriched_" + param.Name, clean_jets04.at(0).Pt(), weight, 48, 0., 240.);
+			FillHist(Systs.at(3), "leading_jet_eta_Z_enriched_" + param.Name, clean_jets04.at(0).Eta(), weight, 20, -2.5, 2.5);
 		}
 		if (clean_jets04.at(0).Pt() > jetPtCuts.at(4)) {
 			FillHist(Systs.at(4), "M(ee)_Z_enriched_" + param.Name, ZCand.M(), weight, 20, 70., 110.);
+			FillHist(Systs.at(4), "leading_electron_pt_Z_enriched_" + param.Name, electrons.at(0).Pt(), weight, 48, 0., 240.);
+			FillHist(Systs.at(4), "leading_electron_eta_Z_enriched_" + param.Name, electrons.at(0).Eta(), weight, 20, -2.5, 2.5);
+			FillHist(Systs.at(4), "subleading_electron_pt_Z_enriched_" + param.Name, electrons.at(1).Pt(), weight, 48, 0., 240.);
+			FillHist(Systs.at(4), "subleading_electron_eta_Z_enriched_" + param.Name, electrons.at(1).Eta(), weight, 20, -2.5, 2.5);
+			FillHist(Systs.at(4), "leading_jet_pt_Z_enriched_" + param.Name, clean_jets04.at(0).Pt(), weight, 48, 0., 240.);
+			FillHist(Systs.at(4), "leading_jet_eta_Z_enriched_" + param.Name, clean_jets04.at(0).Eta(), weight, 20, -2.5, 2.5);
 		}
 
 		return;
@@ -432,12 +539,17 @@ void FakeEstimator::WriteHist() {
 		for (unsigned int j = 0; j < Systs.size(); j++) {
 			dirID->mkdir(Systs.at(j));
 			auto* dirSyst = (TDirectory*)dirID->GetDirectory(Systs.at(j));
-			mapDirectory[ElectronIDs.at(i)][Systs.at(j)] = dirSyst;
+			for (unsigned int k = 0; k < PromptNorms.size(); k++) {
+				dirSyst->mkdir(PromptNorms.at(k));
+				auto* dirPrompt = (TDirectory*)dirSyst->GetDirectory(PromptNorms.at(k));
+
+				mapDirectory[ElectronIDs.at(i)][Systs.at(j)][PromptNorms.at(k)] = dirPrompt;
+			}
 		}
 	}
 
 	for (auto it = maphist_TH1D.begin(); it != maphist_TH1D.end(); it++) {
-		TString id; TString syst;
+		TString id; TString syst; TString prompt;
 		for (unsigned int i = 0; i < ElectronIDs.size(); i++) {
 			if (it->first.Contains(ElectronIDs.at(i))) id = ElectronIDs.at(i);
 		}
@@ -445,16 +557,19 @@ void FakeEstimator::WriteHist() {
 			if (it->first.Contains(Systs.at(i))) syst = Systs.at(i);
 		}
 
-		mapDirectory[id][syst]->cd();
+		auto mhist = it->second;
+		for (auto itit = mhist.begin(); itit != mhist.end(); itit++) {
+			for (unsigned int i = 0; i < PromptNorms.size(); i++) {
+				if (itit->first.Contains(PromptNorms.at(i))) prompt = PromptNorms.at(i);
+			}
 
-		auto maphist = it->second;
-		for (auto itit = maphist.begin(); itit != maphist.end(); itit++) {
+			mapDirectory[id][syst][prompt]->cd();
 			itit->second->Write();
 		}
 	}
 
 	for (auto it = maphist_TH2D.begin(); it != maphist_TH2D.end(); it++) {
-		TString id; TString syst;
+		TString id; TString syst; TString prompt;
 		for (unsigned int i = 0; i < ElectronIDs.size(); i++) {
 			if (it->first.Contains(ElectronIDs.at(i))) id = ElectronIDs.at(i);
 		}
@@ -462,10 +577,13 @@ void FakeEstimator::WriteHist() {
 			if (it->first.Contains(Systs.at(i))) syst = Systs.at(i);
 		}
 
-		mapDirectory[id][syst]->cd();
+		auto mhist = it->second;
+		for (auto itit = mhist.begin(); itit != mhist.end(); itit++) {
+			for (unsigned int i = 0; i < PromptNorms.size(); i++) {
+				if (itit->first.Contains(PromptNorms.at(i))) prompt = PromptNorms.at(i);
+			}
 
-		auto maphist = it->second;
-		for (auto itit = maphist.begin(); itit != maphist.end(); itit++) {
+			mapDirectory[id][syst][prompt]->cd();
 			itit->second->Write();
 		}
 	}

@@ -16,7 +16,7 @@ public:
 
   //==== initializeAnalyzer
   bool RunSysts, RunXsecSyst;
-  vector<TString> Systs; 
+  vector<TString> Systs, PromptNorms; 
   vector<TString> ElectronIDs;
   TFile* f_nPV;
 
@@ -41,7 +41,7 @@ public:
   //==== private functions
   map< TString, map< TString, TH1D*> > maphist_TH1D;
   map< TString, map< TString, TH2D*> > maphist_TH2D;
-  map< TString, map< TString, TDirectory*> > mapDirectory;
+  map< TString, map< TString, map< TString, TDirectory*> > > mapDirectory;
   double GetNPVReweight(TString id, TString syst);
   double GetCorrPt(Electron e);
   TH1D* GetHist1D(TString suffix, TString histname);
