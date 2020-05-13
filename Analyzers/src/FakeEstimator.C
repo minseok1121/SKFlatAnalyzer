@@ -20,7 +20,8 @@ void FakeEstimator::initializeAnalyzer(){
 	cout << "[FakeEstimator::initializeAnalyzer] RunSysts = " << RunSysts << endl;
 	cout << "[FakeEstimator::initializeAnalyzer] RunXsecSyst = " << RunXsecSyst << endl;
 
-
+	//==== Systematic sources
+	Systs = {"BtagDep", "JetPtCut30", "JetPtCut40", "JetPtCut50", "JetPtCut60"};
 	//==== ID setting for electrons
 	ElectronIDs = {"passLooseID", "passTightID", "FakeLooseID", "FakeTightID"};
 	
@@ -51,6 +52,8 @@ void FakeEstimator::initializeAnalyzer(){
 	mcCorr->SetJetTaggingParameters(jtps);
 	
 	cout << "[FakeEstiamtor::initializeAnalyer] Finish initialization" << endl;
+
+	f_nPV = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2016/nPV/nPV_reweight.root");
 }
 
 void FakeEstimator::executeEvent(){
@@ -200,17 +203,13 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 		if (clean_jets04.size() == 0) return;
 		if (clean_jets04.at(0).Pt() < jetPtCut) return;
 
-		//==== Measure nPV reweight
-		if (nPV > 100) nPV = 100;
-		
 		if (!IsDATA) {
 			weight *= weight_norm_1invpb*ev.GetTriggerLumi(HLTElecTriggerName);
 			weight *= ev.MCweight();
 			weight *= weight_Prefire;
-			// nPV reweight
-		}
-		
-		JSFillHist(param.Name, "nPV_" + param.Name, nPV, weight, 100, 0, 100);
+			cout << GetNPVReweight(ElectronID, Systs.at(2)) << endl;
+			weight *= GetNPVReweight(ElectronID, Systs.at(2));
+		}	
 	}
 		
 }
@@ -223,4 +222,13 @@ FakeEstimator::~FakeEstimator(){
 
 }
 
+// Private Functions
+double FakeEstimator::GetNPVReweight(TString id, TString syst) {
+	TDirectory* temp_dir = (TDirectory*)f_nPV->GetDirectory(id + "_Central");
+	TH1D* h = (TH1D*)temp_dir->Get("nPV_reweight_" + id + "_" + syst);
 
+	if (nPV > 100) nPV = 100;
+	int this_bin = nPV;
+
+	return h->GetBinContent(this_bin);
+}

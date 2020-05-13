@@ -359,7 +359,7 @@ bool Electron::Pass_CutBasedVeto() const{
 
 bool Electron::Pass_FakeMVAWP(TString wp) const {
   
-  cout << "[Electron::Pass_FakeMAVWP] need reoptimization for Fall17v2 dataset" << endl;
+  //cout << "[Electron::Pass_FakeMAVWP] need reoptimization for Fall17v2 dataset" << endl;
 
   double sceta = fabs(scEta());
   double cutA = -999., cutB = -999., cutC = -999.;

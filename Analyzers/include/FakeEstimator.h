@@ -16,8 +16,9 @@ public:
 
   //==== initializeAnalyzer
   bool RunSysts, RunXsecSyst;
-  
+  vector<TString> Systs; 
   vector<TString> ElectronIDs;
+  TFile* f_nPV;
 
   TString HLTElecTriggerName;
   double TriggerSafePtCut;
@@ -36,6 +37,8 @@ public:
   vector<Electron> electrons, electrons_loose;
   vector<Muon> muons;
   vector<Jet> jets, clean_jets04, clean_jets10;
+
+  double GetNPVReweight(TString id, TString syst);
 };
 
 

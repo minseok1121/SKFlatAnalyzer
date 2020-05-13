@@ -106,7 +106,7 @@ void MakeNPV::executeEventFromParameter(AnalyzerParameter param){
 	int NBjets_NoSF = 0;
 	int NBjets_WithSF_2a = 0;
 	JetTagging::Parameters jtp_DeepCSV_Medium = JetTagging::Parameters(JetTagging::DeepCSV, JetTagging::Medium, JetTagging::incl, JetTagging::comb);
-	double btagWeight = mcCorr->GetBTaggingReweight_1a(jets, jtp_DeepCSV_Medium);
+	//double btagWeight = mcCorr->GetBTaggingReweight_1a(jets, jtp_DeepCSV_Medium);
 
 	//==== leading electron should pass trigger-safe pt cut
 	if (electrons.size() == 0) return;
@@ -146,7 +146,17 @@ void MakeNPV::executeEventFromParameter(AnalyzerParameter param){
 		}
 		if (clean_jets04.at(0).Pt() > 40) {
 			JSFillHist(param.Name, "nPV_" + param.Name + "_JetPtCut40", nPV, weight, 100, 0, 100);
-			if (NBjets_WithSF_2a > 1) {
+
+			for (unsigned int i = 0; i < clean_jets04.size(); i++) {
+				double this_discr = clean_jets04.at(i).GetTaggerResult(JetTagging::DeepCSV);
+				if ( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium) ) NBjets_NoSF++;
+				if (mcCorr->IsBTagged_2a(jtp_DeepCSV_Medium, clean_jets04.at(i) )) NBjets_WithSF_2a++;
+			}
+			int NBjets = 0;
+
+			if (IsData) NBjets = NBjets_NoSF;
+			else NBjets = NBjets_WithSF_2a;
+			if (NBjets != 0) {
 				JSFillHist(param.Name, "nPV_" + param.Name + "_BtagDep", nPV, weight, 100, 0, 100);
 			}
 		}
