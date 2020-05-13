@@ -38,7 +38,18 @@ public:
   vector<Muon> muons;
   vector<Jet> jets, clean_jets04, clean_jets10;
 
+  //==== private functions
+  map< TString, map< TString, TH1D*> > maphist_TH1D;
+  map< TString, map< TString, TH2D*> > maphist_TH2D;
+  map< TString, map< TString, TDirectory*> > mapDirectory;
   double GetNPVReweight(TString id, TString syst);
+  TH1D* GetHist1D(TString suffix, TString histname);
+  TH2D* GetHist2D(TString suffix, TString histname);
+  void FillHist(TString id, TString syst, TString histname, double value, double weight, int n_bin, double x_min, double x_max);
+  void FillHist(TString id, TString syst, TString histname, double value_x, double value_y, double weight,
+												double n_binx, double* xbins, 
+												double n_biny, double* ybins);
+  void WriteHist();
 };
 
 

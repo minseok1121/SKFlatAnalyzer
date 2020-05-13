@@ -232,3 +232,104 @@ double FakeEstimator::GetNPVReweight(TString id, TString syst) {
 
 	return h->GetBinContent(this_bin);
 }
+
+TH1D* FakeEstimator::GetHist1D(TString suffix, TString histname) {
+	TH1D* h = NULL;
+
+	map<TString, map<TString, TH1D*> >::iterator mapit = maphist_TH1D.find(suffix);
+	if(mapit == maphist_TH1D.end()) return h;
+	else {
+		map<TString, TH1D*> this_maphist = mapit->second;
+		map<TString, TH1D*>::iterator mapitit = this_maphist.find(histname);
+		if (mapitit != this_maphist.end()) return mapitit->second;
+	}
+
+	return h;
+}
+
+TH2D* FakeEstimator::GetHist2D(TString suffix, TString histname) {
+	TH2D* h = NULL;
+
+	map<TString, map<TString, TH2D*> >::iterator mapit = maphist_TH2D.find(suffix);
+	if (mapit == maphist_TH2D.end()) return h;
+	else {
+		map<TString, TH2D*> this_maphist = mapit->second;
+		map<TString, TH2D*>::iterator mapitit = this_maphist.find(histname);
+		if (mapitit != this_maphist.end()) return mapitit->second;
+	}
+
+	return h;
+}
+
+void FakeEstimator::FillHist(TString id, TString syst, TString histname, double value, double weight, int n_bin, double x_min, double x_max) {
+	TString suffix = id + syst;
+	TH1D* this_hist = GetHist1D(suffix, histname);
+	if (!this_hist) {
+		this_hist = new TH1D(histname + "_" + suffix, "", n_bin, x_min, x_max);
+		maphist_TH1D[suffix][histname] = this_hist;
+	}
+
+	this_hist->Fill(value, weight);
+}
+
+void FakeEstimator::FillHist(TString id, TString syst, TString histname, double value_x, double value_y, double weight,
+			                                                double n_binx, double* xbins,
+															double n_biny, double* ybins) {
+	TString suffix = id + syst;
+	TH2D* this_hist = GetHist2D(suffix, histname);
+	if (!this_hist) {
+		this_hist = new TH2D(histname + "_" + suffix, "", n_binx, xbins, n_biny, ybins);
+		maphist_TH2D[suffix][histname] = this_hist;
+	}
+	this_hist->Fill(value_x, value_y, weight);
+}
+
+void FakeEstimator::WriteHist() {
+	outfile->cd();
+
+	for (unsigned int i = 0; i < ElectronIDs.size(); i++) {
+		outfile->cd();
+		outfile->mkdir(ElectronIDs.at(i));
+		auto* dirID = (TDirectory*)outfile->GetDirectory(ElectronIDs.at(i));
+		for (unsigned int j = 0; j < Systs.size(); j++) {
+			dirID->mkdir(Systs.at(j));
+			auto* dirSyst = (TDirectory*)dirID->GetDirectory(Systs.at(j));
+			mapDirectory[ElectronIDs.at(i)][Systs.at(j)] = dirSyst;
+		}
+	}
+
+	for (auto it = maphist_TH1D.begin(); it != maphist_TH1D.end(); it++) {
+		TString id; TString syst;
+		for (unsigned int i = 0; i < ElectronIDs.size(); i++) {
+			if (it->first.Contains(ElectronIDs.at(i))) id = ElectronIDs.at(i);
+		}
+		for (unsigned int i = 0; i < Systs.size(); i++) {
+			if (it->first.Contains(Systs.at(i))) syst = Systs.at(i);
+		}
+
+		mapDirectory[id][syst]->cd();
+
+		auto maphist = it->second;
+		for (auto itit = maphist.begin(); itit != maphist.end(); itit++) {
+			itit->second->Write();
+		}
+	}
+
+	for (auto it = maphist_TH2D.begin(); it != maphist_TH2D.end(); it++) {
+		TString id; TString syst;
+		for (unsigned int i = 0; i < ElectronIDs.size(); i++) {
+			if (it->first.Contains(ElectronIDs.at(i))) id = ElectronIDs.at(i);
+		}
+		for (unsigned int i = 0; i < Systs.size(); i++) {
+			if (it->first.Contains(Systs.at(i))) syst = Systs.at(i);
+		}
+
+		mapDirectory[id][syst]->cd();
+
+		auto maphist = it->second;
+		for (auto itit = maphist.begin(); itit != maphist.end(); itit++) {
+			itit->second->Write();
+		}
+	}
+}
+

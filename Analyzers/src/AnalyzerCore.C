@@ -1992,6 +1992,7 @@ void AnalyzerCore::JSFillHist(TString suffix, TString histname,
 void AnalyzerCore::WriteHist(){
 
   outfile->cd();
+
   for(std::map< TString, TH1D* >::iterator mapit = maphist_TH1D.begin(); mapit!=maphist_TH1D.end(); mapit++){
     TString this_fullname=mapit->second->GetName();
     TString this_name=this_fullname(this_fullname.Last('/')+1,this_fullname.Length());
