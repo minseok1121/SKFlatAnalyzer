@@ -16,6 +16,7 @@
 #pragma link C++ class MeasureJetTaggingEfficiency+;
 #pragma link C++ class TTAnalyzer+;
 #pragma link C++ class FakeEstimator+;
+#pragma link C++ class FakeEstimator_bak+;
 #pragma link C++ class MakeNPV+;
 
 #endif

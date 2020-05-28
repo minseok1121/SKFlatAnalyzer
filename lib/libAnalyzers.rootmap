@@ -3,6 +3,7 @@
 class AnalyzerCore
 class ExampleRun
 class FakeEstimator
+class FakeEstimator_bak
 class GetEffLumi
 class MakeNPV
 class MeasureJetTaggingEfficiency
@@ -15,6 +16,7 @@ class TTAnalyzer
 header AnalyzerCore.h
 header ExampleRun.h
 header FakeEstimator.h
+header FakeEstimator_bak.h
 header GetEffLumi.h
 header MakeNPV.h
 header MeasureJetTaggingEfficiency.h
