@@ -31,12 +31,14 @@ void FakeEstimator::initializeAnalyzer(){
 
 	//==== TriggerSetting
 	if (DataYear == 2016) {
-		HLTElecTriggerName = "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v";
-		TriggerSafePtCut = 25.;
+		HLTElecTriggerName1 = "HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_v";
+		HLTElecTriggerName2 = "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v";
+		TriggerSafePtCut1 = 15.;
+		TriggerSafePtCut2 = 25.;
 	}
 	else if (DataYear == 2017) {
-		HLTElecTriggerName = "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v";
-		TriggerSafePtCut = 25.;
+		HLTElecTriggerName = "HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_v";
+		TriggerSafePtCut = 15.;
 	}
 	else if (DataYear == 2018) {
 		cout << "[FakeEstimator::initializeAnalyzer] Trigger is not set for 2018" << endl;
@@ -47,7 +49,8 @@ void FakeEstimator::initializeAnalyzer(){
 		exit(EXIT_FAILURE);
 	}
 
-    cout << "[FakeEstimator::initializeAnalyzer] HLTElecTriggerName = " << HLTElecTriggerName << endl;
+    cout << "[FakeEstimator::initializeAnalyzer] HLTElecTriggerName1 = " << HLTElecTriggerName1 << endl;
+	cout << "[FakeEstimator::initializeAnalyzer] HLTElecTriggerName2 = " << HLTElecTriggerName2 << endl;
     cout << "[FakeEstimator::initializeAnalyzer] TriggerSafePtCut = " << TriggerSafePtCut << endl;
 
 	//==== B-tagging
@@ -136,7 +139,7 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 	Particle METv = ev.GetMETVector();
 
 	//==== Trigger ====
-	if (! (ev.PassTrigger(HLTElecTriggerName) )) return;
+	if (! (ev.PassTrigger(HLTElecTriggerName1)) && !(ev.PassTrigger(HLTElecTriggerName2 ))) return;
 
 	//==== Copy all objects ====
 	vector<Muon> this_AllMuons = AllMuons;
@@ -172,11 +175,11 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 
 	//==== ID Selection ====
 	muons = SelectMuons(this_AllMuons, MuonID, 10., 2.4);
-	electrons = SelectElectrons(this_AllElectrons, ElectronID, 25, 2.5);
+	electrons = SelectElectrons(this_AllElectrons, ElectronID, 15, 2.5);
 	jets = SelectJets(this_AllJets, param.Jet_ID, 20., 2.4);
 
-	if (ElectronID.Contains("pass")) electrons_loose = SelectElectrons(this_AllElectrons, "passLooseID", 25, 2.5);
-	else if (ElectronID.Contains("Fake")) electrons_loose = SelectElectrons(this_AllElectrons, "FakeLooseID", 25, 2.5);
+	if (ElectronID.Contains("pass")) electrons_loose = SelectElectrons(this_AllElectrons, "passLooseID", 15, 2.5);
+	else if (ElectronID.Contains("Fake")) electrons_loose = SelectElectrons(this_AllElectrons, "FakeLooseID", 15, 2.5);
 
 	std::sort(muons.begin(), muons.end(), PtComparing);
 	std::sort(electrons.begin(), electrons.end(), PtComparing);
@@ -190,7 +193,7 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 	
 	//==== leading electron should pass trigger-safe pt cut
 	if (electrons.size() == 0) return;
-	if (electrons.at(0).Pt() <= TriggerSafePtCut) return;
+	if (electrons.at(0).Pt() <= TriggerSafePtCut1) return;
 
 	/////////////////////////////////////////////////////////////////////
     //==== Event Selection
@@ -225,14 +228,22 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 
 		double corrPt = GetCorrPt(electrons.at(0));
 		double elecEta = fabs(electrons.at(0).Eta());
-		double ptbins4[4] =  {25., 35., 50., 70.};
-		double ptbins10[10] = {25., 30., 35., 40., 45., 50., 55., 60., 65., 70.};
+		double ptbins[5] =  {15., 20., 30., 50., 70.};
 		double etabins[4] = {0., 0.8, 1.479, 2.5};
+
+		if (15. < corrPt && corrPt < 30.) {
+			if (!ev.PassTrigger(HLTElecTriggerName1)) return;
+			if (!IsDATA) weight *= weight_norm_1invpb * ev.GetTriggerLumi(HLTElecTriggerName1);
+		}
+		else if (corrPt > 30.) {
+			if (!ev.PassTrigger(HLTElecTriggerName2)) return;
+			if (!IsDATA) weight *= weight_norm_1invpb * ev.GetTriggerLumi(HLTElecTriggerName2);
+		}
+		else return;
 
 		//==== W boson dominated window ====
 		if ( Mt > 70. && METv.Pt() > 50. ) {
 			if (!IsDATA) {
-				weight *= weight_norm_1invpb*ev.GetTriggerLumi(HLTElecTriggerName);
 				weight *= ev.MCweight();
 				weight *= weight_Prefire;
 				if (param.syst_ == AnalyzerParameter::PileUp) weight *= GetPileUpWeight(nPileUp, 0);
@@ -260,8 +271,7 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 				FillHist("LeadingJetEta_" + param.Name, clean_jets04.at(0).Eta(), weight, 24, -2.4, 2.4);
 				FillHist("MET_" + param.Name, METv.Pt(), weight, 48, 0., 240.);
 				FillHist("MetPhi_" + param.Name, METv.Phi(), weight, 32, -4, 4);
-				FillHist("passID3bins_" + param.Name, corrPt, elecEta, weight, 3, ptbins4, 3, etabins);
-				FillHist("passID9bins_" + param.Name, corrPt, elecEta, weight, 9, ptbins10, 3, etabins);
+				FillHist("passID_" + param.Name, corrPt, elecEta, weight, 4, ptbins, 3, etabins);
 			}
 
 			else {
@@ -274,8 +284,7 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
                 FillHist("LeadingJetEta_" + param.Name, clean_jets04.at(0).Eta(), weight, 24, -2.4, 2.4);
                 FillHist("MET_" + param.Name, METv.Pt(), weight, 48, 0., 240.);
                 FillHist("MetPhi_" + param.Name, METv.Phi(), weight, 32, -4, 4);
-                FillHist("passID3bins_" + param.Name, corrPt, elecEta, weight, 3, ptbins4, 3, etabins);
-                FillHist("passID9bins_" + param.Name, corrPt, elecEta, weight, 9, ptbins10, 3, etabins);
+                FillHist("passID_" + param.Name, corrPt, elecEta, weight, 4, ptbins, 3, etabins);
 			}
 			return;
 		}
@@ -288,7 +297,6 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 			if (clean_jets10.at(0).Pt() < JetPtCut) return;
 
             if (!IsDATA) {
-                weight *= weight_norm_1invpb*ev.GetTriggerLumi(HLTElecTriggerName);
                 weight *= ev.MCweight();
                 weight *= weight_Prefire;
                 if (param.syst_ == AnalyzerParameter::PileUp) weight *= GetPileUpWeight(nPileUp, 0);
@@ -311,16 +319,14 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 				FillHist("ElectronEta_" + param.Name, electrons.at(0).Eta(), weight, 25, -2.5, 2.5);
 				FillHist("LeadingJetPt_" + param.Name, clean_jets10.at(0).Pt(), weight, 48, 0., 240.);
 				FillHist("LeadingJetEta_" + param.Name, clean_jets10.at(0).Eta(), weight, 24, -2.4, 2.4);
-				FillHist("passID3bins_" + param.Name, corrPt, elecEta, weight, 3, ptbins4, 3, etabins);
-				FillHist("passID9bins_" + param.Name, corrPt, elecEta, weight, 9, ptbins10, 3, etabins);
+				FillHist("passID_" + param.Name, corrPt, elecEta, weight, 4, ptbins, 3, etabins);
 			}
 			else {
                 FillHist("corrPt_" + param.Name, corrPt, weight, 48, 0., 240.);
                 FillHist("ElectronEta_" + param.Name, electrons.at(0).Eta(), weight, 25, -2.5, 2.5);
                 FillHist("LeadingJetPt_" + param.Name, clean_jets10.at(0).Pt(), weight, 48, 0., 240.);
                 FillHist("LeadingJetEta_" + param.Name, clean_jets10.at(0).Eta(), weight, 24, -2.4, 2.4);
-                FillHist("passID3bins_" + param.Name, corrPt, elecEta, weight, 3, ptbins4, 3, etabins);
-				FillHist("passID9bins_" + param.Name, corrPt, elecEta, weight, 9, ptbins10, 3, etabins);
+                FillHist("passID_" + param.Name, corrPt, elecEta, weight, 4, ptbins, 3, etabins);
 			}
 			return;
 		}
@@ -328,6 +334,17 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 	}
 	//==== Z boson dominated window =====
 	else if (electrons.size() == 2) {
+		double corrPt = GetCorrPt(electrons.at(0));
+		if (15. < corrPt && corrPt < 30.) {
+            if (!ev.PassTrigger(HLTElecTriggerName1)) return;
+			if (!IsDATA) weight *= weight_norm_1invpb*ev.GetTriggerLumi(HLTElecTriggerName1);
+        }
+        else if (corrPt > 30.) {
+            if (!ev.PassTrigger(HLTElecTriggerName2)) return;
+			if (!IsDATA) weight *= weight_norm_1invpb*ev.GetTriggerLumi(HLTElecTriggerName2);
+        }
+        else return;
+
 		Particle ZCand = electrons.at(0) + electrons.at(1);
 		clean_jets04 = JetsVetoLeptonInside(jets, electrons_loose, muons, 0.4);
 		if (clean_jets04.size() == 0) return;
@@ -335,7 +352,6 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 		if (!IsOnZ(ZCand.M(), 15.)) return;
 
         if (!IsDATA) {
-            weight *= weight_norm_1invpb*ev.GetTriggerLumi(HLTElecTriggerName);
 			weight *= ev.MCweight();
             weight *= weight_Prefire;
 			if (param.syst_ == AnalyzerParameter::PileUp) weight *= GetPileUpWeight(nPileUp, 0);

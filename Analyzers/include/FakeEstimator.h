@@ -16,8 +16,8 @@ public:
   bool RunSysts, RunXsecSyst;
   vector<TString> ElectronIDs = IDs;
   TFile* f_nPV;
-  TString HLTElecTriggerName;
-  double TriggerSafePtCut;
+  TString HLTElecTriggerName, HLTElecTriggerName1, HLTElecTriggerName2;
+  double TriggerSafePtCut, TriggerSafePtCut1, TriggerSafePtCut2;
   double JetPtCut;
 
   //==== executeEvent

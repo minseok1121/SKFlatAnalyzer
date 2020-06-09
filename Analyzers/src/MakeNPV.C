@@ -18,8 +18,8 @@ void MakeNPV::initializeAnalyzer(){
 	
 	//==== Trigger Setting
 	if (DataYear == 2016) {
-		HLTElecTriggerName = "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v";
-		TriggerSafePtCut = 25.;
+		HLTElecTriggerName = "HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_v";
+		TriggerSafePtCut = 15.;
 	}
 	else if (DataYear == 2017) {
 		HLTElecTriggerName = "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v";
@@ -34,7 +34,8 @@ void MakeNPV::initializeAnalyzer(){
 		exit(EXIT_FAILURE);
 	}
 
-	cout << "[MakeNPV::initializeAnalyzer] HLTElecTriggerName = " << HLTElecTriggerName << endl;
+	cout << "[MakeNPV::initializeAnalyzer] HLTElecTriggerName1 = " << HLTElecTriggerName1 << endl;
+	cout << "[MakeNPV::initializeAnalyzer] HLTElecTriggerName2 = " << HLTElecTriggerName2 << endl;
 	cout << "[MakeNPV::initializeAnalyzer] TriggerSafePtCut = " << TriggerSafePtCut << endl;
 
 	//==== B-Tagging
@@ -83,7 +84,7 @@ void MakeNPV::executeEventFromParameter(AnalyzerParameter param){
     Particle METv = ev.GetMETVector();
 
     //==== Trigger ====
-    if (! (ev.PassTrigger(HLTElecTriggerName) )) return;
+    if ( !(ev.PassTrigger(HLTElecTriggerName) )) return;
 	
 	//==== Copy all objects ====
 	vector<Muon> this_AllMuons = AllMuons;
@@ -92,11 +93,11 @@ void MakeNPV::executeEventFromParameter(AnalyzerParameter param){
 
 	//==== ID Selection ====
 	muons = SelectMuons(this_AllMuons, MuonID, 10., 2.4);
-	electrons = SelectElectrons(this_AllElectrons, ElectronID, 25, 2.5);
+	electrons = SelectElectrons(this_AllElectrons, ElectronID, 15, 2.5);
 	jets = SelectJets(this_AllJets, param.Jet_ID, 20., 2.4);
 
-	if (ElectronID.Contains("pass")) electrons_loose = SelectElectrons(this_AllElectrons, "passLooseID", 25, 2.5);
-	else if (ElectronID.Contains("Fake")) electrons_loose = SelectElectrons(this_AllElectrons, "FakeLooseID", 25, 2.5);
+	if (ElectronID.Contains("pass")) electrons_loose = SelectElectrons(this_AllElectrons, "passLooseID", 15, 2.5);
+	else if (ElectronID.Contains("Fake")) electrons_loose = SelectElectrons(this_AllElectrons, "FakeLooseID", 15, 2.5);
 	
 	std::sort(muons.begin(), muons.end(), PtComparing);
 	std::sort(electrons.begin(), electrons.end(), PtComparing);
@@ -123,6 +124,7 @@ void MakeNPV::executeEventFromParameter(AnalyzerParameter param){
 	double weight = 1.;
 
 	if (electrons.size() == 1) {
+
 		clean_jets04 = JetsVetoLeptonInside(jets, electrons_loose, muons, 0.4);
 
 		if (clean_jets04.size() == 0) return;
@@ -134,7 +136,6 @@ void MakeNPV::executeEventFromParameter(AnalyzerParameter param){
 			weight *= ev.MCweight();
 			weight *= weight_Prefire;
 		}
-		
 		// Measure nPV reweights
 		if (nPV > 100) nPV = 100;
 
@@ -184,5 +185,4 @@ MakeNPV::MakeNPV(){
 MakeNPV::~MakeNPV(){
 
 }
-
 

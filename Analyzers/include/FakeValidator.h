@@ -6,36 +6,35 @@
 class FakeValidator : public AnalyzerCore {
 
 public:
-	
-	//==== initializeAnalyzer
+	//==== initializeAnalyzer ====
+	bool RunFake;
 	void initializeAnalyzer();
-	vector<TString> ElectronIDs;
-	TFile* f_nPV;
+	vector <TString> ElectronIDs;
+	vector <TString> idsets;
 	TString HLTElecTriggerName;
-	double TriggerSafePtCut;
+	double TriggerSafePtCut1, TriggerSafePtCut2;
 
-	//==== executeEvent
+	//==== executeEvent ====
 	void executeEvent();
 	vector<Muon> AllMuons;
 	vector<Jet> AllJets;
 	vector<Electron> AllElectrons;
 	vector<Gen> AllGens;
 
-	TString MuonID, ElectronID, JetID;
-	double weight_Prefire;
+	TString MuonID, ElectronID, ElectronTightID, JetID;
+	double weight_Prefire, weight_PileUp;
 
-	//==== executeEventFromParameter
-    void executeEventFromParameter(AnalyzerParameter param);
-	vector<Electron> electrons, electrons_loose;
+	//==== executeEventFromParameter ====
+	void executeEventFromParameter(AnalyzerParameter param);
+	vector<Electron> electrons;
 	vector<Muon> muons;
-	vector<Jet> jets, clean_jets04;
+	vector<Jet> jets;
 
-	//==== Member functions
-	double GetNPVReweight(TString id, TString syst);
+	//==== Member functions ====
 	double GetCorrPt(Electron e);
 
-    FakeValidator();
-    ~FakeValidator();
+	FakeValidator();
+	~FakeValidator();
 
 };
 

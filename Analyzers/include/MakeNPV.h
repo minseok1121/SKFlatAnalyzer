@@ -19,8 +19,8 @@ public:
   
   vector<TString> ElectronIDs;
 
-  TString HLTElecTriggerName;
-  double TriggerSafePtCut;
+  TString HLTElecTriggerName, HLTElecTriggerName1, HLTElecTriggerName2;
+  double TriggerSafePtCut, TriggerSafePtCut1, TriggerSafePtCut2;
 
   //==== executeEvent
   vector<Muon> AllMuons;
@@ -36,6 +36,7 @@ public:
   vector<Electron> electrons, electrons_loose;
   vector<Muon> muons;
   vector<Jet> jets, clean_jets04;
+
 };
 
 
