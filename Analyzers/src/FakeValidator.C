@@ -2,8 +2,11 @@
 
 void FakeValidator::initializeAnalyzer(){
 	//==== No systemtaic setup yet =====
-	RunFake = HasFlag("RunFake");
-	cout << "[FakeValidator::initializeAnalyzer] RunFake = " << RunFake << endl;
+	RunFakeSystUp = HasFlag("RunFakeSystUp");
+	RunFakeSystDown = HasFlag("RunFakeSystDown");
+
+	cout << "[FakeValidator::initializeAnalyzer] RunFakeSystUp = " << RunFakeSystUp << endl;
+	cout << "[FakeValidator::initializeAnalyzer] RuNFakeSystDown = " << RunFakeSystDown << endl;
 	
 	//==== Electron ID setting ====
 	ElectronIDs = {"passLooseID", "passTightID", "FakeLooseID", "FakeTightID"};
@@ -64,10 +67,20 @@ void FakeValidator::executeEvent(){
 	
 		param.Clear();
 		param.syst_ = AnalyzerParameter::Central;
-		param.Name = idsets.at(i) + "_Central";
+		param.Name = idsets.at(i) + "ID_Central";
 		param.Jet_ID = JetID;
 
 		executeEventFromParameter(param);
+
+		if (RunFakeSystUp) {
+			param.Name = idsets.at(i) + "ID_SystUp";
+			executeEventFromParameter(param);
+		}
+		if (RunFakeSystDown) {
+			param.Name = idsets.at(i) + "ID_SystDown";
+			executeEventFromParameter(param);
+		}
+			
 	}
 
 }
@@ -102,39 +115,79 @@ void FakeValidator::executeEventFromParameter(AnalyzerParameter param){
 	//==== 3. At least 1 opposite charge electron pair with on-Z
 	if (muons.size() != 0) return;
 	if (electrons.size() != 3) return;
-	if (electrons.at(0).Pt() <= TriggerSafePtCut1) return;
-	if (electrons.at(1).Pt() <= TriggerSafePtCut2) return;
+	if (electrons.at(0).Pt() < TriggerSafePtCut1) return;
+	if (electrons.at(1).Pt() < TriggerSafePtCut2) return;
 	if (electrons.at(2).Pt() < 15) return;
 
 	double charge[3];
 	Particle pair[3];
-	bool isOnZ = false;
+	bool isOnZ[3];
 	for (int i = 0; i < 3; i++) {
 		charge[i] = electrons.at(i%3).Charge() * electrons.at((i+1)%3).Charge();
 		pair[i] = electrons.at(i%3) + electrons.at((i+1)%3);
 
-		if (charge[i] < 0 && IsOnZ(pair[i].M(), 10.)) isOnZ = true;
+		if (charge[i] < 0 && IsOnZ(pair[i].M(), 10.)) isOnZ[i] = true;
 	}
 
-	if (!isOnZ) return;
+	if (!isOnZ[0] && !isOnZ[1] && !isOnZ[2]) return;
 
 	double weight = 1.;
 	if (!IsDATA) {
 		weight *= weight_norm_1invpb*ev.GetTriggerLumi("Full");
 		weight *= ev.MCweight();
 		weight *= weight_Prefire;
+		weight *= weight_PileUp;
 
-		//ID scale factor
 	}
 
-	//==== Fill hist ====
-	JSFillHist(param.Name, "1st_electron_pt_" + param.Name, electrons.at(0).Pt(), weight, 140, 0., 140.);
-	JSFillHist(param.Name, "2nd_electron_pt_" + param.Name, electrons.at(1).Pt(), weight, 140, 0., 140.);
-	JSFillHist(param.Name, "3rd_electron_pt_" + param.Name, electrons.at(2).Pt(), weight, 140, 0., 140.);
-	JSFillHist(param.Name, "1st_electron_eta_" + param.Name, electrons.at(0).Eta(), weight, 50, -2.5, 2.5);
-	JSFillHist(param.Name, "2nd_electron_eta_" + param.Name, electrons.at(1).Eta(), weight, 50, -2.5, 2.5);
-	JSFillHist(param.Name, "3rd_electron_eta_" + param.Name, electrons.at(2).Eta(), weight, 50, -2.5, 2.5);
+	Particle ZCand = electrons.at(0) + electrons.at(1) + electrons.at(2);
 
+	//==== Fill hist ====
+	if (param.Name.Contains("Central")) {
+		JSFillHist(param.Name, "1st_electron_pt_" + param.Name, electrons.at(0).Pt(), weight, 40, 0., 200.);
+		JSFillHist(param.Name, "2nd_electron_pt_" + param.Name, electrons.at(1).Pt(), weight, 32, 0., 160.);
+		JSFillHist(param.Name, "3rd_electron_pt_" + param.Name, electrons.at(2).Pt(), weight, 32, 0., 160.);
+		JSFillHist(param.Name, "1st_electron_eta_" + param.Name, electrons.at(0).Eta(), weight, 25, -2.5, 2.5);
+		JSFillHist(param.Name, "2nd_electron_eta_" + param.Name, electrons.at(1).Eta(), weight, 25, -2.5, 2.5);
+		JSFillHist(param.Name, "3rd_electron_eta_" + param.Name, electrons.at(2).Eta(), weight, 25, -2.5, 2.5);
+		JSFillHist(param.Name, "NJets_" + param.Name, jets.size(), weight, 7, -0.5, 6.5);
+	}
+
+	
+	param.Name += "_FakeContribution";
+	double weight_fake = 1.;
+	int loose_cnt = 0;
+	for (unsigned int i = 0; i < electrons.size(); i++) {
+		if (!electrons.at(i).PassID(ElectronTightID)) {
+			double fr = -999;
+			loose_cnt++; 
+			if (param.Name.Contains("Central")) fr = GetFakeRate(electrons.at(i), ElectronID, 0);
+			else if (param.Name.Contains("Up")) fr = GetFakeRate(electrons.at(i), ElectronID, 1);
+			else if (param.Name.Contains("Down")) fr = GetFakeRate(electrons.at(i), ElectronID, -1);
+			else {
+				cout << "[FakeValidator::executeEventFromParameter] Wrong Syst" << endl;
+				exit(EXIT_FAILURE);
+			}
+			// for debug
+			// fr = 0.1;
+			weight_fake *= (-1 * (fr / (1 - fr)));
+		}
+	}
+	weight_fake *= -1.;
+	weight *= weight_fake;
+
+	JSFillHist(param.Name, "nPassLooseID_" + param.Name, loose_cnt, 1, 4, -0.5, 3.5);
+
+	//==== veto pass TTT by giving weight = 0 ====
+	if (electrons.at(0).PassID(ElectronTightID) && electrons.at(1).PassID(ElectronTightID) && electrons.at(2).PassID(ElectronTightID)) weight = 0;
+
+	JSFillHist(param.Name, "1st_electron_pt_" + param.Name, electrons.at(0).Pt(), weight, 40, 0., 200.);
+    JSFillHist(param.Name, "2nd_electron_pt_" + param.Name, electrons.at(1).Pt(), weight, 32, 0., 160.);
+    JSFillHist(param.Name, "3rd_electron_pt_" + param.Name, electrons.at(2).Pt(), weight, 32, 0., 160.);
+    JSFillHist(param.Name, "1st_electron_eta_" + param.Name, electrons.at(0).Eta(), weight, 25, -2.5, 2.5);
+    JSFillHist(param.Name, "2nd_electron_eta_" + param.Name, electrons.at(1).Eta(), weight, 25, -2.5, 2.5);
+    JSFillHist(param.Name, "3rd_electron_eta_" + param.Name, electrons.at(2).Eta(), weight, 25, -2.5, 2.5);
+	JSFillHist(param.Name, "Njets_" + param.Name, jets.size(), weight, 7, -0.5, 6.5);
 }
 
 FakeValidator::FakeValidator(){
@@ -145,4 +198,49 @@ FakeValidator::~FakeValidator(){
 
 }
 
+//==== public functions ====
+double FakeValidator::GetFakeRate(Electron &e, TString id, int sys) {
+	
+	double corrPt = GetCorrPt(e);
+	double absEta = fabs(e.Eta());
 
+	double value = 1.;
+	double error = 0.;
+
+	//==== corrPt and absEta should in the fiducial phase space ===
+	if (corrPt <= 15.) corrPt = 16.;
+	if (corrPt >= 70.) corrPt = 69.;
+	if (absEta >= 2.5) absEta = 2.4;
+ 
+	TH2D* this_hist = NULL;
+	if (id.Contains("pass")) 	this_hist = (TH2D*)f->Get("Electron_fake_rate_POG");
+	else if (id.Contains("Fake")) this_hist = (TH2D*)f->Get("Electron_fake_rate_FAKE");
+	else {
+		cout << "[FakeValidator::GetFakeRate] No fake rate histogram for " << id << endl;
+		exit(EXIT_FAILURE);
+	} 
+	
+	int this_bin = -999;
+	this_bin = this_hist->FindBin(corrPt, absEta);
+
+	value = this_hist->GetBinContent(this_bin);
+	error = this_hist->GetBinError(this_bin);
+
+	//cout << "[FakeValidator::GetFakeRate] value = " << value << endl;	
+
+	return value + double(sys)*error;
+}
+
+double FakeValidator::GetCorrPt(Electron &e) {
+	double corrPt;
+	double weight;
+	double relIsoTight = 0.06;
+
+	if (e.RelIso() > relIsoTight) {
+		weight = 1. + e.RelIso() - relIsoTight;
+		corrPt = e.Pt() * weight;
+	}
+	else corrPt = e.Pt();
+
+	return corrPt;
+}

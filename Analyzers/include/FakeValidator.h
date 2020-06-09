@@ -7,13 +7,13 @@ class FakeValidator : public AnalyzerCore {
 
 public:
 	//==== initializeAnalyzer ====
-	bool RunFake;
+	bool RunFakeSystUp, RunFakeSystDown;
 	void initializeAnalyzer();
 	vector <TString> ElectronIDs;
 	vector <TString> idsets;
 	TString HLTElecTriggerName;
 	double TriggerSafePtCut1, TriggerSafePtCut2;
-
+	TFile* f = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2016/FakeRate/Electron/Electron_fake_rate.root");
 	//==== executeEvent ====
 	void executeEvent();
 	vector<Muon> AllMuons;
@@ -31,8 +31,9 @@ public:
 	vector<Jet> jets;
 
 	//==== Member functions ====
-	double GetCorrPt(Electron e);
-
+	double GetCorrPt(Electron &e);
+	double GetFakeRate(Electron &e, TString id, int sys);
+	
 	FakeValidator();
 	~FakeValidator();
 

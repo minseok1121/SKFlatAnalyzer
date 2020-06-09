@@ -20,6 +20,8 @@ public:
   double TriggerSafePtCut, TriggerSafePtCut1, TriggerSafePtCut2;
   double JetPtCut;
 
+  TFile* f_fake;
+
   //==== executeEvent
   void executeEvent();
   vector<Muon> AllMuons;
