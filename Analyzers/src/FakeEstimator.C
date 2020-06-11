@@ -228,7 +228,7 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 
 		double corrPt = GetCorrPt(electrons.at(0));
 		double elecEta = fabs(electrons.at(0).Eta());
-		double ptbins[5] =  {15., 20., 30., 50., 70.};
+		double ptbins[7] =  {15., 20., 30., 50., 70., 110., 200};
 		double etabins[4] = {0., 0.8, 1.479, 2.5};
 
 		if (15. < corrPt && corrPt < 30.) {
@@ -271,7 +271,7 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 				FillHist("LeadingJetEta_" + param.Name, clean_jets04.at(0).Eta(), weight, 24, -2.4, 2.4);
 				FillHist("MET_" + param.Name, METv.Pt(), weight, 48, 0., 240.);
 				FillHist("MetPhi_" + param.Name, METv.Phi(), weight, 32, -4, 4);
-				FillHist("passID_" + param.Name, corrPt, elecEta, weight, 4, ptbins, 3, etabins);
+				FillHist("passID_" + param.Name, corrPt, elecEta, weight, 6, ptbins, 3, etabins);
 			}
 
 			else {
@@ -284,7 +284,7 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
                 FillHist("LeadingJetEta_" + param.Name, clean_jets04.at(0).Eta(), weight, 24, -2.4, 2.4);
                 FillHist("MET_" + param.Name, METv.Pt(), weight, 48, 0., 240.);
                 FillHist("MetPhi_" + param.Name, METv.Phi(), weight, 32, -4, 4);
-                FillHist("passID_" + param.Name, corrPt, elecEta, weight, 4, ptbins, 3, etabins);
+                FillHist("passID_" + param.Name, corrPt, elecEta, weight, 6, ptbins, 3, etabins);
 			}
 			return;
 		}
@@ -319,14 +319,14 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 				FillHist("ElectronEta_" + param.Name, electrons.at(0).Eta(), weight, 25, -2.5, 2.5);
 				FillHist("LeadingJetPt_" + param.Name, clean_jets10.at(0).Pt(), weight, 48, 0., 240.);
 				FillHist("LeadingJetEta_" + param.Name, clean_jets10.at(0).Eta(), weight, 24, -2.4, 2.4);
-				FillHist("passID_" + param.Name, corrPt, elecEta, weight, 4, ptbins, 3, etabins);
+				FillHist("passID_" + param.Name, corrPt, elecEta, weight, 6, ptbins, 3, etabins);
 			}
 			else {
                 FillHist("corrPt_" + param.Name, corrPt, weight, 48, 0., 240.);
                 FillHist("ElectronEta_" + param.Name, electrons.at(0).Eta(), weight, 25, -2.5, 2.5);
                 FillHist("LeadingJetPt_" + param.Name, clean_jets10.at(0).Pt(), weight, 48, 0., 240.);
                 FillHist("LeadingJetEta_" + param.Name, clean_jets10.at(0).Eta(), weight, 24, -2.4, 2.4);
-                FillHist("passID_" + param.Name, corrPt, elecEta, weight, 4, ptbins, 3, etabins);
+                FillHist("passID_" + param.Name, corrPt, elecEta, weight, 6, ptbins, 3, etabins);
 			}
 			return;
 		}

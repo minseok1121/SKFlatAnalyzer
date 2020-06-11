@@ -117,12 +117,13 @@ void FakeValidator::executeEventFromParameter(AnalyzerParameter param){
 	if (electrons.size() != 3) return;
 	if (electrons.at(0).Pt() < TriggerSafePtCut1) return;
 	if (electrons.at(1).Pt() < TriggerSafePtCut2) return;
-	if (electrons.at(2).Pt() < 15) return;
+	if (electrons.at(2).Pt() < TriggerSafePtCut2) return;
 
 	double charge[3];
 	Particle pair[3];
 	bool isOnZ[3];
 	for (int i = 0; i < 3; i++) {
+		isOnZ[i] = false;
 		charge[i] = electrons.at(i%3).Charge() * electrons.at((i+1)%3).Charge();
 		pair[i] = electrons.at(i%3) + electrons.at((i+1)%3);
 
@@ -137,19 +138,55 @@ void FakeValidator::executeEventFromParameter(AnalyzerParameter param){
 		weight *= ev.MCweight();
 		weight *= weight_Prefire;
 		weight *= weight_PileUp;
+		
+		//==== ID and trigger SF ====
+		//==== only for POG ID ====
+		if (ElectronID.Contains("pass")) {
+			//==== Trigger SF ====
+			double eff_DATA = 1., eff_MC = 1.;
+			for (unsigned int i = 0; i < electrons.size()-1; i++) {
+				if (electrons.at(i).PassID(ElectronTightID)) {
+					eff_DATA *= (1. - mcCorr->ElectronTrigger_Eff(ElectronTightID, HLTElecTriggerName, 0, electrons.at(i).scEta(), electrons.at(i).Pt(), 0));
+					eff_MC *= (1. - mcCorr->ElectronTrigger_Eff(ElectronTightID, HLTElecTriggerName, 1, electrons.at(i).scEta(), electrons.at(i).Pt(), 0));
+				}
+				else {
+					eff_DATA *= (1. - mcCorr->ElectronTrigger_Eff(ElectronID, HLTElecTriggerName, 0, electrons.at(i).scEta(), electrons.at(i).Pt(), 0));
+                    eff_MC *= (1. - mcCorr->ElectronTrigger_Eff(ElectronID, HLTElecTriggerName, 1, electrons.at(i).scEta(), electrons.at(i).Pt(), 0));
+				}
+			}
+			eff_DATA = 1. - eff_DATA;
+			eff_MC = 1.- eff_MC;
 
+			weight *= eff_DATA/eff_MC;
+			
+			//==== ID SF ====
+			for (unsigned int i = 0; i < electrons.size(); i++) {
+				double this_ElecIDSF;
+				if (electrons.at(i).PassID(ElectronTightID)) {
+					this_ElecIDSF = mcCorr->ElectronID_SF(ElectronTightID, electrons.at(i).scEta(), electrons.at(i).Pt(), 0);
+				}
+				else this_ElecIDSF = mcCorr->ElectronID_SF(ElectronID, electrons.at(i).scEta(), electrons.at(i).Pt(), 0);
+				weight *= this_ElecIDSF;
+			}
+		}
 	}
+
+	bool tightFlag = (electrons.at(0).PassID(ElectronTightID) && electrons.at(1).PassID(ElectronTightID) && electrons.at(2).PassID(ElectronTightID));
 
 	Particle ZCand = electrons.at(0) + electrons.at(1) + electrons.at(2);
 
 	//==== Fill hist ====
-	if (param.Name.Contains("Central")) {
-		JSFillHist(param.Name, "1st_electron_pt_" + param.Name, electrons.at(0).Pt(), weight, 40, 0., 200.);
-		JSFillHist(param.Name, "2nd_electron_pt_" + param.Name, electrons.at(1).Pt(), weight, 32, 0., 160.);
-		JSFillHist(param.Name, "3rd_electron_pt_" + param.Name, electrons.at(2).Pt(), weight, 32, 0., 160.);
-		JSFillHist(param.Name, "1st_electron_eta_" + param.Name, electrons.at(0).Eta(), weight, 25, -2.5, 2.5);
-		JSFillHist(param.Name, "2nd_electron_eta_" + param.Name, electrons.at(1).Eta(), weight, 25, -2.5, 2.5);
-		JSFillHist(param.Name, "3rd_electron_eta_" + param.Name, electrons.at(2).Eta(), weight, 25, -2.5, 2.5);
+	if (param.Name.Contains("Central") && tightFlag) {
+		JSFillHist(param.Name, "1st_electron_pt_" + param.Name, electrons.at(0).Pt(), weight, 20, 0., 200.);
+		JSFillHist(param.Name, "2nd_electron_pt_" + param.Name, electrons.at(1).Pt(), weight, 16, 0., 160.);
+		JSFillHist(param.Name, "3rd_electron_pt_" + param.Name, electrons.at(2).Pt(), weight, 16, 0., 160.);
+		JSFillHist(param.Name, "1st_electron_eta_" + param.Name, electrons.at(0).Eta(), weight, 30, -3., 3.);
+		JSFillHist(param.Name, "2nd_electron_eta_" + param.Name, electrons.at(1).Eta(), weight, 30, -3., 3.);
+		JSFillHist(param.Name, "3rd_electron_eta_" + param.Name, electrons.at(2).Eta(), weight, 30, -3., 3.);
+		JSFillHist(param.Name, "1st_electron_phi_" + param.Name, electrons.at(0).Phi(), weight, 32, -3.2, 3.2);
+		JSFillHist(param.Name, "2nd_electron_phi_" + param.Name, electrons.at(1).Phi(), weight, 32, -3.2, 3.2);
+		JSFillHist(param.Name, "3rd_electron_phi_" + param.Name, electrons.at(2).Phi(), weight, 32, -3.2, 3.2);
+		JSFillHist(param.Name, "MET_" + param.Name, METv.Pt(), weight, 16, 0., 160.);
 		JSFillHist(param.Name, "NJets_" + param.Name, jets.size(), weight, 7, -0.5, 6.5);
 	}
 
@@ -160,7 +197,8 @@ void FakeValidator::executeEventFromParameter(AnalyzerParameter param){
 	for (unsigned int i = 0; i < electrons.size(); i++) {
 		if (!electrons.at(i).PassID(ElectronTightID)) {
 			double fr = -999;
-			loose_cnt++; 
+			loose_cnt++;
+			//cout << param.Name << endl;
 			if (param.Name.Contains("Central")) fr = GetFakeRate(electrons.at(i), ElectronID, 0);
 			else if (param.Name.Contains("Up")) fr = GetFakeRate(electrons.at(i), ElectronID, 1);
 			else if (param.Name.Contains("Down")) fr = GetFakeRate(electrons.at(i), ElectronID, -1);
@@ -171,22 +209,30 @@ void FakeValidator::executeEventFromParameter(AnalyzerParameter param){
 			// for debug
 			// fr = 0.1;
 			weight_fake *= (-1 * (fr / (1 - fr)));
+			
 		}
+		else continue;
 	}
 	weight_fake *= -1.;
+	//cout << "loose_cnt " << loose_cnt << endl;
+	//cout << "weight_fake" << weight_fake << endl;
 	weight *= weight_fake;
 
 	JSFillHist(param.Name, "nPassLooseID_" + param.Name, loose_cnt, 1, 4, -0.5, 3.5);
 
 	//==== veto pass TTT by giving weight = 0 ====
-	if (electrons.at(0).PassID(ElectronTightID) && electrons.at(1).PassID(ElectronTightID) && electrons.at(2).PassID(ElectronTightID)) weight = 0;
+	if (tightFlag) weight = 0;
 
-	JSFillHist(param.Name, "1st_electron_pt_" + param.Name, electrons.at(0).Pt(), weight, 40, 0., 200.);
-    JSFillHist(param.Name, "2nd_electron_pt_" + param.Name, electrons.at(1).Pt(), weight, 32, 0., 160.);
-    JSFillHist(param.Name, "3rd_electron_pt_" + param.Name, electrons.at(2).Pt(), weight, 32, 0., 160.);
-    JSFillHist(param.Name, "1st_electron_eta_" + param.Name, electrons.at(0).Eta(), weight, 25, -2.5, 2.5);
-    JSFillHist(param.Name, "2nd_electron_eta_" + param.Name, electrons.at(1).Eta(), weight, 25, -2.5, 2.5);
-    JSFillHist(param.Name, "3rd_electron_eta_" + param.Name, electrons.at(2).Eta(), weight, 25, -2.5, 2.5);
+	JSFillHist(param.Name, "1st_electron_pt_" + param.Name, electrons.at(0).Pt(), weight, 20, 0., 200.);
+    JSFillHist(param.Name, "2nd_electron_pt_" + param.Name, electrons.at(1).Pt(), weight, 16, 0., 160.);
+    JSFillHist(param.Name, "3rd_electron_pt_" + param.Name, electrons.at(2).Pt(), weight, 16, 0., 160.);
+    JSFillHist(param.Name, "1st_electron_eta_" + param.Name, electrons.at(0).Eta(), weight, 30, -3., 3.);
+    JSFillHist(param.Name, "2nd_electron_eta_" + param.Name, electrons.at(1).Eta(), weight, 30, -3., 3.);
+    JSFillHist(param.Name, "3rd_electron_eta_" + param.Name, electrons.at(2).Eta(), weight, 30, -3., 3.);
+    JSFillHist(param.Name, "1st_electron_phi_" + param.Name, electrons.at(0).Phi(), weight, 32, -3.2, 3.2);
+	JSFillHist(param.Name, "1st_electron_phi_" + param.Name, electrons.at(0).Phi(), weight, 32, -3.2, 3.2);
+	JSFillHist(param.Name, "1st_electron_phi_" + param.Name, electrons.at(0).Phi(), weight, 32, -3.2, 3.2);
+	JSFillHist(param.Name, "MET_" + param.Name, METv.Pt(), weight, 16, 0., 160.);
 	JSFillHist(param.Name, "Njets_" + param.Name, jets.size(), weight, 7, -0.5, 6.5);
 }
 
@@ -226,6 +272,8 @@ double FakeValidator::GetFakeRate(Electron &e, TString id, int sys) {
 	value = this_hist->GetBinContent(this_bin);
 	error = this_hist->GetBinError(this_bin);
 
+	//cout << "[FakeValidator::GetFakeRate] corrPt = " << corrPt << endl;
+	//cout << "[FakeValidator::GetFakeRate] absEta = " << absEta << endl;
 	//cout << "[FakeValidator::GetFakeRate] value = " << value << endl;	
 
 	return value + double(sys)*error;
