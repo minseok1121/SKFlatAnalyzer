@@ -2,11 +2,11 @@
 
 void FakeValidator::initializeAnalyzer(){
 	//==== No systemtaic setup yet =====
-	RunFakeSystUp = HasFlag("RunFakeSystUp");
-	RunFakeSystDown = HasFlag("RunFakeSystDown");
+	RunFakeSyst = HasFlag("RunFakeSyst");
+	RunPrompt = HasFlag("RunPrompt");
 
-	cout << "[FakeValidator::initializeAnalyzer] RunFakeSystUp = " << RunFakeSystUp << endl;
-	cout << "[FakeValidator::initializeAnalyzer] RuNFakeSystDown = " << RunFakeSystDown << endl;
+	cout << "[FakeValidator::initializeAnalyzer] RunFakeSyst = " << RunFakeSyst << endl;
+	cout << "[FakeValidator::initializeAnalyzer] RunPrompt = " << RunPrompt << endl;
 	
 	//==== Electron ID setting ====
 	ElectronIDs = {"passLooseID", "passTightID", "FakeLooseID", "FakeTightID"};
@@ -72,20 +72,35 @@ void FakeValidator::executeEvent(){
 
 		executeEventFromParameter(param);
 
-		if (RunFakeSystUp) {
-			param.Name = idsets.at(i) + "ID_SystUp";
+		if (RunFakeSyst) {
+			param.Name = idsets.at(i) + "ID_Fake_Central";
+			executeEventFromParameter(param);
+
+			param.Name = idsets.at(i) + "ID_Fake_SystUp";
+			executeEventFromParameter(param);
+		
+			param.Name = idsets.at(i) + "ID_Fake_SystDown";
 			executeEventFromParameter(param);
 		}
-		if (RunFakeSystDown) {
-			param.Name = idsets.at(i) + "ID_SystDown";
+		
+		if (RunFakeSyst && RunPrompt) {
+			param.Name = idsets.at(i) + "ID_Fake_Central_WithPrompt";
+			executeEventFromParameter(param);
+
+			param.Name = idsets.at(i) + "ID_Fake_SystUp_WithPrompt";
+			executeEventFromParameter(param);
+
+			param.Name = idsets.at(i) + "ID_Fake_SystDown_WithPrompt";
 			executeEventFromParameter(param);
 		}
-			
 	}
 
 }
 
 void FakeValidator::executeEventFromParameter(AnalyzerParameter param){
+
+	//==== No cut ====
+	JSFillHist(param.Name, "NoCut_" + param.Name, 0., 1., 1, 0., 1.);
 
 	if(!PassMETFilter()) return;
 
@@ -173,10 +188,8 @@ void FakeValidator::executeEventFromParameter(AnalyzerParameter param){
 
 	bool tightFlag = (electrons.at(0).PassID(ElectronTightID) && electrons.at(1).PassID(ElectronTightID) && electrons.at(2).PassID(ElectronTightID));
 
-	Particle ZCand = electrons.at(0) + electrons.at(1) + electrons.at(2);
-
 	//==== Fill hist ====
-	if (param.Name.Contains("Central") && tightFlag) {
+	if (param.Name.Contains("Central") && !param.Name.Contains("_Fake") && tightFlag) {
 		JSFillHist(param.Name, "1st_electron_pt_" + param.Name, electrons.at(0).Pt(), weight, 20, 0., 200.);
 		JSFillHist(param.Name, "2nd_electron_pt_" + param.Name, electrons.at(1).Pt(), weight, 16, 0., 160.);
 		JSFillHist(param.Name, "3rd_electron_pt_" + param.Name, electrons.at(2).Pt(), weight, 16, 0., 160.);
@@ -190,9 +203,43 @@ void FakeValidator::executeEventFromParameter(AnalyzerParameter param){
 		JSFillHist(param.Name, "NJets_" + param.Name, jets.size(), weight, 7, -0.5, 6.5);
 	}
 
-	
-	param.Name += "_FakeContribution";
-	double weight_fake = 1.;
+	if (RunFakeSyst && param.Name.Contains("_Fake")) {
+		double weight_fake = 1.;
+		int loose_cnt = 0;
+		for (unsigned int i = 0; i < electrons.size(); i++) {
+			//==== Get Prompt Rate ====
+			double this_prompt = -999;
+			if (param.Name.Contains("Prompt") && IsDATA) 
+				this_prompt = GetPromptRate(electrons.at(i), ElectronID, true);
+			else if (param.Name.Contains("Prompt") && !IsData) 
+				this_prompt = GetPromptRate(electrons.at(i), ElectronID, false);
+			else this_prompt = 1.;
+			//==== Get Fake Rate ====
+			double this_fake = -999;
+			if (param.Name.Contains("Fake_Central")) 
+				this_fake = GetFakeRate(electrons.at(i), ElectronID, 0);
+			else if (param.Name.Contains("Fake_SystUp")) 
+				this_fake = GetFakeRate(electrons.at(i), ElectronID, 1);
+			else if (param.Name.Contains("Fake_SystDown")) 
+				this_fake = GetFakeRate(electrons.at(i), ElectronID, -1);
+			else {
+				cout << "[FakeValidator::executeEventFromParameter] param.Name = " << param.Name << endl;
+				cout << "[FakeValidator::executeEventFromParameter] Wrong Syst" << endl;
+				exit(EXIT_FAILURE);
+			}
+			//==== Apply as weight ====
+			double this_weight = 1.;
+			if (electrons.at(i).PassID(ElectronTightID)) {
+				this_weight *= (((1 - this_fake) * this_prompt) / (this_prompt - this_fake));
+			}
+			else {
+				loose_cnt++;
+				this_weight *= ((-1 * this_prompt * this_fake) / (this_prompt - this_fake));
+			}
+			weight_fake *= this_weight;
+		}
+		weight_fake *= -1;
+	/*double weight_fake = 1.;
 	int loose_cnt = 0;
 	for (unsigned int i = 0; i < electrons.size(); i++) {
 		if (!electrons.at(i).PassID(ElectronTightID)) {
@@ -216,24 +263,25 @@ void FakeValidator::executeEventFromParameter(AnalyzerParameter param){
 	weight_fake *= -1.;
 	//cout << "loose_cnt " << loose_cnt << endl;
 	//cout << "weight_fake" << weight_fake << endl;
-	weight *= weight_fake;
+	*/
+		weight *= weight_fake;
+		JSFillHist(param.Name, "nPassLooseID_" + param.Name, loose_cnt, 1, 4, -0.5, 3.5);
 
-	JSFillHist(param.Name, "nPassLooseID_" + param.Name, loose_cnt, 1, 4, -0.5, 3.5);
+		//==== veto pass TTT by giving weight = 0 ====
+		if (tightFlag) weight = 0;
 
-	//==== veto pass TTT by giving weight = 0 ====
-	if (tightFlag) weight = 0;
-
-	JSFillHist(param.Name, "1st_electron_pt_" + param.Name, electrons.at(0).Pt(), weight, 20, 0., 200.);
-    JSFillHist(param.Name, "2nd_electron_pt_" + param.Name, electrons.at(1).Pt(), weight, 16, 0., 160.);
-    JSFillHist(param.Name, "3rd_electron_pt_" + param.Name, electrons.at(2).Pt(), weight, 16, 0., 160.);
-    JSFillHist(param.Name, "1st_electron_eta_" + param.Name, electrons.at(0).Eta(), weight, 30, -3., 3.);
-    JSFillHist(param.Name, "2nd_electron_eta_" + param.Name, electrons.at(1).Eta(), weight, 30, -3., 3.);
-    JSFillHist(param.Name, "3rd_electron_eta_" + param.Name, electrons.at(2).Eta(), weight, 30, -3., 3.);
-    JSFillHist(param.Name, "1st_electron_phi_" + param.Name, electrons.at(0).Phi(), weight, 32, -3.2, 3.2);
-	JSFillHist(param.Name, "1st_electron_phi_" + param.Name, electrons.at(0).Phi(), weight, 32, -3.2, 3.2);
-	JSFillHist(param.Name, "1st_electron_phi_" + param.Name, electrons.at(0).Phi(), weight, 32, -3.2, 3.2);
-	JSFillHist(param.Name, "MET_" + param.Name, METv.Pt(), weight, 16, 0., 160.);
-	JSFillHist(param.Name, "Njets_" + param.Name, jets.size(), weight, 7, -0.5, 6.5);
+		JSFillHist(param.Name, "1st_electron_pt_" + param.Name, electrons.at(0).Pt(), weight, 20, 0., 200.);
+		JSFillHist(param.Name, "2nd_electron_pt_" + param.Name, electrons.at(1).Pt(), weight, 16, 0., 160.);
+		JSFillHist(param.Name, "3rd_electron_pt_" + param.Name, electrons.at(2).Pt(), weight, 16, 0., 160.);
+		JSFillHist(param.Name, "1st_electron_eta_" + param.Name, electrons.at(0).Eta(), weight, 30, -3., 3.);
+		JSFillHist(param.Name, "2nd_electron_eta_" + param.Name, electrons.at(1).Eta(), weight, 30, -3., 3.);
+		JSFillHist(param.Name, "3rd_electron_eta_" + param.Name, electrons.at(2).Eta(), weight, 30, -3., 3.);
+		JSFillHist(param.Name, "1st_electron_phi_" + param.Name, electrons.at(0).Phi(), weight, 32, -3.2, 3.2);
+		JSFillHist(param.Name, "1st_electron_phi_" + param.Name, electrons.at(0).Phi(), weight, 32, -3.2, 3.2);
+		JSFillHist(param.Name, "1st_electron_phi_" + param.Name, electrons.at(0).Phi(), weight, 32, -3.2, 3.2);
+		JSFillHist(param.Name, "MET_" + param.Name, METv.Pt(), weight, 16, 0., 160.);
+		JSFillHist(param.Name, "Njets_" + param.Name, jets.size(), weight, 7, -0.5, 6.5);
+	}
 }
 
 FakeValidator::FakeValidator(){
@@ -253,7 +301,7 @@ double FakeValidator::GetFakeRate(Electron &e, TString id, int sys) {
 	double value = 1.;
 	double error = 0.;
 
-	//==== corrPt and absEta should in the fiducial phase space ===
+	//==== corrPt and absEta should in the fiducial phase space ====
 	if (corrPt <= 15.) corrPt = 16.;
 	if (corrPt >= 70.) corrPt = 69.;
 	if (absEta >= 2.5) absEta = 2.4;
@@ -277,6 +325,43 @@ double FakeValidator::GetFakeRate(Electron &e, TString id, int sys) {
 	//cout << "[FakeValidator::GetFakeRate] value = " << value << endl;	
 
 	return value + double(sys)*error;
+}
+
+double FakeValidator::GetPromptRate(Electron &e, TString id, bool IsData) {
+	double corrPt = GetCorrPt(e);
+	double absEta = fabs(e.Eta());
+
+	double value = 1.;
+	// double error = 0.;
+	
+	//==== corrPt and absEta should in the fiducial phase space ====
+	if (corrPt <= 15.) corrPt = 16.;
+	if (corrPt >= 70.) corrPt = 69.;
+	if (absEta >= 2.5) absEta = 2.4;
+
+	TH2D* this_hist = NULL;
+	if (IsData) {
+		if (id.Contains("pass")) this_hist = (TH2D*) f_prompt->Get("Electron_prompt_rate_POG_data");
+		else if (id.Contains("Fake")) this_hist = (TH2D*) f_prompt->Get("Electron_prompt_rate_Fake_data");
+		else {
+			cout << "[FakeValidation::GetPromptRate] No prompt rate histogram for " << id << endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+	else {
+		if (id.Contains("pass")) this_hist = (TH2D*) f_prompt->Get("Electron_prompt_rate_POG_MC");
+		else if (id.Contains("Fake")) this_hist = (TH2D*) f_prompt->Get("Electron_prompt_rate_Fake_MC");
+		else {
+			cout << "[FakeValidation::GetPromptRate] No prompt rate histogram for " << id << endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	int this_bin = -999;
+	this_bin = this_hist->FindBin(corrPt, absEta);
+	value = this_hist->GetBinContent(this_bin);
+
+	return value;
 }
 
 double FakeValidator::GetCorrPt(Electron &e) {

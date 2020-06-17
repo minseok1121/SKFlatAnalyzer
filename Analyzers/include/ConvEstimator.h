@@ -1,20 +1,20 @@
-#ifndef FakeValidator_h
-#define FakeValidator_h
+#ifndef ConvEstimator_h
+#define ConvEstimator_h
 
 #include "AnalyzerCore.h"
 
-class FakeValidator : public AnalyzerCore {
+class ConvEstimator : public AnalyzerCore {
 
 public:
 	//==== initializeAnalyzer ====
-	bool RunFakeSyst, RunPrompt;
+	bool RunFakeSyst;
 	void initializeAnalyzer();
-	vector <TString> ElectronIDs;
-	vector <TString> idsets;
+	vector<TString> ElectronIDs;
+	vector<TString> idsets;
 	TString HLTElecTriggerName;
 	double TriggerSafePtCut1, TriggerSafePtCut2;
 	TFile* f = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2016/FakeRate/Electron/Electron_fake_rate.root");
-	TFile* f_prompt = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2016/FakeRate/Electron/Electron_prompt_rate.root");
+	
 	//==== executeEvent ====
 	void executeEvent();
 	vector<Muon> AllMuons;
@@ -31,13 +31,19 @@ public:
 	vector<Muon> muons;
 	vector<Jet> jets;
 
-	//==== Member functions ====
-	double GetCorrPt(Electron &e);
+	typedef struct _Pair {
+		double Mass;
+		bool isOS;
+		bool isOffZ;
+		bool isBelowZ;
+	}	Pair;
+
+	 ConvEstimator();
+	~ConvEstimator();
+
+	//==== member functions ====
 	double GetFakeRate(Electron &e, TString id, int sys);
-	double GetPromptRate(Electron &e, TString id, bool IsData);
-	
-	FakeValidator();
-	~FakeValidator();
+	double GetCorrPt(Electron &e);
 
 };
 

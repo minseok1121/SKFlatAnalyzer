@@ -17,6 +17,7 @@
 #pragma link C++ class TTAnalyzer+;
 #pragma link C++ class FakeEstimator+;
 #pragma link C++ class FakeValidator+;
+#pragma link C++ class ConvEstimator+;
 #pragma link C++ class MakeNPV+;
 
 #endif

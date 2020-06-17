@@ -1,6 +1,7 @@
 [ libAnalyzers.so libAnalyzerTools.so libGEScaleSyst.so libDataFormats.so libTree.so ]
 # List of selected classes
 class AnalyzerCore
+class ConvEstimator
 class ExampleRun
 class FakeEstimator
 class FakeValidator
@@ -14,6 +15,7 @@ class SkimTree_HNFake
 class SkimTree_LRSMHighPt
 class TTAnalyzer
 header AnalyzerCore.h
+header ConvEstimator.h
 header ExampleRun.h
 header FakeEstimator.h
 header FakeValidator.h
