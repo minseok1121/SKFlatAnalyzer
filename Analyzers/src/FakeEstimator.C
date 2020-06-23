@@ -272,6 +272,8 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 				FillHist("MET_" + param.Name, METv.Pt(), weight, 48, 0., 240.);
 				FillHist("MetPhi_" + param.Name, METv.Phi(), weight, 32, -4, 4);
 				FillHist("passID_" + param.Name, corrPt, elecEta, weight, 6, ptbins, 3, etabins);
+				FillHist("LeadingJetPhi_" + param.Name, clean_jets04.at(0).Phi(), weight, 32, -4, 4);
+				FillHist("ElectronPhi_" + param.Name, electrons.at(0).Phi(), weight, 32, -4, 4);
 			}
 
 			else {
@@ -285,6 +287,8 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
                 FillHist("MET_" + param.Name, METv.Pt(), weight, 48, 0., 240.);
                 FillHist("MetPhi_" + param.Name, METv.Phi(), weight, 32, -4, 4);
                 FillHist("passID_" + param.Name, corrPt, elecEta, weight, 6, ptbins, 3, etabins);
+				FillHist("LeadingJetPhi_" + param.Name, clean_jets04.at(0).Phi(), weight, 32, -4, 4);
+				FillHist("ElectronPhi_" + param.Name, electrons.at(0).Phi(), weight, 32, -4, 4);
 			}
 			return;
 		}
@@ -377,6 +381,9 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 			FillHist("SubLeadingElectronEta_" + param.Name, electrons.at(1).Eta(), weight, 25, -2.5, 2.5);
 			FillHist("LeadingJetPt_" + param.Name, clean_jets04.at(0).Pt(), weight, 48, 0., 240);
 			FillHist("LeadingJetEta_" + param.Name, clean_jets04.at(0).Eta(), weight, 24, -2.4, 2.4);
+			FillHist("LeadingJetPhi_" + param.Name, clean_jets04.at(0).Phi(), weight, 32, -4, 4);
+			FillHist("LeadingElectronPhi_" + param.Name, electrons.at(0).Phi(), weight, 32, -4, 4);
+			FillHist("SubLeadingElectronPhi_" + param.Name, electrons.at(1).Phi(), weight, 32, -4, 4);
 		}
 		else {
             FillHist("M(ee)_" + param.Name, ZCand.M(), weight, 20, 70., 110.);
@@ -386,6 +393,9 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
             FillHist("SubLeadingElectronEta_" + param.Name, electrons.at(1).Eta(), weight, 25, -2.5, 2.5);
             FillHist("LeadingJetPt_" + param.Name, clean_jets04.at(0).Pt(), weight, 48, 0., 240);
             FillHist("LeadingJetEta_" + param.Name, clean_jets04.at(0).Eta(), weight, 24, -2.4, 2.4);
+			FillHist("LeadingJetPhi_" + param.Name, clean_jets04.at(0).Phi(), weight, 32, -4, 4);
+			FillHist("LeadingElectronPhi_" + param.Name, electrons.at(0).Phi(), weight, 32, -4, 4);
+			FillHist("SubLeadingElectronPhi_" + param.Name, electrons.at(1).Phi(), weight, 32, -4, 4);
 		}
 		return;
 	}

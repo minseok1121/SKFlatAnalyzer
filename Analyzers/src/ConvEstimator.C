@@ -204,7 +204,7 @@ void ConvEstimator::executeEventFromParameter(AnalyzerParameter param){
 		JSFillHist(param.Name, "2nd_electron_phi_" + param.Name, electrons.at(1).Phi(), weight, 32, -3.2, 3.2);
 		JSFillHist(param.Name, "3rd_electron_phi_" + param.Name, electrons.at(2).Phi(), weight, 32, -3.2, 3.2);
 		JSFillHist(param.Name, "M(3e)_" + param.Name, triplet.M(), weight, 20, 70., 110.);
-		JSFillHist(param.Name, "MET_" + param.Name, METv.Pt(), weight, 32, 0., 160.);
+		JSFillHist(param.Name, "MET_" + param.Name, METv.Pt(), weight, 35, 0., 70.);
 		JSFillHist(param.Name, "NJets_" + param.Name, jets.size(), weight, 7, -0.5, 6.5);
 
 		for (int i = 0; i < 3; i++) {
@@ -263,8 +263,14 @@ void ConvEstimator::executeEventFromParameter(AnalyzerParameter param){
 		JSFillHist(param.Name, "2nd_electron_phi_" + param.Name, electrons.at(1).Phi(), weight, 32, -3.2, 3.2);
 		JSFillHist(param.Name, "3rd_electron_phi_" + param.Name, electrons.at(2).Phi(), weight, 32, -3.2, 3.2);
 		JSFillHist(param.Name, "M(3e)_" + param.Name, triplet.M(), weight, 20, 70., 110.);
-		JSFillHist(param.Name, "MET_" + param.Name, METv.Pt(), weight, 32, 0., 160.);
+		JSFillHist(param.Name, "MET_" + param.Name, METv.Pt(), weight, 35, 0., 70.);
 		JSFillHist(param.Name, "NJets_" + param.Name, jets.size(), weight, 7, -0.5, 6.5);
+
+		for (int i = 0; i < 3; i++) {
+			if (electronPair[i].isOS && electronPair[i].isOffZ && electronPair[i].isBelowZ) {
+				JSFillHist(param.Name, "M(e+e-)_" + param.Name, electronPair[i].Mass, weight, 50, 0, 100);
+			}
+		}
 	}
 
 }
