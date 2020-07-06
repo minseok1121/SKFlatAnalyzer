@@ -1,5 +1,4 @@
 #include "FakeEstimator.h"
-
 /////////////////////////////////////////////////////////////////////////////
 //==== FakeEstimator                                                   ====//
 //==== This analyzer is for evaluation of the fake rate of electorns   ====//
@@ -403,13 +402,10 @@ void FakeEstimator::executeEventFromParameter(AnalyzerParameter param){
 	else return;
 }
 
-FakeEstimator::FakeEstimator(){
+FakeEstimator::FakeEstimator(){}
 
-}
 
-FakeEstimator::~FakeEstimator(){
-
-}
+FakeEstimator::~FakeEstimator(){}
 
 
 //==== member fuctions

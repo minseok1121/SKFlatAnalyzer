@@ -124,6 +124,8 @@ public:
   bool Pass_FakeMVAWP(TString wp) const;
   bool Pass_FakeTight() const;
   bool Pass_FakeLoose() const;
+  bool Pass_fr_elec_tight() const;
+  bool Pass_fr_elec_loose() const;
 
   void SetRelPFIso_Rho(double r);
   double EA();

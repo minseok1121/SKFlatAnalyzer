@@ -1017,6 +1017,13 @@ double MCCorrection::GetJetTaggingCutValue(JetTagging::Tagger tagger, JetTagging
       if(wp==JetTagging::Medium) return 0.3093;
       if(wp==JetTagging::Tight)  return 0.7221;
     }
+	// this discriminator value is used for 80X dataset, just for yield sync.
+	// you should not use is for any analysis using 94X dataset.
+	if(tagger==JetTagging::CSVv2) {
+	  if(wp==JetTagging::Loose) return 0.5426;
+	  if(wp==JetTagging::Medium) return 0.8484;
+	  if(wp==JetTagging::Tight) return 0.9535;
+	}
   }
   if(DataYear==2017){
     if(tagger==JetTagging::CSVv2){

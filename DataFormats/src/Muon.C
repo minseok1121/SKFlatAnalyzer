@@ -106,6 +106,8 @@ bool Muon::PassID(TString ID) const {
   if(ID=="POGHighPtWithLooseTrkIso") return Pass_POGHighPtWithLooseTrkIso();
   //==== Customized
   if(ID=="TEST") return Pass_TESTID();
+  if(ID=="fr_muon_tight") return Pass_fr_muon_tight();
+  if(ID=="fr_muon_loose") return Pass_fr_muon_loose();
 
   //==== No cut
   if(ID=="NOCUT") return true;
@@ -135,4 +137,27 @@ bool Muon::Pass_TESTID() const {
 
 void Muon::SetTrackerLayers(int n){
   j_trackerLayers = n;
+}
+
+//==== User definde ID ====
+bool Muon::Pass_fr_muon_tight() const {
+	const double D2SIP = fabs(dXY() / dXYerr());
+	if (!isPOGTight()) return false;
+	if (! (RelIso() < 0.2)) return false;
+	if (! (fabs(Chi2()) < 4)) return false;
+	if (! (fabs(dXY()) < 0.01 && fabs(dZ()) < 0.05)) return false;
+	if (! ((D2SIP < 4) && (dXYerr() != 0.))) return false;
+
+	return true;
+}
+
+bool Muon::Pass_fr_muon_loose() const {
+	const double D2SIP = fabs(dXY() / dXYerr());
+	if (!isPOGTight()) return false;
+	if (! (RelIso() < 0.6)) return false;
+	if (! (fabs(Chi2()) < 4)) return false;
+	if (! (fabs(dXY()) < 0.2 && fabs(dZ()) < 0.1)) return false;
+	if (! ((D2SIP < 4) && (dXYerr() != 0.))) return false;
+	
+	return true;
 }

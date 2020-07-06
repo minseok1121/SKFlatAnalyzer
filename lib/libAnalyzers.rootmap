@@ -14,6 +14,9 @@ class SkimTree_Dilepton
 class SkimTree_HNFake
 class SkimTree_LRSMHighPt
 class TTAnalyzer
+class fr_muon
+class yield_emumu
+class yield_mumumu
 header AnalyzerCore.h
 header ConvEstimator.h
 header ExampleRun.h
@@ -28,3 +31,6 @@ header SkimTree_Dilepton.h
 header SkimTree_HNFake.h
 header SkimTree_LRSMHighPt.h
 header TTAnalyzer.h
+header fr_muon.h
+header yield_emumu.h
+header yield_mumumu.h

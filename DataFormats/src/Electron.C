@@ -164,6 +164,8 @@ bool Electron::PassID(TString ID) const{
   if(ID=="SUSYLoose") return Pass_SUSYLoose();
   if(ID=="NOCUT") return true;
   if(ID=="TEST") return Pass_TESTID();
+  if(ID=="fr_elec_tight") return Pass_fr_elec_tight();
+  if(ID=="fr_elec_loose") return Pass_fr_elec_loose();
 
   cout << "[Electron::PassID] No id : " << ID << endl;
   exit(EXIT_FAILURE);
@@ -355,7 +357,70 @@ bool Electron::Pass_CutBasedVeto() const{
 
 }
 
-//==== Customized ID
+//==== Customized IDs ====
+bool Electron::Pass_fr_elec_tight() const {
+	const double D2SIP = fabs(dXY() / dXYerr());
+	if (!passMVAID_iso_WP90()) return false;
+	if (! (RelIso() < 0.06)) return false;
+	if (! (fabs(dXY()) < 0.025 && fabs(dZ()) < 0.1)) return false;
+	if (! ((D2SIP < 4) && (dXYerr() != 0.))) return false;
+	if (! PassConversionVeto()) return false;
+	if (! (fabs(Eta()) < 2.5)) return false;
+
+	// trigger emulation cuts
+	if (fabs(scEta()) < 1.479) {
+		if (!(Full5x5_sigmaIetaIeta() < 0.012)) return false;
+		if (!(fabs(dEtaSeed()) < 0.0095)) return false;
+		if (!(fabs(dPhiIn()) < 0.065)) return false;
+		if (!(HoverE() < 0.09)) return false;
+		if (!(ecalPFClusterIso() < 0.37*Pt())) return false;
+		if (!(hcalPFClusterIso() < 0.25*Pt())) return false;
+		if (!(TrkIso() < 0.18*Pt())) return false;
+	}
+
+	else if (fabs(scEta()) < 2.5) {
+		if (!(Full5x5_sigmaIetaIeta() < 0.033)) return false;
+        if (!(HoverE() < 0.09)) return false;
+        if (!(ecalPFClusterIso() < 0.45*Pt())) return false;
+        if (!(hcalPFClusterIso() < 0.28*Pt())) return false;
+        if (!(TrkIso() < 0.18*Pt())) return false;
+	}
+
+	return true;
+}
+
+bool Electron::Pass_fr_elec_loose() const {
+	const double D2SIP = fabs((dXY() / dXYerr()));
+	if (!Pass_FakeMVAWP("Loose")) return false;
+	if (! (RelIso() < 0.4)) return false;
+    if (! ((fabs(dXY()) < 0.025) && (fabs(dZ()) < 0.1))) return false;
+    if (! ((D2SIP < 4) && (dXYerr() != 0.))) return false;
+    if (! PassConversionVeto()) return false;
+	if (! (fabs(Eta()) < 2.5)) return false;
+
+    // trigger emulation cuts
+	// only for pt > 15 GeV for loose ID
+    if (Pt() > 15) {
+		if (fabs(scEta()) < 1.479) {
+			if (!(Full5x5_sigmaIetaIeta() < 0.012)) return false;
+			if (!(fabs(dEtaSeed()) < 0.0095)) return false;
+			if (!(fabs(dPhiIn()) < 0.065)) return false;
+			if (!(HoverE() < 0.09)) return false;
+			if (!(ecalPFClusterIso() < 0.37*Pt())) return false;
+			if (!(hcalPFClusterIso() < 0.25*Pt())) return false;
+			if (!(TrkIso() < 0.18*Pt())) return false;
+		}
+    
+		else if (fabs(scEta()) < 2.5) {
+			if (!(Full5x5_sigmaIetaIeta() < 0.033)) return false;
+			if (!(HoverE() < 0.09)) return false;
+			if (!(ecalPFClusterIso() < 0.45*Pt())) return false;
+			if (!(hcalPFClusterIso() < 0.28*Pt())) return false;
+			if (!(TrkIso() < 0.18*Pt())) return false;   
+		}
+	}
+	return true;
+}
 
 bool Electron::Pass_FakeMVAWP(TString wp) const {
   

@@ -19,5 +19,8 @@
 #pragma link C++ class FakeValidator+;
 #pragma link C++ class ConvEstimator+;
 #pragma link C++ class MakeNPV+;
+#pragma link C++ class fr_muon+;
+#pragma link C++ class yield_mumumu+;
+#pragma link C++ class yield_emumu+;
 
 #endif
