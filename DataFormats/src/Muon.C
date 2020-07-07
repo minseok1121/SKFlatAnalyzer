@@ -110,7 +110,7 @@ bool Muon::PassID(TString ID) const {
   //==== No cut
   if(ID=="NOCUT") return true;
 
-  cout << "[Electron::PassID] No id : " << ID << endl;
+  cout << "[Muon::PassID] No id : " << ID << endl;
   exit(EXIT_FAILURE);
 
   return false;
