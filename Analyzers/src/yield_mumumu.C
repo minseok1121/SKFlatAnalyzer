@@ -7,8 +7,10 @@ void yield_mumumu::initializeAnalyzer(){
 
 	//==== Trigger Settings ====
 	if (DataYear == 2016) {
-		//HLTMuonTriggerName = "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v";
-		HLTMuonTriggerName = "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v";
+		TrigList_DblMu_BtoG = {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"};
+		TrigList_DblMu_H = {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"};
+		if (IsDATA && (run > 280385)) HLTMuonTriggerNames = TrigList_DblMu_H;
+		else HLTMuonTriggerNames = TrigList_DblMu_BtoG;
 		TriggerSafePtCut1 = 20;
 		TriggerSafePtCut2 = 10;
 	}
@@ -21,13 +23,12 @@ void yield_mumumu::initializeAnalyzer(){
 		exit(EXIT_FAILURE);
 	}
 
-	cout << "[yield_mumumu::initializeAnalyzer] HLTMuonTriggerName = " << HLTMuonTriggerName << endl;
 	cout << "[yield_mumumu::initializeAnalyzer] TriggerSafePtCut1 = " << TriggerSafePtCut1 << endl;
 	cout << "[yield_mumumu::initializeAnalyzer] TriggerSafePtCut2 = " << TriggerSafePtCut2 << endl;
 
 	// ==== B-tagging ====
     std::vector<JetTagging::Parameters> jtps;
-    jtps.push_back( JetTagging::Parameters(JetTagging::CSVv2, JetTagging::Medium, JetTagging::incl, JetTagging::comb) );
+    jtps.push_back( JetTagging::Parameters(JetTagging::CSVv2, JetTagging::Medium, JetTagging::incl, JetTagging::mujets) );
     mcCorr->SetJetTaggingParameters(jtps);
 
 	cout << "[yield_mumumu::initializeAnalyzer] finish initialization" << endl;	
@@ -64,7 +65,7 @@ void yield_mumumu::executeEventFromParameter(AnalyzerParameter param){
 	Particle METv = ev.GetMETVector();
 
 	//==== Trigger ====
-	if (! ev.PassTrigger(HLTMuonTriggerName)) return;
+	if (! ev.PassTrigger(HLTMuonTriggerNames)) return;
 
 	//==== Copy all objects ====
 	vector<Muon> this_AllMuons = AllMuons;
@@ -138,16 +139,19 @@ void yield_mumumu::executeEventFromParameter(AnalyzerParameter param){
 	int CR1OSCnt = 0;
 	int CR1OffZCnt = 0;
 	int CR1AbCnt = 0;
+	int CR1BelCnt = 0;
 	for (int i = 0; i < 3; i++) {
 		if (muonPair[i].isOS) CR1OSCnt++;
 		if (muonPair[i].isOS && muonPair[i].isOffZ) CR1OffZCnt++;
-		if (muonPair[i].isOS && (12 < muonPair[i].Mass && muonPair[i].Mass < 81.2)) CR1AbCnt++;
+		if (muonPair[i].isOS && (muonPair[i].Mass > 12)) CR1AbCnt++;
+		if (muonPair[i].isOS && (muonPair[i].Mass < 81.2)) CR1BelCnt++;
 	}
 	if (! (CR1OSCnt == 2)) IsCRZGamma = false;
 	if (! (CR1OffZCnt == 2)) IsCRZGamma = false;
-	if (! (CR1AbCnt > 0)) IsCRZGamma = false; // why not all pairs???
+	if (! (CR1AbCnt == 2)) IsCRZGamma = false; // why not all pairs???
+	if (! (CR1BelCnt > 0)) IsCRZGamma = false;
 	if (! is3lOnZ) IsCRZGamma = false;
-	if (! (METv.Pt() > 50)) IsCRZGamma = false;
+	if (! (METv.Pt() < 50)) IsCRZGamma = false;
 
 	if (IsCRZGamma) FillHist("PassCRZGamma_" + param.Name, 0, 1., 1, 0., 1.);
 	if (IsCRZGamma && tightFlag) FillHist("PassCRZGamma_tight_" + param.Name, 0, 1., 1, 0., 1.);

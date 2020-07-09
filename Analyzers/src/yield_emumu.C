@@ -7,8 +7,11 @@ void yield_emumu::initializeAnalyzer(){
 
     //==== Trigger Settings ====
     if (DataYear == 2016) {
-        //HLTEMuTriggerName = "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v";
-        HLTEMuTriggerName = "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v";
+        TrigList_DblMu_BtoG = {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v"};
+		TrigList_DblMu_H = {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"};
+
+		if (IsDATA && (run > 280385)) HLTEMuTriggerNames = TrigList_DblMu_H;
+		else HLTEMuTriggerNames = TrigList_DblMu_BtoG;
         TriggerSafeElecPtCut = 25;
         TriggerSafeMuPtCut = 10;
     }
@@ -21,13 +24,12 @@ void yield_emumu::initializeAnalyzer(){
         exit(EXIT_FAILURE);
     }
 
-    cout << "[yield_emumu::initializeAnalyzer] HLTEMuTriggerName = " << HLTEMuTriggerName << endl;
     cout << "[yield_emumu::initializeAnalyzer] TriggerSafeElecPtCut = " << TriggerSafeElecPtCut << endl;
     cout << "[yield_emumu::initializeAnalyzer] TriggerSafeMuPtCut = " << TriggerSafeMuPtCut << endl;
 
     // ==== B-tagging ====
     std::vector<JetTagging::Parameters> jtps;
-    jtps.push_back( JetTagging::Parameters(JetTagging::CSVv2, JetTagging::Medium, JetTagging::incl, JetTagging::comb) );
+    jtps.push_back( JetTagging::Parameters(JetTagging::CSVv2, JetTagging::Medium, JetTagging::incl, JetTagging::mujets) );
     mcCorr->SetJetTaggingParameters(jtps);
 
     cout << "[yield_emumu::initializeAnalyzer] finish initialization" << endl;
@@ -63,7 +65,7 @@ void yield_emumu::executeEventFromParameter(AnalyzerParameter param){
     Particle METv = ev.GetMETVector();
 
     //==== Trigger ====
-    if (! ev.PassTrigger(HLTEMuTriggerName)) return;
+    if (! ev.PassTrigger(HLTEMuTriggerNames)) return;
 
 	//==== Copy all objects ====
     vector<Muon> this_AllMuons = AllMuons;

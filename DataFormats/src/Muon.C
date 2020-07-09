@@ -155,7 +155,6 @@ bool Muon::Pass_fr_muon_loose() const {
 	const double D2SIP = fabs(dXY() / dXYerr());
 	if (!isPOGTight()) return false;
 	if (! (RelIso() < 0.6)) return false;
-	if (! (fabs(Chi2()) < 4)) return false;
 	if (! (fabs(dXY()) < 0.2 && fabs(dZ()) < 0.1)) return false;
 	if (! ((D2SIP < 4) && (dXYerr() != 0.))) return false;
 	

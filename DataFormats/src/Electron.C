@@ -368,22 +368,24 @@ bool Electron::Pass_fr_elec_tight() const {
 	if (! (fabs(Eta()) < 2.5)) return false;
 
 	// trigger emulation cuts
-	if (fabs(scEta()) < 1.479) {
-		if (!(Full5x5_sigmaIetaIeta() < 0.012)) return false;
-		if (!(fabs(dEtaSeed()) < 0.0095)) return false;
-		if (!(fabs(dPhiIn()) < 0.065)) return false;
-		if (!(HoverE() < 0.09)) return false;
-		if (!(ecalPFClusterIso() < 0.37*Pt())) return false;
-		if (!(hcalPFClusterIso() < 0.25*Pt())) return false;
-		if (!(TrkIso() < 0.18*Pt())) return false;
-	}
+	if (Pt() > 15) {
+		if (fabs(scEta()) < 1.479) {
+			if (!(Full5x5_sigmaIetaIeta() < 0.012)) return false;
+			if (!(fabs(dEtaSeed()) < 0.0095)) return false;
+			if (!(fabs(dPhiIn()) < 0.065)) return false;
+			if (!(HoverE() < 0.09)) return false;
+			if (!(ecalPFClusterIso() < 0.37*Pt())) return false;
+			if (!(hcalPFClusterIso() < 0.25*Pt())) return false;
+			if (!(TrkIso() < 0.18*Pt())) return false;
+		}
 
-	else if (fabs(scEta()) < 2.5) {
-		if (!(Full5x5_sigmaIetaIeta() < 0.033)) return false;
-        if (!(HoverE() < 0.09)) return false;
-        if (!(ecalPFClusterIso() < 0.45*Pt())) return false;
-        if (!(hcalPFClusterIso() < 0.28*Pt())) return false;
-        if (!(TrkIso() < 0.18*Pt())) return false;
+		else if (fabs(scEta()) < 2.5) {
+			if (!(Full5x5_sigmaIetaIeta() < 0.033)) return false;
+			if (!(HoverE() < 0.09)) return false;
+			if (!(ecalPFClusterIso() < 0.45*Pt())) return false;
+			if (!(hcalPFClusterIso() < 0.28*Pt())) return false;
+			if (!(TrkIso() < 0.18*Pt())) return false;
+		}
 	}
 
 	return true;
@@ -426,47 +428,41 @@ bool Electron::Pass_FakeMVAWP(TString wp) const {
   
   //cout << "[Electron::Pass_FakeMAVWP] need reoptimization for Fall17v2 dataset" << endl;
 
-  double sceta = fabs(scEta());
+  double eta = fabs(Eta());
   double cutA = -999., cutB = -999., cutC = -999.;
 
   if (wp == "Tight") {
 	cutA = 0.837; cutB = 0.715; cutC = 0.357;
-	if (sceta < 0.8) {
+	if (eta < 0.8) {
 	  if (MVANoIso() > cutA) return true;
 	  else return false;
 	}
-	else if (sceta < 1.479) {
+	else if (eta < 1.479) {
 	  if (MVANoIso() > cutB) return true;
 	  else return false;
 	}
-	else if (sceta < 2.5) {
+	else if (eta < 2.5) {
 	  if (MVANoIso() > cutC) return true;
 	  else return false;
     }
-    else {
-      cout << "[Electron::Pass_FakeMVAWP] MVA cut value for electron eta is not set" << endl;
-      exit(EXIT_FAILURE);
-	} 
+    else return false; 
   }
 
   else if (wp == "Loose") {
     cutA = -0.92; cutB = -0.88; cutC = -0.78;
-    if (sceta < 0.8) {
+    if (eta < 0.8) {
 	  if (MVANoIso() > cutA) return true;
 	  else return false;
     }
-	else if (sceta < 1.479) {
+	else if (eta < 1.479) {
 	  if (MVANoIso() > cutB) return true;
 	  else return false;
 	}
-	else if (sceta < 2.5) {
+	else if (eta < 2.5) {
 	  if (MVANoIso() > cutC) return true;
 	  else return false;
     }
-    else {
-      cout << "[Electron::Pass_FakeMVAWP] MVA cut value for electron eta is not set" << endl;
-      exit(EXIT_FAILURE);
-    }
+    else return false;
   }
 
   else {

@@ -10,7 +10,8 @@ public:
 	//==== initializeAnalyzer() ====
 	void initializeAnalyzer();
 	vector<TString> MuonIDs, ElectronIDs;
-	TString HLTMuonTriggerName;
+	vector<TString> HLTMuonTriggerNames;
+	vector<TString> TrigList_DblMu_BtoG, TrigList_DblMu_H;
 	double TriggerSafePtCut1, TriggerSafePtCut2;
 
 	//==== executeEvent() ====
