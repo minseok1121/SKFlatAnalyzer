@@ -121,6 +121,10 @@ public:
   bool Pass_SUSYMVAWP(TString wp) const;
   bool Pass_SUSYTight() const;
   bool Pass_SUSYLoose() const;
+  //==== User defined
+  bool Pass_HcToWAT() const;
+  bool Pass_HcToWAL() const;
+  bool Pass_CaloIdL_TrackIdL_IsoVL16() const;
 
   void SetRelPFIso_Rho(double r);
   double EA();

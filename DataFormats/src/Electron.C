@@ -162,6 +162,9 @@ bool Electron::PassID(TString ID) const{
   if(ID=="SUSYLoose") return Pass_SUSYLoose();
   if(ID=="NOCUT") return true;
   if(ID=="TEST") return Pass_TESTID();
+  //==== User defined
+  if(ID=="HcToWAT") return Pass_HcToWAT();
+  if(ID=="HcToWAL") return Pass_HcToWAL();
 
   cout << "[Electron::PassID] No id : " << ID << endl;
   exit(EXIT_FAILURE);
@@ -350,6 +353,49 @@ bool Electron::Pass_CutBasedVeto() const{
     return true;
 
   }
+
+}
+
+//==== User defined ====
+bool Electron::Pass_HcToWAT() const {
+	if (! passMVAID_iso_WP90()) return false;
+	// other cuts //
+	
+	if (! Pass_CaloIdL_TrackIdL_IsoVL16()) return false;
+
+	return true;
+}
+
+bool Electron::Pass_HcToWAL() const {
+	if (! passMVAID_iso_WP90()) return false;
+	// other cuts //
+	
+	if (! Pass_CaloIdL_TrackIdL_IsoVL16()) return false;
+
+	return true;
+}
+
+bool Electron::Pass_CaloIdL_TrackIdL_IsoVL16() const {
+	if (fabs(scEta()) <= 1.479) {
+		if(! (Full5x5_sigmaIetaIeta() < 0.012) ) return false;
+    	if(! (fabs(dEtaSeed()) < 0.0095) ) return false;
+    	if(! (fabs(dPhiIn()) < 0.065) ) return false;
+    	if(! (HoverE() < 0.09) ) return false;
+    	if(! (ecalPFClusterIso() < 0.37*Pt()) ) return false;
+    	if(! (hcalPFClusterIso() < 0.25*Pt()) ) return false;
+    	if(! (TrkIso() < 0.18*Pt()) ) return false;
+	}
+	else {
+		if(! (Full5x5_sigmaIetaIeta() < 0.012) ) return false;
+    	if(! (fabs(dEtaSeed()) < 0.0095) ) return false;
+    	if(! (fabs(dPhiIn()) < 0.065) ) return false;
+    	if(! (HoverE() < 0.09) ) return false;
+    	if(! (ecalPFClusterIso() < 0.37*Pt()) ) return false;
+    	if(! (hcalPFClusterIso() < 0.25*Pt()) ) return false;
+    	if(! (TrkIso() < 0.18*Pt()) ) return false;
+	}
+
+	return true;
 
 }
 
