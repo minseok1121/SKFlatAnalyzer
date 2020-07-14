@@ -9,8 +9,8 @@ void yield_mumumu::initializeAnalyzer(){
 	if (DataYear == 2016) {
 		TrigList_DblMu_BtoG = {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"};
 		TrigList_DblMu_H = {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"};
-		if (IsDATA && (run > 280385)) HLTMuonTriggerNames = TrigList_DblMu_H;
-		else HLTMuonTriggerNames = TrigList_DblMu_BtoG;
+		//if (IsDATA && (run > 280385)) HLTMuonTriggerNames = TrigList_DblMu_H;
+		//else HLTMuonTriggerNames = TrigList_DblMu_BtoG;
 		TriggerSafePtCut1 = 20;
 		TriggerSafePtCut2 = 10;
 	}
@@ -57,6 +57,10 @@ void yield_mumumu::executeEvent(){
 
 void yield_mumumu::executeEventFromParameter(AnalyzerParameter param){
 	
+	bool IsPeriodH = (IsDATA && (run > 280385));
+	if (IsPeriodH) HLTMuonTriggerNames = TrigList_DblMu_H;
+	else HLTMuonTriggerNames = TrigList_DblMu_BtoG;
+
 	//==== No cut ====
 	FillHist("NoCut_" + param.Name, 0., 1., 1, 0., 1.);
 	if(!PassMETFilter()) return;

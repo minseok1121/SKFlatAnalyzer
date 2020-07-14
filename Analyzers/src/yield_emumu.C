@@ -7,11 +7,11 @@ void yield_emumu::initializeAnalyzer(){
 
     //==== Trigger Settings ====
     if (DataYear == 2016) {
-        TrigList_DblMu_BtoG = {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v"};
-		TrigList_DblMu_H = {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"};
+        TrigList_MuonEG_BtoG = {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v"};
+		TrigList_MuonEG_H = {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"};
 
-		if (IsDATA && (run > 280385)) HLTEMuTriggerNames = TrigList_DblMu_H;
-		else HLTEMuTriggerNames = TrigList_DblMu_BtoG;
+		//if (IsDATA && (run > 280385)) HLTEMuTriggerNames = TrigList_MuonEG_H;
+		//else HLTEMuTriggerNames = TrigList_MuonEG_BtoG;
         TriggerSafeElecPtCut = 25;
         TriggerSafeMuPtCut = 10;
     }
@@ -23,7 +23,8 @@ void yield_emumu::initializeAnalyzer(){
         cout << "[yield_emumu::initializeAnalyzer] Wrong Year" << endl;
         exit(EXIT_FAILURE);
     }
-
+	cout << "[yield_emumu::initializeAnalyzer] run = " << run << endl;
+	//cout << "[yield_emumu::initializeAnalyzer] HLTEMuTriggerName = " << HLTEMuTriggerNames.at(0) << endl;
     cout << "[yield_emumu::initializeAnalyzer] TriggerSafeElecPtCut = " << TriggerSafeElecPtCut << endl;
     cout << "[yield_emumu::initializeAnalyzer] TriggerSafeMuPtCut = " << TriggerSafeMuPtCut << endl;
 
@@ -57,15 +58,23 @@ void yield_emumu::executeEvent(){
 
 void yield_emumu::executeEventFromParameter(AnalyzerParameter param){
 
+	bool IsPeriodH = (IsDATA && (run > 280385));
+
+	if (IsPeriodH) HLTEMuTriggerNames = TrigList_MuonEG_H;
+	else HLTEMuTriggerNames = TrigList_MuonEG_BtoG;
+
 	//==== No cut ====
-    FillHist("NoCut_" + param.Name, 0., 1., 1, 0., 1.);
-    if(!PassMETFilter()) return;
+    FillHist("NoCut_" + param.Name, 0., 1., 10, 0., 10.);
 
     Event ev = GetEvent();
     Particle METv = ev.GetMETVector();
 
     //==== Trigger ====
     if (! ev.PassTrigger(HLTEMuTriggerNames)) return;
+	FillHist("CutFlow_" + param.Name, 0., 1., 10, 0., 10.);
+
+	if(!PassMETFilter()) return;
+	FillHist("CutFlow_" + param.Name, 1., 1., 10, 0., 10.);
 
 	//==== Copy all objects ====
     vector<Muon> this_AllMuons = AllMuons;
@@ -89,11 +98,20 @@ void yield_emumu::executeEventFromParameter(AnalyzerParameter param){
     std::sort(electrons_loose.begin(), electrons_loose.end(), PtComparing);
     std::sort(jets.begin(), jets.end(), PtComparing);
 
+	//==== jets ====
+    jets_dR04 = JetsVetoLeptonInside(jets, electrons_loose, muons_loose, 0.4);
+    for (unsigned int i = 0; i < jets_dR04.size(); i++) {
+        double this_discr = jets_dR04.at(i).GetTaggerResult(JetTagging::CSVv2);
+        if (this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::CSVv2, JetTagging::Medium)) NBjets_NoSF++;
+        if (mcCorr->IsBTagged_2a(jtp_CSVv2_Medium, jets_dR04.at(i))) NBjets_WithSF_2a++;
+    }
+
     FillHist("nMuons_" + param.Name, muons.size(), 1., 5, 0., 5.);
     FillHist("nMuons_loose_" + param.Name, muons_loose.size(), 1., 5, 0., 5.);
 	FillHist("nElectrons_" + param.Name, electrons.size(), 1., 5, 0., 5.);
 	FillHist("nElectrons_loose_" + param.Name, electrons_loose.size(), 1., 5, 0., 5.);
-	//==== leading electron/muon should pass trigger ssafe pt cut ====
+	
+	//==== leading electron/muon should pass trigger safe pt cut ====
 	if (electrons_loose.size() < 1) return;
 	if (muons_loose.size() < 2) return;
 	if (electrons_loose.at(0).Pt() < TriggerSafeElecPtCut) return;
@@ -103,16 +121,31 @@ void yield_emumu::executeEventFromParameter(AnalyzerParameter param){
 	//===== no additional leptons ====
 	if (electrons_loose.size() != 1) return;
 	if (muons_loose.size() != 2) return;
+	FillHist("CutFlow_" + param.Name, 2., 1., 10, 0., 10.);
+	
+
 	// opposite sign muon pair
 	if (muons_loose.at(0).Charge() * muons_loose.at(1).Charge() > 0) return;
+
 	bool tightFlag = false;
 	if (electrons.size() == 1 && muons.size() == 2) tightFlag = true;
+	if (tightFlag) FillHist("CutFlow_" + param.Name, 3., 1., 10, 0., 10.);
 
 	FillHist("CommomLeptonVeto_" + param.Name, 0, 1., 1, 0., 1.);
 	if(tightFlag) FillHist("CommonLeptonVeto_tight_" + param.Name, 0, 1., 1, 0., 1.);
 
 	Particle Pair = muons_loose.at(0) + muons_loose.at(1);
 	Particle l3 = muons_loose.at(0) + muons_loose.at(1) + electrons_loose.at(0);
+
+	bool IsQCDLike = Pair.M() < 12;
+	bool IsZLike = IsOnZ(Pair.M(), 10);
+	if (tightFlag) {
+		if (!IsQCDLike) FillHist("CutFlow_" + param.Name, 4., 1., 10, 0., 10.);
+		if (!IsQCDLike && !IsZLike) FillHist("CutFlow_" + param.Name, 5., 1., 10, 0., 10.);
+		if (!IsQCDLike && !IsZLike && NBjets_NoSF!=0) FillHist("CutFlow_" + param.Name, 6., 1., 10, 0., 10.);
+		if (!IsQCDLike && !IsZLike && NBjets_NoSF!=0 && jets_dR04.size()>1) FillHist("CutFlow_" + param.Name, 7., 1., 10, 0., 10.); 
+		if (!IsQCDLike && !IsZLike && NBjets_NoSF!=0 && jets_dR04.size()>1 && Pair.M()<80) FillHist("CutFlow_" + param.Name, 8., 1., 10, 0., 10.);
+	}
 	
 	//==== CR1. ZGamma region ====
 	bool IsCRZGamma = true;
@@ -130,15 +163,8 @@ void yield_emumu::executeEventFromParameter(AnalyzerParameter param){
 	if (IsCROnZ3l) FillHist("PassCROnZ3l_" + param.Name, 0, 1., 1, 0., 1.);
 	if (IsCROnZ3l && tightFlag) FillHist("PassCROnZ3l_tight_" + param.Name, 0, 1., 1, 0., 1.);
 
-	//==== jets ====
-	jets_dR04 = JetsVetoLeptonInside(jets, electrons_loose, muons_loose, 0.4);
-    if (jets_dR04.size() < 2 ) return;
-    for (unsigned int i = 0; i < jets_dR04.size(); i++) {
-        double this_discr = jets_dR04.at(i).GetTaggerResult(JetTagging::CSVv2);
-        if (this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::CSVv2, JetTagging::Medium)) NBjets_NoSF++;
-        if (mcCorr->IsBTagged_2a(jtp_CSVv2_Medium, jets_dR04.at(i))) NBjets_WithSF_2a++;
-    }
-
+	//==== SR ====
+	if (jets_dR04.size() < 2 ) return;
     if (IsData && NBjets_NoSF == 0) return;
     if (!IsData && NBjets_WithSF_2a == 0 ) return;
 
