@@ -15,36 +15,38 @@ void IDVariables::initializeAnalyzer(){
 	mcCorr->SetJetTaggingParameters(jtps);
 
 	if (DataYear == 2016) {
-		TrigNames.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v");
-		TrigNames.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v");
+		TrigList_2016_BtoG = {
+			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+			"HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"};
+		TrigList_2016_H = {
+			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+			"HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZv"};
 
-		if (IsDATA && run > 280385) {
-			TrigNames.clear();
-			TrigNames.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v");
-			TrigNames.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZv");
-		}
+		TrigList_2016 = {
+			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+			"HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
+			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+			"HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZv"};
 
-		if (!IsDATA) {
-			TrigNames.clear();
-			TrigNames.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v");
-			TrigNames.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v");
-			TrigNames.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v");
-			TrigNames.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZv");
-		}
 		TriggerSafePtCut1 = 20.;
 		TriggerSafePtCut2 = 10.;
 	}
 	else if (DataYear == 2017) {
-		TrigNames.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v");
-		if (IsDATA && run >= 299368) 
-			TrigNames.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v");
-		if (!IsDATA) 
-			TrigNames.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v");
+		TrigList_2017_AtoB = {
+			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v"};
+		TrigList_2017_CtoF = {
+			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v"};
+		TrigList_2017 = {
+			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v",
+			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v"};
+		
 		TriggerSafePtCut1 = 20.;
 		TriggerSafePtCut2 = 10.;
 	}
 	else if (DataYear == 2018) {
-		TrigNames.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v");
+		TrigList_2018 = {
+			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v"};
+		
 		TriggerSafePtCut1 = 20.;
 		TriggerSafePtCut2 = 10.;
 	}
@@ -59,6 +61,10 @@ void IDVariables::initializeAnalyzer(){
 
 void IDVariables::executeEvent(){
 
+	//==== Trigger Setting ====
+	TrigNames = GetTrigList(IsDATA, DataYear, run);
+	
+	//==== Copy All Objects (for systematics) ====
 	AllMuons = GetAllMuons();
 	AllJets = GetAllJets();
 	AllElectrons = GetAllElectrons();
@@ -66,7 +72,7 @@ void IDVariables::executeEvent(){
 
 	AnalyzerParameter param;
 
-	//==== Loopt over muonIDs ====
+	//==== Loop over muonIDs ====
 	for(const auto &mu : MuonIDs) {
 		MuonVetoID = "POGLoose";
 		ElecVetoID = "passLooseID";
@@ -167,7 +173,7 @@ void IDVariables::executeEventFromParameter(AnalyzerParameter param){
 
 	//==== Event selection ====
 	bool isDY = IsDY(muons, electrons_veto);
-	bool isTTbar = IsTTbar(muons, electrons_veto, jets_dR04, bjets_dR04);
+	bool isTTbar = IsTTbar(muons, electrons_veto, jets_dR04, bjets_dR04, METv_xyCorr);
 
 	if (isDY) {
 		TString pathDY = path + "DY/";
@@ -175,12 +181,12 @@ void IDVariables::executeEventFromParameter(AnalyzerParameter param){
 		double dRDY = muons.at(0).DeltaR(muons.at(1));
 		
 		FillHist(pathDY+"M(mumu)", ZCand.M(), weight, 60, 60, 120);
-		FillHist(pathDY+"dR(mumu)", dRDY, weight, 80, 0., 2.);
+		FillHist(pathDY+"dR(mumu)", dRDY, weight, 200, 0., 4.);
 		FillHist(pathDY+"nJets", jets_dR04.size(), weight, 10, 0., 10.);
 		FillHist(pathDY+"nBJets", bjets_dR04.size(), weight, 10, 0., 10.);
 		FillHist(pathDY+"METv", METv.Pt(), weight, 240, 0, 240);
 		FillHist(pathDY+"METv_phi", METv.Phi(), weight, 70, -3.5, 3.5);
-		FillHist(pathDY+"METv_xyCorr_pt", METv_xyCorr.Pt(), weight, 70, -3.5, 3.5);
+		FillHist(pathDY+"METv_xyCorr_pt", METv_xyCorr.Pt(), weight, 240, 0., 240.);
 		FillHist(pathDY+"METv_xyCorr_phi", METv_xyCorr.Phi(), weight, 70, -3.5, 3.5);
 		DrawHists(pathDY, muons.at(0), 0, weight);
 		DrawHists(pathDY, muons.at(1), 1, weight);
@@ -192,12 +198,12 @@ void IDVariables::executeEventFromParameter(AnalyzerParameter param){
 		TString pathTT = path + "TT/";
 		double dRTT = muons.at(0).DeltaR(muons.at(1));
 
-		FillHist(pathTT+"dR(mumu)", dRTT, weight, 80, 0., 2.);
+		FillHist(pathTT+"dR(mumu)", dRTT, weight, 200, 0., 4.);
 		FillHist(pathTT+"nJets", jets_dR04.size(), weight, 10, 0., 10.);
 		FillHist(pathTT+"nBJets", bjets_dR04.size(), weight, 10, 0., 10.);
 		FillHist(pathTT+"METv", METv.Pt(), weight, 240, 0, 240);
 		FillHist(pathTT+"METv_phi", METv.Phi(), weight, 70, -3.5, 3.5);
-		FillHist(pathTT+"METv_xyCorr_pt", METv_xyCorr.Pt(), weight, 70, -3.5, 3.5);
+		FillHist(pathTT+"METv_xyCorr_pt", METv_xyCorr.Pt(), weight, 240, 0., 240.);
 		FillHist(pathTT+"METv_xyCorr_phi", METv_xyCorr.Phi(), weight, 70, -3.5, 3.5);
 		DrawHists(pathTT, muons.at(0), 0, weight);
 		DrawHists(pathTT, muons.at(1), 1, weight);
@@ -225,17 +231,23 @@ bool IDVariables::IsDY(const vector<Muon> &muons, const vector<Electron> &electr
 	return true;
 }
 
-bool IDVariables::IsTTbar(const vector<Muon> &muons, const vector<Electron> &electrons_veto, const vector<Jet> &jets, const vector<Jet> &bjets) {
+bool IDVariables::IsTTbar(const vector<Muon> &muons, const vector<Electron> &electrons_veto, const vector<Jet> &jets, const vector<Jet> &bjets, const Particle &METv) {
 	TString path = MuonID + "_Central/cutflow_TT";
-	FillHist(path, 0., 1., 5, 0., 5.);
+	FillHist(path, 0., 1., 7, 0., 7.);
 	if (! (jets.size() >= 2)) return false;
-	FillHist(path, 1., 1., 5, 0., 5.);
+	FillHist(path, 1., 1., 7, 0., 7.);
 	if (! (bjets.size() >= 1)) return false;
-	FillHist(path, 2., 1., 5, 0., 5.);
+	FillHist(path, 2., 1., 7, 0., 7.);
+
+	Particle ZCand = muons.at(0) + muons.at(1);
+	if (! (fabs(ZCand.M() - 91.2) > 10)) return false;
+	FillHist(path, 3., 1., 7, 0., 7.);
 	if (! (muons.at(0).Charge() * muons.at(1).Charge() < 0)) return false;
-	FillHist(path, 3., 1., 5, 0., 5.);
+	FillHist(path, 4., 1., 7, 0., 7.);
 	if (! (muons.at(0).DeltaR(muons.at(1)) > 0.4)) return false;
-	FillHist(path, 4., 1., 5, 0., 5.);
+	FillHist(path, 5., 1., 7, 0., 7.);
+	if (! (METv.Pt() > 40)) return false;
+	FillHist(path, 6., 1., 7, 0., 7.);
 
 	return true;
 }
@@ -266,6 +278,38 @@ void IDVariables::DrawHists(TString path, const Jet &j, unsigned int order, cons
 	FillHist(this_path + "phi", j.Phi(), weight, 70, -3.5, 3.5);
 }
 
+vector<TString> IDVariables::GetTrigList(const bool &isdata, const int &datayear, const int &run) {
+	//==== Trigger Settings ====
+    if (datayear == 2016) {
+        bool IsPeriodH = run > 280385;
+
+        if (isdata && !IsPeriodH) return TrigList_2016_BtoG;
+        else if (isdata && IsPeriodH) return TrigList_2016_H;
+        else if (!isdata) return TrigList_2016;
+        else {
+            cerr << "[IDVariables::executeEvenet] Wrong period" << endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if (datayear == 2017) {
+        bool IsPeriodCtoF = run > 298653;
+
+        if (isdata && !IsPeriodCtoF) return TrigList_2017_AtoB;
+        else if (isdata && IsPeriodCtoF) return TrigList_2017_CtoF;
+        else if (!isdata) return TrigList_2017;
+        else {
+            cerr << "[IDVariables::executeEvent] Wrong period" << endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if (datayear == 2018) {
+        return TrigList_2018;
+    }
+    else {
+        cerr << "[IDVariables::executeEvent] Wrong Year" << endl;
+        exit(EXIT_FAILURE);
+    }
+};
 IDVariables::IDVariables(){
 
 }

@@ -10,6 +10,9 @@ public:
 	void initializeAnalyzer();
 	vector<TString> MuonIDs;
 
+	vector<TString> TrigList_2016_BtoG, TrigList_2016_H, TrigList_2016;
+	vector<TString> TrigList_2017_AtoB, TrigList_2017_CtoF, TrigList_2017;
+	vector<TString> TrigList_2018;
 	vector<TString> TrigNames;
 	double TriggerSafePtCut1, TriggerSafePtCut2;
 
@@ -34,9 +37,10 @@ public:
 
 	//==== member functions ====
 	bool IsDY(const vector<Muon> &muons, const vector<Electron> &electrons_veto);
-	bool IsTTbar(const vector<Muon> &muons, const vector<Electron> &electrons_veto, const vector<Jet> &jets, const vector<Jet> &bjets);
+	bool IsTTbar(const vector<Muon> &muons, const vector<Electron> &electrons_veto, const vector<Jet> &jets, const vector<Jet> &bjets, const Particle &METv);
 	void DrawHists(TString path, const Muon &mu, unsigned int order, const double weight);
 	void DrawHists(TString path, const Jet &j, unsigned int order, const double weight);
+	vector<TString> GetTrigList(const bool &isdata, const int &datayear, const int &run);
 };
 
 
