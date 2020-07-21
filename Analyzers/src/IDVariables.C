@@ -162,11 +162,12 @@ void IDVariables::executeEventFromParameter(AnalyzerParameter param){
 	if (!IsDATA) {
 		w_gen = ev.MCweight();
 		w_lumi = weight_norm_1invpb*ev.GetTriggerLumi("Full");
-		if (MCSample.Contains("TT") && MCSample.Contains("powheg"))
+		if (MCSample.Contains("TT") && MCSample.Contains("powheg")) {
 			w_toppt = mcCorr->GetTopPtReweight(AllGens);
+			sf_btag = mcCorr->GetBTaggingReweight_1a(jets_dR04, jtp_DeepCSV_Medium);
+		}
 		w_pileup = GetPileUpWeight(nPileUp, 0);
 		w_prefire = GetPrefireWeight(0);
-		sf_btag = mcCorr->GetBTaggingReweight_1a(jets_dR04, jtp_DeepCSV_Medium);
 	}
 	weight *= w_gen * w_filter * w_lumi * w_toppt * w_pileup * w_prefire;
 	weight *= sf_trig * sf_mutk * sf_muid * sf_muiso * sf_elreco * sf_elid * sf_btag;
@@ -209,9 +210,6 @@ void IDVariables::executeEventFromParameter(AnalyzerParameter param){
 		DrawHists(pathTT, muons.at(1), 1, weight);
 		DrawHists(pathTT, jets_dR04.at(0), 0, weight);
 		DrawHists(pathTT, jets_dR04.at(1), 1, weight);
-		DrawHists(pathTT, bjets_dR04.at(0), 0, weight);
-		if (bjets_dR04.size() > 1) DrawHists(pathTT, bjets_dR04.at(1), 1, weight);
-		
 	}
 
 	return;
@@ -260,14 +258,14 @@ void IDVariables::DrawHists(TString path, const Muon &mu, unsigned int order, co
 	FillHist(this_path + "phi", mu.Phi(), weight, 70, -3.5, 3.5);
 	
 	this_path += "IDvar/";
-	FillHist(this_path + "RelIso", mu.RelIso(), weight, 100, 0, 1.);
-    FillHist(this_path + "dXY" , mu.dXY(), weight, 100, -0.1, 0.1);
-    FillHist(this_path + "dXYerr", mu.dXYerr(), weight, 100, 0., 0.1);
+	FillHist(this_path + "RelIso", mu.RelIso(), weight, 100, 0, 0.6);
+    FillHist(this_path + "dXY" , mu.dXY(), weight, 50, -0.04, 0.04);
+    FillHist(this_path + "dXYerr", mu.dXYerr(), weight, 50, 0., 0.02);
     if (mu.dXYerr() != 0) {
-        FillHist(this_path + "SIP2D", fabs(mu.dXY())/mu.dXYerr(), weight, 100, 0., 10.);
+        FillHist(this_path + "SIP2D", fabs(mu.dXY())/mu.dXYerr(), weight, 100, 0., 8.);
     }
-    FillHist(this_path + "dZ", mu.dZ(), weight, 100, -0.1, 0.1);
-    FillHist(this_path + "Chi2", mu.Chi2(), weight, 100, 0., 10.);
+    FillHist(this_path + "dZ", mu.dZ(), weight, 100, -0.06, 0.06);
+    FillHist(this_path + "Chi2", mu.Chi2(), weight, 100, 0., 5.);
 }
 
 void IDVariables::DrawHists(TString path, const Jet &j, unsigned int order, const double weight) {
