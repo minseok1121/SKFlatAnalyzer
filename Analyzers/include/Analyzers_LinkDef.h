@@ -16,4 +16,6 @@
 #pragma link C++ class MeasureJetTaggingEfficiency+;
 #pragma link C++ class IDVariables+;
 #pragma link C++ class opt_pf_electron+;
+#pragma link C++ class id_var_prompt;
+
 #endif

@@ -10,6 +10,7 @@ class SKFlatValidation
 class SkimTree_Dilepton
 class SkimTree_HNFake
 class SkimTree_LRSMHighPt
+class id_var_prompt
 class opt_pf_electron
 header AnalyzerCore.h
 header ExampleRun.h
@@ -21,4 +22,5 @@ header SKFlatValidation.h
 header SkimTree_Dilepton.h
 header SkimTree_HNFake.h
 header SkimTree_LRSMHighPt.h
+header id_var_prompt.h
 header opt_pf_electron.h
