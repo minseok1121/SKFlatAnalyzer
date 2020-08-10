@@ -880,7 +880,6 @@ std::vector<FatJet> AnalyzerCore::SmearSDMassFatJets(const std::vector<FatJet>& 
 bool AnalyzerCore::PassMETFilter(){
 
   //==== https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Moriond_2018
-
   if(!Flag_goodVertices) return false;
   if(!IsFastSim){
     if(!Flag_globalSuperTightHalo2016Filter) return false;
@@ -889,7 +888,7 @@ bool AnalyzerCore::PassMETFilter(){
   if(!Flag_HBHENoiseIsoFilter) return false;
   if(!Flag_EcalDeadCellTriggerPrimitiveFilter) return false;
   if(!Flag_BadPFMuonFilter) return false;
-  //if(!Flag_BadChargedCandidateFilter) return false; // TODO 19/05/04 twiki says this is under review, and not recommended
+  if(!Flag_BadChargedCandidateFilter) return false; // TODO 19/05/04 twiki says this is under review, and not recommended
   if(IsDATA && !Flag_eeBadScFilter) return false;
 
   if(DataYear>=2017){

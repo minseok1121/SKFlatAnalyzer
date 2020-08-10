@@ -39,7 +39,7 @@ public:
 
 	yield_mumumu();
 	~yield_mumumu();
-
+	Particle ChooseACand(const vector<Muon> &muons, const Particle &METv);
 };
 
 

@@ -210,11 +210,9 @@ void yield_mumumu::executeEventFromParameter(AnalyzerParameter param){
 
 	//==== SRjjM80 ====
 	bool IsSRjjM80 = IsSRjj;
-	int SRjjM80Cnt = 0;
-	for (int i = 0; i < 3; i++) {
-		if (muonPair[i].isOS && (muonPair[i].Mass < 80)) SRjjM80Cnt++;
-	}
-	if (SRjjM80Cnt == 0) IsSRjjM80 = false;
+	Particle ACand = ChooseACand(muons_loose, METv);
+	if (! (ACand.M() < 80)) IsSRjjM80 = false;
+	
 	if (IsSRjjM80) FillHist("PassSRjjM80_" + param.Name, 0, 1, 1, 0., 1.);
 	if (IsSRjjM80 && tightFlag) FillHist("PassSRjjM80_tight_" + param.Name, 0, 1, 1, 0., 1.);
 
@@ -228,5 +226,47 @@ yield_mumumu::yield_mumumu(){
 yield_mumumu::~yield_mumumu(){
 
 }
+
+Particle yield_mumumu::ChooseACand(const vector<Muon> &muons, const Particle &METv) {
+	if (muons.size() != 3) exit(EXIT_FAILURE);
+	if ((fabs(muons.at(0).Charge()+muons.at(1).Charge()+muons.at(2).Charge()) > 1)) {
+		return Particle(0, 0, 0, 1000);
+	}
+		
+		
+	// sort muons
+	Muon Acand1, Acand2, OScand;
+	for (int i = 0; i < 3; i++) {
+		if (muons.at(i%3).Charge() == muons.at((i+1)%3).Charge()) {
+			if (i == 2) {
+				Acand1 = muons.at(0);
+				Acand2 = muons.at(2);
+				OScand = muons.at(1);
+			}
+			else {
+				Acand1 = muons.at(i%3);
+				Acand2 = muons.at((i+1)%3);
+				OScand = muons.at((i+2)%3);
+			}
+			break;
+		}
+		else continue;
+	}
+
+	// choose muons from A
+	double dPt = fabs(Acand1.Pt() - Acand2.Pt());
+	double MT1 = MT(Acand1, METv), MT2 = MT(Acand2, METv);
+	bool fromW1 = (50 < MT1 && MT1 < 120);
+	bool fromW2 = (50 < MT2 && MT2 < 120);
+	if (dPt < 25 && (!fromW1) && fromW2) return Acand1 + OScand;
+	else return Acand2 + OScand;
+}
+
+
+
+
+
+
+
 
 

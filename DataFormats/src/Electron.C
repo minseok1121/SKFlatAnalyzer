@@ -393,7 +393,12 @@ bool Electron::Pass_fr_elec_tight() const {
 
 bool Electron::Pass_fr_elec_loose() const {
 	const double D2SIP = fabs((dXY() / dXYerr()));
-	if (!Pass_FakeMVAWP("Loose")) return false;
+	//if (!Pass_FakeMVAWP("Loose")) return false;
+	double fEta = fabs(Eta());
+	if     (fEta<0.8  ){ if(MVAIso()<-0.92) return false; }
+	else if(fEta<1.479){ if(MVAIso()<-0.88) return false; }
+	else if(fEta<2.5  ){ if(MVAIso()<-0.78) return false; }
+
 	if (! (RelIso() < 0.4)) return false;
     if (! ((fabs(dXY()) < 0.025) && (fabs(dZ()) < 0.1))) return false;
     if (! ((D2SIP < 4) && (dXYerr() != 0.))) return false;

@@ -125,7 +125,7 @@ void yield_emumu::executeEventFromParameter(AnalyzerParameter param){
 	
 
 	// opposite sign muon pair
-	if (muons_loose.at(0).Charge() * muons_loose.at(1).Charge() > 0) return;
+	if (muons_loose.at(0).Charge()*muons_loose.at(1).Charge() > 0) return;
 
 	bool tightFlag = false;
 	if (electrons.size() == 1 && muons.size() == 2) tightFlag = true;
@@ -139,6 +139,15 @@ void yield_emumu::executeEventFromParameter(AnalyzerParameter param){
 
 	bool IsQCDLike = Pair.M() < 12;
 	bool IsZLike = IsOnZ(Pair.M(), 10);
+
+	// cutflow for AppRegion
+	if (!tightFlag) {
+		if (!IsQCDLike) FillHist("CutFlow_AppReg", 3., 1., 10, 0., 10.);
+		if (!IsQCDLike && !IsZLike) FillHist("CutFlow_AppReg", 4., 1., 10, 0., 10.);
+		if (!IsQCDLike && !IsZLike && NBjets_NoSF!=0) FillHist("CutFlow_AppReg", 5., 1., 10, 0., 10.);
+		if (!IsQCDLike && !IsZLike && NBjets_NoSF!=0 && jets_dR04.size()>1) FillHist("CutFlow_AppReg", 6.,1., 10, 0., 10.);
+		if (!IsQCDLike && !IsZLike && NBjets_NoSF!=0 && jets_dR04.size()>1 && Pair.M()<80) FillHist("CutFlow_AppReg", 7., 1., 10, 0., 10.);
+	}
 	if (tightFlag) {
 		if (!IsQCDLike) FillHist("CutFlow_" + param.Name, 4., 1., 10, 0., 10.);
 		if (!IsQCDLike && !IsZLike) FillHist("CutFlow_" + param.Name, 5., 1., 10, 0., 10.);
@@ -158,7 +167,9 @@ void yield_emumu::executeEventFromParameter(AnalyzerParameter param){
 
 	//==== CR2. OnZ trilepton region ====
 	bool IsCROnZ3l = true;
-	if (Pair.M() < 12 || !IsOnZ(Pair.M(), 10)) IsCROnZ3l = false;
+	//if (Pair.M() < 12 || !IsOnZ(Pair.M(), 10)) IsCROnZ3l = false;
+	if (IsQCDLike) IsCROnZ3l = false;
+	if (!IsZLike) IsCROnZ3l = false;
 	
 	if (IsCROnZ3l) FillHist("PassCROnZ3l_" + param.Name, 0, 1., 1, 0., 1.);
 	if (IsCROnZ3l && tightFlag) FillHist("PassCROnZ3l_tight_" + param.Name, 0, 1., 1, 0., 1.);
