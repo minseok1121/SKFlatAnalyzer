@@ -10,3 +10,5 @@ Trigger	Eff_DATA	Mu50_POGHighPtLooseTrkIso	HighPtMuonTriggerSF_Run2017.root	Eff_
 Trigger	Eff_MC	Mu50_POGHighPtLooseTrkIso	HighPtMuonTriggerSF_Run2017.root	Eff_MC
 Trigger Eff_DATA	Mu50_POGHighPt		MuonTriggerEfficiency_ZprimeToNN_Mu50_Run2017BCDEF_Central.root	TriggerEff_HNDilepton_BCDEF_Data
 Trigger Eff_MC		Mu50_POGHighPt		MuonTriggerEfficiency_ZprimeToNN_Mu50_Run2017BCDEF_Central.root	TriggerEff_HNDilepton_BCDEF_MC
+Trigger SF      LeadMu17_POGTight       Mu_TrigEff_IsoMu17Mu8_Iso17_Run2017BCDEF_v1.root        TriggerEff_AFB_2017BCDEF_SF     TH2D etapt
+Trigger SF      TailMu8_POGTight        Mu_TrigEff_IsoMu17Mu8_Mu8_OR_TkMu8_Run2017BCDEF_v1.root TriggerEff_AFB_2017BCDEF_SF     TH2D etapt

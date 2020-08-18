@@ -134,6 +134,11 @@ public:
   bool Pass_CutBasedVetoNoIso() const;
   bool Pass_CutBasedLoose() const;
   bool Pass_CutBasedVeto() const;
+  
+  // HN
+  bool pass_HNType1_CutBasedVeto() const;
+  
+  
   void SetRho(double r);
   inline double Rho() const { return j_Rho; }
 

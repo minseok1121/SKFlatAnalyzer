@@ -8,3 +8,5 @@ Trigger Eff_DATA  IsoMu24_POGTight  RunAveraged_Eff_Trigger.root IsoMu24_PtEtaBi
 Trigger Eff_MC  IsoMu24_POGTight  RunAveraged_Eff_Trigger.root IsoMu24_PtEtaBins/efficienciesMC/pt_abseta_MC
 Trigger	Eff_DATA	Mu50_POGHighPtLooseTrkIso	HighPtMuonTriggerSF_Run2018.root	Eff_Data
 Trigger	Eff_MC	Mu50_POGHighPtLooseTrkIso	HighPtMuonTriggerSF_Run2018.root	Eff_MC
+Trigger SF      LeadMu17_POGTight                     2018_Mu17syst.root                            SF_abseta_pt          TH2D etapt
+Trigger SF      LeadMu8_POGTight                      2018_Mu8syst.root                             SF_abseta_pt          TH2D etapt

@@ -16,5 +16,7 @@
 #pragma link C++ class SkimTree_HNFake+;
 #pragma link C++ class MeasureJetTaggingEfficiency+;
 #pragma link C++ class PromptSelector+;
+#pragma link C++ class LeptonType+;
+#pragma link C++ class HNSignal+;
 
 #endif

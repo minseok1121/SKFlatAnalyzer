@@ -621,7 +621,7 @@ double MCCorrection::ElectronTrigger_Eff(TString ID, TString trig, int DataOrMC,
     TString etaregion = "Barrel";
     if(fabs(sceta) > 1.566) etaregion = "EndCap";
 
-    TString histkey = "Trigger_Eff_DATA_"+trig+"_"+ID+"_"+etaregion;
+	TString histkey = "Trigger_Eff_DATA_"+trig+"_"+ID+"_"+etaregion;
     if(DataOrMC==1) histkey = "Trigger_Eff_MC_"+trig+"_"+ID+"_"+etaregion;
     //cout << "[MCCorrection::ElectronTrigger_Eff] histkey = " << histkey << endl;
     TH2F *this_hist = map_hist_Electron[histkey];
@@ -645,6 +645,7 @@ double MCCorrection::ElectronTrigger_Eff(TString ID, TString trig, int DataOrMC,
   return value+double(sys)*error;
 
 }
+
 
 double MCCorrection::ElectronTrigger_SF(TString ID, TString trig, const std::vector<Electron>& electrons, int sys){
 

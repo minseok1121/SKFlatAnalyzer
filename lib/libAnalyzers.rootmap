@@ -3,6 +3,8 @@
 class AnalyzerCore
 class ExampleRun
 class GetEffLumi
+class HNSignal
+class LeptonType
 class MeasureJetTaggingEfficiency
 class PromptSelector
 class SKFlatNtuple
@@ -14,6 +16,8 @@ class SkimTree_SS2lOR3l
 header AnalyzerCore.h
 header ExampleRun.h
 header GetEffLumi.h
+header HNSignal.h
+header LeptonType.h
 header MeasureJetTaggingEfficiency.h
 header PromptSelector.h
 header SKFlatNtuple.h

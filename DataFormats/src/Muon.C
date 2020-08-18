@@ -103,9 +103,18 @@ bool Muon::PassID(TString ID) const {
   if(ID=="POGMedium") return isPOGMedium();
   if(ID=="POGLoose") return isPOGLoose();
   if(ID=="POGTightWithTightIso") return Pass_POGTightWithTightIso();
+  if(ID=="POGLooseWithTightIso") return Pass_POGLooseWithTightIso();
   if(ID=="POGHighPtWithLooseTrkIso") return Pass_POGHighPtWithLooseTrkIso();
   //==== Customized
   if(ID=="TEST") return Pass_TESTID();
+
+  // HN
+  if (ID=="HNType1_POGTight") return Pass_HNType1_POGTight();
+  if (ID=="HNType1_POGLoose") return Pass_HNType1_POGLoose();
+  if (ID=="HNType1_POGVeto") return Pass_HNType1_POGVeto();
+  if (ID=="HNType1_HighPtTight") return Pass_HNType1_HighPtTight();
+  if (ID=="HNType1_HighPtLoose") return Pass_HNType1_HighPtLoose();
+  if (ID=="HNType1_HighPtVeto") return Pass_HNType1_HighPtVeto();
 
   //==== No cut
   if(ID=="NOCUT") return true;
@@ -121,6 +130,11 @@ bool Muon::Pass_POGTightWithTightIso() const {
   if(!( RelIso()<0.15 ))  return false;
   return true;
 }
+bool Muon::Pass_POGLooseWithTightIso() const {
+  if(!( isPOGLoose() )) return false;
+  if(!( RelIso()<0.15 )) return false;
+  return true;
+}
 bool Muon::Pass_POGHighPtWithLooseTrkIso() const {
   if(!( isPOGHighPt() )) return false;
   if(!( TrkIso()/TuneP4().Pt()<0.1 )) return false;
@@ -131,6 +145,40 @@ bool Muon::Pass_POGHighPtWithLooseTrkIso() const {
 
 bool Muon::Pass_TESTID() const {
   return true;
+}
+
+// HN
+// not clear with loose & veto ID
+bool Muon::Pass_HNType1_POGTight() const {
+	if (! isPOGTight()) return false;
+	if (! (RelIso() < 0.1)) return false;
+	return true;
+}
+bool Muon::Pass_HNType1_POGLoose() const {
+	if (! isPOGLoose()) return false;
+	if (! (RelIso() < 0.3)) return false;
+	return true;
+}
+bool Muon::Pass_HNType1_POGVeto() const {
+	if (! isPOGLoose()) return false;
+	if (! (RelIso() < 0.4)) return false;
+	return true;
+}
+
+bool Muon::Pass_HNType1_HighPtTight() const {
+	if (! isPOGHighPt()) return false;
+	if (! (TrkIso() < 0.15)) return false;
+	return true;
+}
+bool Muon::Pass_HNType1_HighPtLoose() const {
+	if (! isPOGHighPt()) return false;
+	if (! (TrkIso() < 0.4)) return false;
+	return true;
+}
+bool Muon::Pass_HNType1_HighPtVeto() const {
+	if (! isPOGHighPt()) return false;
+	if (! (TrkIso() < 0.6)) return false;
+	return true;
 }
 
 void Muon::SetTrackerLayers(int n){

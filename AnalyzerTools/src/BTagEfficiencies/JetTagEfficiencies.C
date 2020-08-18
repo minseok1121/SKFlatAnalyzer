@@ -2,7 +2,7 @@ double MCCorrection::GetMCJetTagEff(JetTagging::Tagger tagger, JetTagging::WP wp
 
   if(JetPt<20) JetPt = 20.;
   if(JetPt>=1000.) JetPt = 999.;
-
+  if(fabs(JetEta)>2.4) JetEta = 2.39;
 
   if(DataYear==2016){
     if(JetFlavor==5){

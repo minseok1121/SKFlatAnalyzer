@@ -164,10 +164,21 @@ bool Electron::PassID(TString ID) const{
   if(ID=="NOCUT") return true;
   if(ID=="TEST") return Pass_TESTID();
 
+  // HN
+  if (ID=="HNType1_CutBasedVeto") return pass_HNType1_CutBasedVeto();
+
   cout << "[Electron::PassID] No id : " << ID << endl;
   exit(EXIT_FAILURE);
 
   return false;
+}
+
+bool Electron::pass_HNType1_CutBasedVeto() const {
+	if (! passVetoID()) return false;
+	if (! (RelIso() < 0.6)) return false;
+	if (! (fabs(dXY() < 0.2))) return false;
+	if (! (fabs(dZ() < 0.5))) return false;
+	return true;
 }
 
 bool Electron::passHEEP2018Prompt() const {

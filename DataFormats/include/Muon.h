@@ -101,8 +101,17 @@ public:
   //==== ID
   bool PassID(TString ID) const;
   bool Pass_POGTightWithTightIso() const;
+  bool Pass_POGLooseWithTightIso() const;
   bool Pass_POGHighPtWithLooseTrkIso() const;
   bool Pass_TESTID() const;
+
+  // HN
+  bool Pass_HNType1_POGTight() const;
+  bool Pass_HNType1_POGLoose() const;
+  bool Pass_HNType1_POGVeto() const;
+  bool Pass_HNType1_HighPtTight() const;
+  bool Pass_HNType1_HighPtLoose() const;
+  bool Pass_HNType1_HighPtVeto() const;
   
   void SetTrackerLayers(int n);
   inline int TrackerLayers() const { return j_trackerLayers; }
