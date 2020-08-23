@@ -13,14 +13,14 @@ public:
 	//==== initialization ====
 	bool RunPOGTight, RunHighPt;
 	void initializeAnalyzer();
-	vector<TString> trigs_POGTight, trigs_POGTight_2016_BtoG, trigs_POGTight_2016_H; // for DZ cut 
-	vector<TString> trigs_HighPt;
-	vector<double> trig_safecuts;
+	vector<TString> trigs_POGTight, trigs_HighPt; 
 	vector<TString> HNType1_POGTight, HNType1_HighPt, HNType1_Electron, HNType1_Jet, HNType1_FatJet;
 	vector<TString> HNType1_IDSets;
 
-	TFile* f_trig_eff_2016_BtoF = nullptr;
-	TFile* f_trig_eff_2016_GtoH = nullptr;
+	TFile* f_trig_sf_lead_2016_BtoF = nullptr;
+	TFile* f_trig_sf_tail_2016_BtoF = nullptr;
+	TFile* f_trig_sf_lead_2016_GtoH = nullptr;
+	TFile* f_trig_sf_tail_2016_GtoH = nullptr;
 	TFile* f_trig_sf_lead_2017 = nullptr;
 	TFile* f_trig_sf_tail_2017 = nullptr;
 	TFile* f_trig_sf_lead_2018 = nullptr;
@@ -38,8 +38,8 @@ public:
 	void ClearCollections();
 	vector<Muon> muons, muons_tight, muons_loose, muons_veto;
 	vector<Electron> electrons, electrons_veto;
-	vector<Jet> jets, jets_tight, jets_dR04;
-	vector<Jet> bjets_tight, bjets_dR04;
+	vector<Jet> jets, jets_tight, jets_dR04, jets_awayFatJet;
+	vector<Jet> bjets, bjets_tight, bjets_dR04;
 	vector<FatJet> fatjets, fatjets_tight, fatjets_dR10;
 	vector<Gen> gens;
 	Particle METv;
@@ -65,6 +65,7 @@ public:
 	void DrawHists(TString path, const vector<FatJet>& jets, const double& weight);
 	void DrawHists(TString path, const Particle& METv, const double& weight);
 
+	vector<Muon> MuonPromptOnlyHNtype1(const vector<Muon>& muons);
 	//==== constructor, destructor ====
 	HNSignal();
 	~HNSignal();

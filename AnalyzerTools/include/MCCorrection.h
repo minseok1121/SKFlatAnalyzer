@@ -75,6 +75,7 @@ public:
 
   std::map< TString, TH1D* > map_hist_pileup;
   double GetPileUpWeightBySampleName(int N_pileup, int syst);
+  double GetPileUpWeight2017(int N_pileup, int syst);
   double GetPileUpWeight(int N_pileup, int syst);
 
   double GetTopPtReweight(const std::vector<Gen>& gens);

@@ -1,17 +1,22 @@
+# VV
 WZTo3LNu_powheg
 ZZTo4L_powheg
 WWTo2L2Nu_powheg
+
+# tX
+ttWToLNu
+ttZToLLNuNu
+ttHToNonbb
+TTG
+TG
+
+# others
 WpWp_EWK
 WpWp_QCD
 WWW
 WWZ
 WZZ
 ZZZ
-ttWToLNu
-ttZToLLNuNu
-ttHToNonbb
-TTG
-TG
 ggHToZZTo4L
 VBF_HToZZTo4L
 VHToNonbb

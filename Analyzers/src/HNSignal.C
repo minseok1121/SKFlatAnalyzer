@@ -13,11 +13,13 @@ void HNSignal::initializeAnalyzer(){
 
 	// get files
 	// for POGTight
-	f_trig_eff_2016_BtoF = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2016/ID/Muon/MuonTriggerEfficiency_ISR_DoubleIsoMu17Mu8_IsoMu17leg_RunBCDEF.root");
-    f_trig_eff_2016_GtoH = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2016/ID/Muon/MuonTriggerEfficiency_ISR_DoubleIsoMu17Mu8_IsoMu17leg_RunGH.root");
-    f_trig_sf_lead_2017 = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2017/ID/Muon/Mu_TrigEff_IsoMu17Mu8_Iso17_Run2017BCDEF_v1.root");
-    f_trig_sf_tail_2017 = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2017/ID/Muon/Mu_TrigEff_IsoMu17Mu8_Mu8_OR_TkMu8_Run2017BCDEF_v1.root");
-    f_trig_sf_lead_2018 = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2018/ID/Muon/2018_Mu17syst.root");
+	f_trig_sf_lead_2016_BtoF = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2016/ID/Muon/MuonTriggerEfficiency_ISR_DoubleIsoMu17Mu8_IsoMu17leg_RunBCDEF.root");
+    f_trig_sf_lead_2016_GtoH = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2016/ID/Muon/MuonTriggerEfficiency_ISR_DoubleIsoMu17Mu8_IsoMu17leg_RunGH.root");
+	f_trig_sf_tail_2016_BtoF = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2016/ID/Muon/MuonTriggerEfficiency_ISR_Mu8_OR_TkMu8_RunBCDEF.root");
+	f_trig_sf_tail_2016_GtoH = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2016/ID/Muon/MuonTriggerEfficiency_ISR_Mu8_OR_TkMu8_RunGH.root");
+	f_trig_sf_lead_2017 = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2017/ID/Muon/Mu_TrigEff_IsoMu17Mu8_Iso17_Run2017BCDEF_v1.root");
+	f_trig_sf_tail_2017 = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2017/ID/Muon/Mu_TrigEff_IsoMu17Mu8_Mu8_OR_TkMu8_Run2017BCDEF_v1.root");
+	f_trig_sf_lead_2018 = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2018/ID/Muon/2018_Mu17syst.root");
     f_trig_sf_tail_2018 = new TFile("/home/choij/SKFlat/data/Run2Legacy_v4/2018/ID/Muon/2018_Mu8syst.root");
 
 	// for HighPt
@@ -32,18 +34,10 @@ void HNSignal::initializeAnalyzer(){
 	// only need doublemuon triggers
 	if (DataYear == 2016) {
 		trigs_POGTight = {
-			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",		// B-G
-      		"HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",		// B-G
-      		"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",	// H
-      		"HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"	// H
-		};
-		trigs_POGTight_2016_BtoG = {
-			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",		// B-G
-            "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"		// B-G
-		};
-		trigs_POGTight_2016_H = {
-            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",	// H
-            "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"	// H
+			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",		// BCDEF
+      		"HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",		// BCDEF
+      		"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",	// GH
+      		"HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"	// GH
 		};
 		trigs_HighPt = {
 			"HLT_Mu50_v",
@@ -75,7 +69,6 @@ void HNSignal::initializeAnalyzer(){
 		exit(EXIT_FAILURE);
 	}
 	
-	trig_safecuts = {20, 10};
 	// ID settings
 	HNType1_POGTight = {"HNType1_POGTight", "HNType1_POGLoose", "HNType1_POGVeto"};
 	HNType1_HighPt = {"HNType1_HighPtTight", "HNType1_HighPtLoose", "HNType1_HighPtVeto"};
@@ -102,29 +95,8 @@ void HNSignal::executeEvent(){
 	METv = ev.GetMETVector();
 	
 	bool passTrigs;
-
-	// ID setting for fake contribution
-	TString TightID, LooseID;
-	if (RunPOGTight) {
-		TightID = "HNType1_POGTight";
-		LooseID = "HNType1_POGLoose";
-	}
-	else if (RunHighPt) {
-		TightID = "HNType1_HighPtTight";
-		LooseID = "HNType1_HighPtLoose";
-	}
-
 	// trigger setting
-	if (RunPOGTight) {
-		if (DataYear == 2016) {
-			if (IsDATA) {
-				if (run > 280385) passTrigs = ev.PassTrigger(trigs_POGTight_2016_H); // for DZ filter
-				else passTrigs = ev.PassTrigger(trigs_POGTight_2016_BtoG);
-			}
-			else passTrigs = ev.PassTrigger(trigs_POGTight);
-		}
-		else passTrigs = ev.PassTrigger(trigs_POGTight);
-	}
+	if (RunPOGTight) passTrigs = ev.PassTrigger(trigs_POGTight);
 	else if (RunHighPt) passTrigs = ev.PassTrigger(trigs_HighPt);
 	else {
 		cerr << "[HNSignal::executeEvent] Wrong flag" << endl;
@@ -137,8 +109,18 @@ void HNSignal::executeEvent(){
 
 	// objects definition
 	ClearCollections();
+	gens = GetGens();
 	muons = GetAllMuons();
+	electrons = GetAllElectrons();
+	fatjets = GetAllFatJets();
+	jets = GetAllJets();
+
 	sort(muons.begin(), muons.end(), PtComparing);
+	sort(electrons.begin(), electrons.end(), PtComparing);
+	sort(fatjets.begin(), fatjets.end(), PtComparing);
+	sort(jets.begin(), jets.end(), PtComparing);
+
+	muons = MuonPromptOnlyHNtype1(muons); // gen matching applied for MC
 	if (RunPOGTight) {
 		muons_veto = SelectMuons(muons, "HNType1_POGVeto", 5., 2.4);
 		muons_loose = SelectMuons(muons_veto, "HNType1_POGLoose", 10., 2.4);
@@ -150,28 +132,25 @@ void HNSignal::executeEvent(){
 		muons_tight = SelectMuons(muons_loose, "HNType1_HighPtTight", 10., 2.4);
 	}
 
-
-	electrons = GetAllElectrons();
-	sort(electrons.begin(), electrons.end(), PtComparing);
 	electrons_veto = SelectElectrons(electrons, "HNType1_CutBasedVeto", 10, 2.5);
 
-	jets = GetAllJets();
-	sort(jets.begin(), jets.end(), PtComparing);
+	fatjets_tight = SelectFatJets(fatjets, "tightWithSDMass", 200., 2.7);
+	fatjets_dR10 = FatJetsVetoLeptonInside(fatjets_tight, electrons_veto, muons_veto, 1.0);
+
 	jets_tight = SelectJets(jets, "tight", 20, 2.7);
 	jets_dR04 = JetsVetoLeptonInside(jets_tight, electrons_veto, muons_veto, 0.4);
+	jets_awayFatJet = JetsAwayFromFatJet(jets_dR04, fatjets_dR10, 0.8);
 
-	for (const auto& j: jets_tight) {
+	// can't use jets outside |eta| > 2.4 for b-taggings
+	// no lepton veto for bjets
+	bjets = SelectJets(jets_tight, "tight", 20., 2.4);
+	for (const auto& j: bjets) {
 		double this_discr = j.GetTaggerResult(JetTagging::DeepCSV);
 		if (this_discr >  mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)) 
 			bjets_tight.push_back(j);
 	}
-	bjets_dR04 = JetsVetoLeptonInside(bjets_tight, electrons_veto, muons_veto, 0.4);
-
-	fatjets = GetAllFatJets();
-	fatjets_tight = SelectFatJets(fatjets, "tightWithSDMass", 200., 2.7);
-	fatjets_dR10 = FatJetsVetoLeptonInside(fatjets_tight, electrons_veto, muons_veto, 1.0);
-	gens = GetGens();
-
+	//bjets_dR04 = JetsVetoLeptonInside(bjets_tight, electrons_veto, muons_veto, 0.4);
+	
 	// preselection
 	// 1. pass trigger. Done above.
 	// 2. 2 ss tight leptons. no 3rd lepton
@@ -186,23 +165,26 @@ void HNSignal::executeEvent(){
 	if (! (muons_veto.size() == 2)) return;
 	if (! (electrons_veto.size() == 0)) return;
 	bool tightFlag = (muons_tight.size() == 2);
+	//if (muons_tight.size() !=2) cout << tightFlag << endl; // should be false
 	if (!IsDATA && !tightFlag) return; // for MC, no need for loose id
 	if (tightFlag) FillHist("preselection/cutflow", 3., 1., 10, 0., 10.);
 
-	// truth matching?
 	if (RunPOGTight) {
-		if (! (muons_loose.at(0).Pt() > 20)) return;
-		if (! (muons_loose.at(1).Pt() > 10)) return;
+		if (! (muons_loose.at(0).Pt() > 20.)) return;
+		if (! (muons_loose.at(1).Pt() > 10.)) return;
 	}
 	if (RunHighPt) {
-		if (! (muons_loose.at(0).Pt() > 50)) return;
-		if (! (muons_loose.at(1).Pt() > 50)) return;
+		if (! (muons_loose.at(0).Pt() > 50.)) return;
+		if (! (muons_loose.at(1).Pt() > 50.)) return;
 	}
 	if (tightFlag) FillHist("preselection/cutflow", 4., 1., 10, 0., 10.);
 
 	Particle reso = muons_loose.at(0) + muons_loose.at(1);
 	if (! (reso.M() > 10)) return;
 	if (tightFlag) FillHist("preselection/cutflow", 5., 1., 10, 0., 10.);
+	
+	if (jets_awayFatJet.size()==0 && fatjets_dR10.size()==0) return;
+	if (tightFlag) FillHist("preselection/cutflow", 6., 1., 10, 0., 10.);
 
 	// weight settings
 	ClearWeights();
@@ -211,7 +193,7 @@ void HNSignal::executeEvent(){
 		w_prefire = GetPrefireWeight(0);
 		w_gen = ev.MCweight()*weight_norm_1invpb;
 		w_lumi = ev.GetTriggerLumi("Full");
-		//w_pileup = GetPileUpWeight(nPileUp, 0);
+		w_pileup = GetPileUpWeight(nPileUp, 0);
 
 		TString id_key, iso_key;
 		if (RunPOGTight) {
@@ -232,22 +214,35 @@ void HNSignal::executeEvent(){
 			}
 		}
 		sf_trig = GetTrigSF(muons_loose);
+		
 		JetTagging::Parameters jtp_DeepCSV_Medium = JetTagging::Parameters(JetTagging::DeepCSV, JetTagging::Medium, JetTagging::incl, JetTagging::comb);
-		sf_btag = mcCorr->GetBTaggingReweight_1a(jets_tight, jtp_DeepCSV_Medium); // no lepton veto for bjets in this analysis
+		// no lepton veto for bjets in this analysis
+		// bjets == jets_tight with |eta| < 2.4
+		// sf_btag = mcCorr->GetBTaggingReweight_1a(bjets, jtp_DeepCSV_Medium); 
 
 		//if (w_prefire == 1.) cerr << "Warning: w_prefire = 1." << endl;
-		//if (w_gen == 1.) cerr << "Warning: w_gen = 1." << endl;
-		//if (w_lumi == 1.) cerr << "Warning:w_lumi = 1." << endl;
-		//if (w_pileup == 1.) cerr << "Warning:w_pileup = 1." << endl;
-		//if (sf_muid == 1.) cerr << "Warning:sf_muid = 1." << endl;
-		//if (sf_muiso == 1.) cerr << "Warning:sf_muiso = 1." << endl;
-		//if (sf_trig == 1.) cerr << "Warning::sf_trig = 1.";
-		//if (sf_btag == 1.) cerr << "Warning::sf_btag = 1.";
+		if (w_gen == 1.) cerr << "Warning: w_gen = 1."  << endl;
+		if (w_lumi == 1.) cerr << "Warning:w_lumi = 1." << endl;
+		if (w_pileup == 1.) cerr << "Warning: w_pileup = 1." << endl;
+		if (sf_muid == 1. || sf_muid > 10. || sf_muid < 0.5) cerr << "Warning: sf_muid = " << sf_muid << endl;
+		if (sf_muiso == 1. || sf_muiso > 10. || sf_muiso < 0.5) cerr << "Warning: sf_muiso = " << sf_muiso << endl;
+		if (sf_trig == 1. || sf_trig > 10. || sf_trig < 0.5) cerr << "Warning:: sf_trig = " << sf_trig << endl;;
+		// if (bjets.size()!=0 && sf_btag == 1.) cerr << "Warning::sf_btag = 1.";
 	}
 	weight *= w_prefire*w_gen*w_lumi*w_pileup;
 	weight *= sf_muid*sf_muiso*sf_trig*sf_btag;
 
 	// measure fake contribution from data
+	// ID setting for fake contribution
+    TString TightID, LooseID;
+    if (RunPOGTight) {
+        TightID = "HNType1_POGTight";
+        LooseID = "HNType1_POGLoose";
+    }
+    else if (RunHighPt) {
+        TightID = "HNType1_HighPtTight";
+        LooseID = "HNType1_HighPtLoose";
+    }	
 	// apply weight as w_fake
 	double w_fake = weight;
 	if (IsDATA) {
@@ -260,39 +255,31 @@ void HNSignal::executeEvent(){
 	if (tightFlag) {
 		// mc and data with tightFlag
 		path = "preselection/";
-		DrawHists(path + "muons_tight/", muons_tight, weight);
-		DrawHists(path + "muons_loose/", muons_loose, weight);
-		DrawHists(path + "jets_tight/", jets_tight, weight);
-		DrawHists(path + "jets_dR04/", jets_dR04, weight);
+		DrawHists(path + "muons_tight/", muons_loose, weight);
+		DrawHists(path + "jets_awayFatJet/", jets_awayFatJet, weight);
 		DrawHists(path + "bjets_tight/", bjets_tight, weight);
-		DrawHists(path + "bjets_dR04/", bjets_dR04, weight);
-		DrawHists(path + "fatjets_tight/", fatjets_tight, weight);
 		DrawHists(path + "fatjets_dR10/", fatjets_dR10, weight);
-		DrawHists(path + "METv_xyCorr/", METv, weight);
+		DrawHists(path + "METv/", METv, weight);
 	}
 
 	if (IsDATA) {
 		// fake contribution
 		path = "preselection/fake/";
-		DrawHists(path + "muons_tight/", muons_tight, w_fake);
-    	DrawHists(path + "muons_loose/", muons_loose, w_fake);
-    	DrawHists(path + "jets_tight/", jets_tight, w_fake);
-    	DrawHists(path + "jets_dR04/", jets_dR04, w_fake);
+		// loose muons? Get fake fraction tha pass tight ID from loose ones
+		DrawHists(path + "muons_tight/", muons_loose, w_fake);
+    	DrawHists(path + "jets_awayFatJet/", jets_awayFatJet, w_fake);
     	DrawHists(path + "bjets_tight/", bjets_tight, w_fake);
-    	DrawHists(path + "bjets_dR04/", bjets_dR04, w_fake);
-    	DrawHists(path + "fatjets_tight/", fatjets_tight, w_fake);
     	DrawHists(path + "fatjets_dR10/", fatjets_dR10, w_fake);
-    	DrawHists(path + "METv_xyCorr/", METv, w_fake);
+    	DrawHists(path + "METv/", METv, w_fake);
 	}
-
 }
 
 // ==== other functions ====
 void HNSignal::ClearCollections() {
 	muons.clear(); muons_tight.clear(); muons_loose.clear(), muons_veto.clear();
 	electrons.clear(); electrons_veto.clear();
-	jets.clear(); jets_tight.clear(); jets_dR04.clear();
-	bjets_tight.clear(); bjets_dR04.clear();
+	jets.clear(); jets_tight.clear(); jets_dR04.clear(); jets_awayFatJet.clear();
+	bjets.clear(); bjets_tight.clear(); bjets_dR04.clear();
 	fatjets.clear(); fatjets_tight.clear(); fatjets_dR10.clear();
 	gens.clear();
 }
@@ -345,7 +332,7 @@ double HNSignal::GetFakeWeight(const TString& TightID) {
 	TFile* f = nullptr;
 	double TightIso = -999.;
 	if (RunPOGTight) {
-		TightIso = 0.1;
+		TightIso = 0.15;
 		if (DataYear==2016) f = f_fake_2016;
 		else if (DataYear==2017) f = f_fake_2017;
 		else if (DataYear==2018) f = f_fake_2018;
@@ -359,7 +346,7 @@ double HNSignal::GetFakeWeight(const TString& TightID) {
 		}
 	}
 	if (RunHighPt) {
-		TightIso = 0.15;
+		TightIso = 0.1;
 		cout << "[HNSignal::GetFakeWeight] TFile for high pt is not set yet" << endl;
 		exit(EXIT_FAILURE);
 	}
@@ -398,12 +385,21 @@ double HNSignal::GetFakeWeight(const TString& TightID) {
 double HNSignal::GetTrigSF(const vector<Muon>& muons) {
 	// can use for factorized one only
 	double sf = -999.;
+	// for 2016
+	double sf_BtoF = -999.;
+	double sf_GtoH = -999.; 
 	if (RunPOGTight) {
 		TH2D* h_lead = nullptr;
     	TH2D* h_tail = nullptr;
+		TH2D* h_lead_BtoF = nullptr;
+		TH2D* h_tail_BtoF = nullptr;
+		TH2D* h_lead_GtoH = nullptr;
+		TH2D* h_tail_GtoH = nullptr;
 		if (DataYear==2016) {
-			cerr << "[HNSignal::GetTrigSF] Trigger SF not set yet" << endl;
-			exit(EXIT_FAILURE);
+			h_lead_BtoF = (TH2D*)f_trig_sf_lead_2016_BtoF->Get("TriggerEff_ISR_BCDEF_SF");
+			h_tail_BtoF = (TH2D*)f_trig_sf_tail_2016_BtoF->Get("TriggerEff_ISR_BCDEF_SF");
+			h_lead_GtoH = (TH2D*)f_trig_sf_lead_2016_GtoH->Get("TriggerEff_ISR_GH_SF");
+			h_tail_GtoH = (TH2D*)f_trig_sf_tail_2016_GtoH->Get("TriggerEff_ISR_GH_SF");
 		}
 		else if (DataYear==2017) {
 			h_lead = (TH2D*)f_trig_sf_lead_2017->Get("TriggerEff_AFB_2017BCDEF_SF");
@@ -421,16 +417,66 @@ double HNSignal::GetTrigSF(const vector<Muon>& muons) {
 		Muon lead = muons.at(0); Muon tail = muons.at(1);
     	double pt_lead = lead.Pt(), eta_lead = fabs(lead.Eta());
     	double pt_tail = tail.Pt(), eta_tail = fabs(tail.Eta());
-    	if (pt_lead > 120.) pt_lead = 119.;
-    	if (pt_tail > 120.) pt_tail = 119.;
-    	if (eta_lead > 2.4) eta_lead = 2.39;
-    	if (eta_tail > 2.4) eta_tail = 2.39;
+    	if (pt_lead >= 120.) pt_lead = 119.;
+    	if (pt_tail >= 120.) pt_tail = 119.;
+    	if (eta_lead >= 2.4) eta_lead = 2.39;
+    	if (eta_tail >= 2.4) eta_tail = 2.39;
 
-    	int bin_lead = h_lead->FindBin(eta_lead, pt_lead);
-    	int bin_tail = h_lead->FindBin(eta_tail, pt_tail);
-    	sf = h_lead->GetBinContent(bin_lead) * h_tail->GetBinContent(bin_tail);
+		if (DataYear==2016) {
+			if (!h_lead_BtoF || !h_lead_GtoH || !h_tail_BtoF || !h_tail_GtoH) {
+				cerr << "[HNSignal::GetTrigSF] null hist" << endl;
+				exit(EXIT_FAILURE);
+			}
+
+			int bin_lead_BtoF = h_lead_BtoF->FindBin(eta_lead, pt_lead);
+			int bin_lead_GtoH = h_lead_GtoH->FindBin(eta_lead, pt_lead);
+			int bin_tail_BtoF = h_tail_BtoF->FindBin(eta_tail, pt_tail);
+			int bin_tail_GtoH = h_tail_GtoH->FindBin(eta_tail, pt_tail);
+			sf_BtoF = h_lead_BtoF->GetBinContent(bin_lead_BtoF) * h_tail_BtoF->GetBinContent(bin_tail_BtoF);
+			sf_GtoH = h_lead_GtoH->GetBinContent(bin_lead_GtoH) * h_tail_GtoH->GetBinContent(bin_tail_GtoH);
+			// using average weight
+			double lumi_BtoF = 27.3, lumi_BtoH = 35.9;
+			double lumi_GtoH = lumi_BtoH - lumi_BtoF;
+			double w_BtoF = lumi_BtoF / lumi_BtoH;
+			double w_GtoH = lumi_GtoH / lumi_BtoH;
+			sf =  w_BtoF * sf_BtoF + w_GtoH * sf_GtoH;
+
+			if (sf < 0.8 || sf > 1.2) {
+				cerr << "weired sf" << endl;
+				cerr << "sf_BtoF = " << sf_BtoF << endl;
+				cerr << "sf_GtoH = " << sf_GtoH << endl;
+			}
+			delete h_lead_BtoF;
+			delete h_tail_BtoF;
+			delete h_lead_GtoH;
+			delete h_tail_GtoH;
+		}
+		else {
+			if (!h_lead || !h_tail) {
+				cerr << "[HNSignal::GetTrigSF] null hist" << endl;
+				exit(EXIT_FAILURE);
+			}
+
+			int bin_lead = h_lead->FindBin(eta_lead, pt_lead);
+			int bin_tail = h_tail->FindBin(eta_tail, pt_tail);
+			sf = h_lead->GetBinContent(bin_lead) * h_tail->GetBinContent(bin_tail);
+
+			if (sf < 0.8 || sf > 1.2) {
+				cerr << "WARNING: sf too small" << endl;
+				cerr << "sf = " << sf << endl;
+				cerr << "pt_lead = " << pt_lead << endl;
+				cerr << "eta_lead = " << eta_lead << endl;
+				cerr << "sf_lead = " << h_lead->GetBinContent(bin_lead) << endl;
+				cerr << "pt_tail = " << pt_tail << endl;
+				cerr << "eta_tail = " << eta_tail << endl;
+				cerr << "sf_tail = " << h_tail->GetBinContent(bin_tail) << endl << endl;
+			}
+			delete h_lead;
+			delete h_tail;
+		}
 	}
 	else if (RunHighPt) {
+		// need remodeling
 		TH2D* h = nullptr;
 		if (DataYear==2016) {
 			h = (TH2D*)f_trig_sf_highpt_2016->Get("SF");
@@ -466,6 +512,7 @@ void HNSignal::DrawHists(TString path, const vector<Muon>& muons, const double& 
 		FillHist(obj_path + "TrkIso", muons.at(i).TrkIso(), weight, 80, 0., 0.8);
 	}
 }
+
 void HNSignal::DrawHists(TString path, const vector<Electron>& electrons, const double& weight) {
 	TString obj_path;
 	for (unsigned int i = 0; i < electrons.size(); i++) {
@@ -507,6 +554,18 @@ void HNSignal::DrawHists(TString path, const Particle& METv, const double& weigh
 	FillHist(path + "pt", METv.Pt(), weight, 300, 0., 300.);
 	FillHist(path + "eta", METv.Eta(), weight, 48, -2.4, 2.4); // of course, 0.
 	FillHist(path + "phi", METv.Phi(), weight, 70, -3.5, 3.5);
+}
+
+vector<Muon> HNSignal::MuonPromptOnlyHNtype1(const vector<Muon>& muons) {
+	if (IsDATA) return muons;
+
+	vector<Muon> out;
+	for (const auto& mu : muons) {
+		if (-5 < GetLeptonType(mu, gens) && GetLeptonType(mu, gens) <= 0) continue;
+		out.push_back(mu);
+	}
+
+	return out;
 }
 
 HNSignal::HNSignal(){}
