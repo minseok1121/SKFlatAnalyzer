@@ -18,5 +18,6 @@
 #pragma link C++ class PromptSelector+;
 #pragma link C++ class LeptonType+;
 #pragma link C++ class HNSignal+;
+#pragma link C++ class HNSignal_OS+;
 
 #endif

@@ -1,0 +1,29 @@
+# for OS
+TTLL_powheg
+DYJets
+# VV
+WZTo3LNu_powheg
+ZZTo4L_powheg
+WWTo2L2Nu_powheg
+# tX
+ttWToLNu
+ttZToLLNuNu
+ttHToNonbb
+TTG
+TG
+# others
+WpWp_EWK
+WpWp_QCD
+WWW
+WWZ
+WZZ
+ZZZ
+ggHToZZTo4L
+VBF_HToZZTo4L
+VHToNonbb
+ggZZTo2e2mu
+ggZZTo2e2tau
+ggZZTo2mu2tau
+ggZZTo4e
+ggZZTo4mu
+ggZZTo4tau

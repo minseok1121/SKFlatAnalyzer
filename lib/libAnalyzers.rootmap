@@ -4,6 +4,7 @@ class AnalyzerCore
 class ExampleRun
 class GetEffLumi
 class HNSignal
+class HNSignal_OS
 class LeptonType
 class MeasureJetTaggingEfficiency
 class PromptSelector
@@ -17,6 +18,7 @@ header AnalyzerCore.h
 header ExampleRun.h
 header GetEffLumi.h
 header HNSignal.h
+header HNSignal_OS.h
 header LeptonType.h
 header MeasureJetTaggingEfficiency.h
 header PromptSelector.h
