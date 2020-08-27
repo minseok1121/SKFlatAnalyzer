@@ -103,6 +103,7 @@ bool Muon::PassID(TString ID) const {
   if(ID=="POGMedium") return isPOGMedium();
   if(ID=="POGLoose") return isPOGLoose();
   if(ID=="POGTightWithTightIso") return Pass_POGTightWithTightIso();
+  if(ID=="POGLooseWithLooseIso") return Pass_POGLooseWithLooseIso();
   if(ID=="POGHighPtWithLooseTrkIso") return Pass_POGHighPtWithLooseTrkIso();
   //==== Customized
   if(ID=="TEST") return Pass_TESTID();
@@ -110,7 +111,7 @@ bool Muon::PassID(TString ID) const {
   //==== No cut
   if(ID=="NOCUT") return true;
 
-  cout << "[Electron::PassID] No id : " << ID << endl;
+  cout << "[Muon::PassID] No id : " << ID << endl;
   exit(EXIT_FAILURE);
 
   return false;
@@ -119,6 +120,12 @@ bool Muon::PassID(TString ID) const {
 bool Muon::Pass_POGTightWithTightIso() const {
   if(!( isPOGTight() )) return false;
   if(!( RelIso()<0.15 ))  return false;
+  return true;
+}
+
+bool Muon::Pass_POGLooseWithLooseIso() const {
+  if(!( isPOGLoose() )) return false;
+  if(!( RelIso()<0.4 )) return false;
   return true;
 }
 bool Muon::Pass_POGHighPtWithLooseTrkIso() const {
