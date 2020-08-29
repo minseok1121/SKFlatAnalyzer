@@ -272,6 +272,43 @@ void HNSignal::executeEvent(){
     	DrawHists(path + "fatjets_dR10/", fatjets_dR10, w_fake);
     	DrawHists(path + "METv/", METv, w_fake);
 	}
+
+	// get contribution of loose muons
+	if (IsDATA) {
+		const Muon& lead = muons_loose.at(0);
+		const Muon& tail = muons_loose.at(1);
+		// set flag
+		IDFlag flag;
+		if (lead.PassID(TightID) && tail.PassID(TightID)) flag = TT;
+		else if (lead.PassID(TightID) && !tail.PassID(TightID)) flag = TL;
+		else if (!lead.PassID(TightID) && tail.PassID(TightID)) flag = LT;
+		else if (!lead.PassID(TightID) && !tail.PassID(TightID)) flag = LL;
+		else {
+			cerr << "[HNSignal::ExecuteEvent] WTF" << endl;
+			exit(EXIT_FAILURE);
+		}
+
+		if (flag == TT) {
+			path = "preselection/TT/";
+			DrawHists(path + "muons_loose/", muons_loose, weight);
+		}
+		else if (flag == TL) {
+			path = "preselection/TL/";
+			DrawHists(path + "muons_loose/", muons_loose, weight);
+		}
+		else if (flag == LT) {
+			path = "preselection/LT/";
+			DrawHists(path + "muons_loose/", muons_loose, weight);
+		}
+		else if (flag == LL) {
+			path = "preselection/LL/";
+			DrawHists(path + "muons_loose/", muons_loose, weight);
+		}
+		else {
+			cerr << "[HNSignal::ExecuteEvent] WTF" << endl;
+			exit(EXIT_FAILURE);
+		}
+	}
 }
 
 // ==== other functions ====

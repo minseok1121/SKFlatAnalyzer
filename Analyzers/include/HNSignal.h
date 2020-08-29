@@ -9,6 +9,7 @@ public:
 	//==== aliases ====
 	typedef enum {SR1, SR2, SRSize} SR;
 	typedef enum {CR1, CR2, CRSize} CR;
+	typedef enum {LL, LT, TL, TT} IDFlag;
 
 	//==== initialization ====
 	bool RunPOGTight, RunHighPt;
