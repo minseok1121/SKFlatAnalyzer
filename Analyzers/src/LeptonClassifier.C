@@ -72,11 +72,16 @@ void LeptonClassifier::executeEvent(){
 	}
 	weight *= w_prefire * w_gen * w_lumi;
 
+	// get all gen particles
+	for (auto& gen : gens) {
+		gen.Print();
+	}
+	
 	// gen level study
 	// Gens = RewriteGens();
 	// PrintHistory(Lep);
 	//PrintHistory(Gamma);
-	PrintHistory(CH);
+	//PrintHistory(CH);
 
 	// To do:
 	// 1. Signal / Control region selection
