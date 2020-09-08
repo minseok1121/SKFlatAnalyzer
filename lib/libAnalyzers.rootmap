@@ -7,6 +7,8 @@ class HNSignal
 class HNSignal_OS
 class LeptonType
 class MeasureJetTaggingEfficiency
+class MuonID_OS
+class MuonID_SS
 class PromptSelector
 class SKFlatNtuple
 class SKFlatValidation
@@ -21,6 +23,8 @@ header HNSignal.h
 header HNSignal_OS.h
 header LeptonType.h
 header MeasureJetTaggingEfficiency.h
+header MuonID_OS.h
+header MuonID_SS.h
 header PromptSelector.h
 header SKFlatNtuple.h
 header SKFlatValidation.h

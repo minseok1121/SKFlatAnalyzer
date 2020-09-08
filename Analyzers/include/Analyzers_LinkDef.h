@@ -19,5 +19,7 @@
 #pragma link C++ class LeptonType+;
 #pragma link C++ class HNSignal+;
 #pragma link C++ class HNSignal_OS+;
+#pragma link C++ class MuonID_SS+;
+#pragma link C++ class MuonID_OS+;
 
 #endif

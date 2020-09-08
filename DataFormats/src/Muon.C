@@ -150,12 +150,21 @@ bool Muon::Pass_TESTID() const {
 // HN
 // not clear with loose & veto ID
 bool Muon::Pass_HNType1_POGTight() const {
+	double SIP2D = -999, SIP3D = -999;
+	if (dXYerr() != 0) SIP2D = fabs(dXY() / dXYerr());
+	if (IP3Derr() != 0) SIP3D = fabs(IP3D() / IP3Derr());
+
 	if (! isPOGTight()) return false;
 	if (! (RelIso() < 0.15)) return false;
+	// if (! (fabs(dXY()) < 0.02)) return false;
+	// if (! (fabs(dZ()) < 0.1)) return false;
+	// if (! (SIP2D < 3.)) return false;
+	// if (! (SIP3D < 4.)) return false;
 	return true;
 }
 bool Muon::Pass_HNType1_POGLoose() const {
-	if (! isPOGLoose()) return false;
+	//if (! isPOGLoose()) return false;
+	if (! isPOGTight()) return false;
 	if (! (RelIso() < 0.4)) return false;
 	return true;
 }
