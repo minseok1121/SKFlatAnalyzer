@@ -5,6 +5,8 @@ class ExampleRun
 class GetEffLumi
 class HNSignal
 class HNSignal_OS
+class HcToWA
+class HcToWA_SSDimuon
 class LeptonType
 class MeasureJetTaggingEfficiency
 class MuonID_OS
@@ -21,6 +23,8 @@ header ExampleRun.h
 header GetEffLumi.h
 header HNSignal.h
 header HNSignal_OS.h
+header HcToWA.h
+header HcToWA_SSDimuon.h
 header LeptonType.h
 header MeasureJetTaggingEfficiency.h
 header MuonID_OS.h

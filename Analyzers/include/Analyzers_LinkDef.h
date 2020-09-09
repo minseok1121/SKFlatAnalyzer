@@ -21,5 +21,7 @@
 #pragma link C++ class HNSignal_OS+;
 #pragma link C++ class MuonID_SS+;
 #pragma link C++ class MuonID_OS+;
+#pragma link C++ class HcToWA+;
+#pragma link C++ class HcToWA_SSDimuon+;
 
 #endif

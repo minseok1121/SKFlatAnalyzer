@@ -156,8 +156,8 @@ bool Muon::Pass_HNType1_POGTight() const {
 
 	if (! isPOGTight()) return false;
 	if (! (RelIso() < 0.15)) return false;
-	// if (! (fabs(dXY()) < 0.02)) return false;
-	// if (! (fabs(dZ()) < 0.1)) return false;
+	if (! (fabs(dXY()) < 0.2)) return false;
+	if (! (fabs(dZ()) < 0.1)) return false;
 	// if (! (SIP2D < 3.)) return false;
 	// if (! (SIP3D < 4.)) return false;
 	return true;
@@ -166,6 +166,8 @@ bool Muon::Pass_HNType1_POGLoose() const {
 	//if (! isPOGLoose()) return false;
 	if (! isPOGTight()) return false;
 	if (! (RelIso() < 0.4)) return false;
+	if (! (fabs(dXY()) < 0.2)) return false;
+	if (! (fabs(dZ()) < 0.1)) return false;
 	return true;
 }
 bool Muon::Pass_HNType1_POGVeto() const {
