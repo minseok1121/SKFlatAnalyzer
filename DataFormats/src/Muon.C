@@ -108,6 +108,16 @@ bool Muon::PassID(TString ID) const {
   //==== Customized
   if(ID=="TEST") return Pass_TESTID();
 
+  //==== HcToWA
+  if(ID="HcToWA_TightCand1") return Pass_HcToWA_TightCand1();
+  if(ID="HcToWA_TightCand2") return Pass_HcToWA_TightCand2();
+  if(ID="HcToWA_TightCand3") return Pass_HcToWA_TightCand3();
+
+  if(ID="HcToWA_LooseCand1") return Pass_HcToWA_LooseCand1();
+  if(ID="HcToWA_LooseCand2") return Pass_HcToWA_LooseCand2();
+  if(ID="HcToWA_LooseCand3") return Pass_HcToWA_LooseCand3();
+
+  if(ID="HcToWA_POGVeto") return Pass_HcToWA_POGVeto();
   //==== No cut
   if(ID=="NOCUT") return true;
 
@@ -142,4 +152,64 @@ bool Muon::Pass_TESTID() const {
 
 void Muon::SetTrackerLayers(int n){
   j_trackerLayers = n;
+}
+
+//==== Customized ID
+bool Muon::Pass_HcToWA_TightCand1() const {
+	const double SIP2D = fabs(dXY() / dXYerr());
+	
+	if (! isPOGTight()) return false;
+	if (! (RelIso() < 0.2)) return false;
+	if (! (fabs(Chi2()) < 4)) return false;
+	if (! (fabs(dXY()) < 0.01)) return false;
+	if (! (fabs(dZ()) < 0.05)) return false;
+	if (dXYerr() != 0.)
+		if (! (SIP2D < 4)) return false;
+	return true;
+}
+
+bool Muon::Pass_HcToWA_TightCand2() const {
+	if (! isPOGTight()) return false;
+	if (! (RelIso() < 0.15)) return false;
+	return true;
+}
+
+bool Muon::Pass_HcToWA_TightCand3() const {
+	if (! isPOGTight()) return false;
+	if (! (RelIso() < 0.15)) return false;
+	if (! (fabs(dXY()) < 0.05)) return false;
+	if (! (fabs(dZ()) < 0.1)) return false;
+	return true;
+}
+
+bool Muon::Pass_HcToWA_LooseCand1() const {
+	const double SIP2D = fabs(dXY() / dXYerr());
+
+	if (! isPOGTight()) return false;
+	if (! (RelIso() < 0.6)) return false;
+	if (! (fabs(dXY()) < 0.2)) return false;
+	if (! (fabs(dZ()) < 0.1)) return false;
+	if (dXYerr() != 0.)
+		if (! (SIP2D < 4)) return false;
+	return true;
+}
+
+bool Muon::Pass_HcToWA_LooseCand2() const {
+	if (! isPOGTight()) return false;
+	if (! (RelIso() < 0.4)) return false;
+	return true;
+}
+
+bool Muon::Pass_HcToWA_LooseCand3() const {
+	if (! isPOGTight()) return false;
+	if (! (RelIso() < 0.4)) return false;
+	if (! (fabs(dXY()) < 0.05)) return false;
+	if (! (fabs(dZ()) < 0.1)) return false;
+	return true;
+}
+
+bool Muon::Pass_HcToWA_POGVeto() const {
+	if (! isPOGLoose()) return false;
+	if (! (RelIso() < 0.6)) return false;
+	return true;
 }

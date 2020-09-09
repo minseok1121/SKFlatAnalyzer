@@ -105,6 +105,14 @@ public:
   bool Pass_POGHighPtWithLooseTrkIso() const;
   bool Pass_TESTID() const;
 
+  bool Pass_HcToWA_TightCand1() const;
+  bool Pass_HcToWA_TightCand2() const;
+  bool Pass_HcToWA_TightCand3() const;
+  bool Pass_HcToWA_LooseCand1() const;
+  bool Pass_HcToWA_LooseCand2() const;
+  bool Pass_HcToWA_LooseCand3() const;
+  bool Pass_HcToWA_POGVeto() const;
+
   void SetTrackerLayers(int n);
   inline int TrackerLayers() const { return j_trackerLayers; }
 

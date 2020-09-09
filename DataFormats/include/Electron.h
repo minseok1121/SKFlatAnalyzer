@@ -122,6 +122,7 @@ public:
   bool Pass_SUSYMVAWP(TString wp) const;
   bool Pass_SUSYTight() const;
   bool Pass_SUSYLoose() const;
+  bool Pass_HcToWA_CutBasedVeto() const;
 
   void SetRelPFIso_Rho(double r);
   double EA();

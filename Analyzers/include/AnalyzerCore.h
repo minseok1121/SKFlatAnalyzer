@@ -248,6 +248,13 @@ public:
   void FillLeptonPlots(std::vector<Lepton *> leps, TString this_region, double weight);
   void FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatjets, TString this_region, double weight);
 
+  //==== DrawHists
+  void DrawHists(TString path, const vector<Muon>& muons, const double& weight);
+  void DrawHists(TString path, const vector<Electron>& electrons, const double& weight);
+  void DrawHists(TString path, const vector<Jet>& jets, const double& weight);
+  void DrawHists(TString path, const vector<FatJet> &fatjets, const double& weight);
+  void DrawHists(TString path, const Particle& METv, const double& weight);
+
   //==== Output rootfile
   void SwitchToTempDir();
   TFile *outfile;

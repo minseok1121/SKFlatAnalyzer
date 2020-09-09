@@ -2136,3 +2136,38 @@ void AnalyzerCore::FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatje
 
 }
 
+// DrawHists
+void AnalyzerCore::DrawHists(TString path, const vector<Muon>& muons, const double& weight) {
+	TString obj_path;
+	for (unsigned int i = 0; i < muons.size(); i++) {
+		obj_path = path + TString::Itoa(i+1, 10) + "/";
+		const Muon& mu = muons.at(i);
+		double pt = mu.Pt(), eta = mu.Eta(), phi = mu.Phi();
+		double relIso = mu.RelIso(), trkIso = mu.TrkIso() / mu.MiniAODPt();
+		double dXY = fabs(mu.dXY()), dZ = fabs(mu.dZ());
+		double SIP2D = fabs(mu.dXY() / mu.dXYerr());
+		double SIP3D = fabs(mu.IP3D() / mu.IP3Derr());
+		
+		if (pt >= 300.) pt = 299.5;
+		if (relIso >= 0.8) relIso = 0.799;
+		if (trkIso >= 0.8) trkIso = 0.799;
+		if (dXY >= 0.5) dXY = 0.49;
+		if (dZ >= 0.8) dZ = 0.79;
+		if (mu.dXYerr()!=0 && SIP2D > 10.) SIP2D = 9.99;
+		if (mu.IP3Derr()!=0 && SIP3D > 10.) SIP3D = 9.99;
+		
+
+		FillHist(obj_path + "pt", pt, weight, 300, 0., 300.);
+		FillHist(obj_path + "eta", eta, weight, 48, -2.4, 2.4);
+		FillHist(obj_path + "phi", phi, weight, 70, -3.5, 3.5);
+		FillHist(obj_path + "relIso", relIso, weight, 80, 0., 0.8);
+		FillHist(obj_path + "trkIso", trkIso, weight, 80, 0., 0.8);
+		FillHist(obj_path + "dXY", dXY, weight, 50, 0., 0.5);
+		FillHist(obj_path + "dZ", dZ, weight, 80, 0., 0.8);
+		if (mu.dXYerr() != 0) 
+			FillHist(obj_path + "SIP2D", SIP2D, weight, 100, 0., 10.);
+		if (mu.IP3Derr() != 0)
+			FillHist(obj_path + "SIP3D", SIP3D, weight, 100, 0., 10.);
+	}
+}
+
