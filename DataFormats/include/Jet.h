@@ -47,7 +47,9 @@ private:
   int j_partonFlavour;
   int j_hadronFlavour;
   double  j_CSVv2;
-  double  j_DeepCSV;
+  etTightJetID(double b);
+   36   void SetTightLepVetoJetID(double b);
+    37   inline bool Pass_tightJetID() c
   double  j_DeepFlavour_b;
   double  j_DeepFlavour_bb;
   double  j_DeepFlavour_lepb;

@@ -23,5 +23,6 @@
 #pragma link C++ class MuonID_OS+;
 #pragma link C++ class HcToWA+;
 #pragma link C++ class HcToWA_SSDimuon+;
+#pragma link C++ class HcToWA_OSDimuon+;
 
 #endif

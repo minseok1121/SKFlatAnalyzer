@@ -6,6 +6,7 @@ class GetEffLumi
 class HNSignal
 class HNSignal_OS
 class HcToWA
+class HcToWA_OSDimuon
 class HcToWA_SSDimuon
 class LeptonType
 class MeasureJetTaggingEfficiency
@@ -24,6 +25,7 @@ header GetEffLumi.h
 header HNSignal.h
 header HNSignal_OS.h
 header HcToWA.h
+header HcToWA_OSDimuon.h
 header HcToWA_SSDimuon.h
 header LeptonType.h
 header MeasureJetTaggingEfficiency.h
