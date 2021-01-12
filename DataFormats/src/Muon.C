@@ -106,6 +106,8 @@ bool Muon::PassID(TString ID) const {
   if(ID=="POGHighPtWithLooseTrkIso") return Pass_POGHighPtWithLooseTrkIso();
   //==== Customized
   if(ID=="TEST") return Pass_TESTID();
+  if(ID=="LepMVALoose") return Pass_LeptonMVALoose();
+  if(ID=="LepMVATight") return Pass_LeptonMVATight();
 
   //==== No cut
   if(ID=="NOCUT") return true;
@@ -133,6 +135,17 @@ bool Muon::Pass_TESTID() const {
   return true;
 }
 
+// Is MVA ID Effective? https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
+bool Muon::Pass_LeptonMVALoose() const {
+	if (! (MVA() > -0.6)) return false;
+	return true;
+}
+bool Muon::Pass_LeptonMVATight() const {
+	if (! (MVA() > 0.15)) return false;
+	return true;
+}
+
 void Muon::SetTrackerLayers(int n){
   j_trackerLayers = n;
 }
+

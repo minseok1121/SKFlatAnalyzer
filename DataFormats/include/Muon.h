@@ -103,7 +103,8 @@ public:
   bool Pass_POGTightWithTightIso() const;
   bool Pass_POGHighPtWithLooseTrkIso() const;
   bool Pass_TESTID() const;
-  
+  bool Pass_LeptonMVALoose() const;
+  bool Pass_LeptonMVATight() const;
   void SetTrackerLayers(int n);
   inline int TrackerLayers() const { return j_trackerLayers; }
 
