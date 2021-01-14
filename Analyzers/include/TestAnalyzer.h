@@ -23,11 +23,11 @@ public:
 	void executeEvent();
 
 	//==== OTHER MEMBER FUNCTIONS ====
-	void MyCutflowMaker();
-	void MyHistoMaker(TString path, const vector<Muon> &muons, const double &weight);
-	void MyHistoMaker(TString path, const vector<Electron> &electrons, const double &weight);
-	void MyHistoMaker(TString path, const vector<Jet> &jets, const double &weight);
-	void MyHistoMaker(TString path, const Particle &METv, const double &weight);
+	void myCutflowMaker();
+	void myHistoMaker(TString path, const vector<Muon> &muons, const double &weight);
+	void myHistoMaker(TString path, const vector<Electron> &electrons, const double &weight);
+	void myHistoMaker(TString path, const vector<Jet> &jets, const double &weight);
+	void myHistoMaker(TString path, const Particle &METv, const double &weight);
 
 };
 

@@ -58,11 +58,11 @@ void TestAnalyzer::initializeAnalyzer(){
 
 void TestAnalyzer::executeEvent(){
 	// initiate cutflow
-	MyCutflowMaker();
+	myCutflowMaker();
 	
 	// MET Filter
 	if (!PassMETFilter()) return;
-	MyCutflowMaker();
+	myCutflowMaker();
 
 	Event ev = GetEvent();
 	Particle METv = ev.GetMETVector();
@@ -109,26 +109,25 @@ void TestAnalyzer::executeEvent(){
 	
 	// set weight
 	double weight = 1.;
-	double w_prefire, w_gen, w_lumi, w_pileup;
+	double w_prefire, w_gen, w_lumi;
 	w_prefire = GetPrefireWeight(0);
 	w_gen = ev.MCweight()*weight_norm_1invpb;
 	w_lumi = ev.GetTriggerLumi("Full");
-	w_pileup = GetPileUpWeight(nPileUp, 0);
-	weight *= w_prefire*w_gen*w_lumi*w_pileup;
+	weight *= w_prefire*w_gen*w_lumi;
 
-	MyHistoMaker("muons_prompt/", muons_prompt, weight);
-	MyHistoMaker("muons_fake/", muons_fake, weight);
-	MyHistoMaker("electrons_prompt/", electrons_prompt, weight);
-	MyHistoMaker("electorns_fake/", electrons_fake, weight);
-	MyHistoMaker("METv/", METv, weight);
+	myHistoMaker("muons_prompt/", muons_prompt, weight);
+	myHistoMaker("muons_fake/", muons_fake, weight);
+	myHistoMaker("electrons_prompt/", electrons_prompt, weight);
+	myHistoMaker("electorns_fake/", electrons_fake, weight);
+	myHistoMaker("METv/", METv, weight);
 }
 
 // Other functions
-void TestAnalyzer::MyCutflowMaker() {
+void TestAnalyzer::myCutflowMaker() {
 	FillHist("cutflow", __called, 1., 20, 0., 20.);
 	__called++;
 }
-void TestAnalyzer::MyHistoMaker(TString path, const vector<Muon> &muons, const double &weight) {
+void TestAnalyzer::myHistoMaker(TString path, const vector<Muon> &muons, const double &weight) {
 	TString obj_path;
 	FillHist(path+"size", muons.size(), weight, 14, 0., 14.);
 	for (unsigned int i = 0; i < muons.size(); i++) {
@@ -143,7 +142,7 @@ void TestAnalyzer::MyHistoMaker(TString path, const vector<Muon> &muons, const d
 		FillHist(obj_path + "MVA", muons.at(i).MVA(), weight, 100, -1., 1);
 	}
 }
-void TestAnalyzer::MyHistoMaker(TString path, const vector<Electron>& electrons, const double& weight) {
+void TestAnalyzer::myHistoMaker(TString path, const vector<Electron>& electrons, const double& weight) {
 	TString obj_path;
 	FillHist(path+"size", electrons.size(), weight, 14, 0., 14.);
 	for (unsigned int i = 0; i < electrons.size(); i++) {
@@ -156,7 +155,7 @@ void TestAnalyzer::MyHistoMaker(TString path, const vector<Electron>& electrons,
 		FillHist(obj_path + "dZ", fabs(electrons.at(i).dZ()), weight, 80, 0., 0.8);
 	}
 }
-void TestAnalyzer::MyHistoMaker(TString path, const vector<Jet>& jets, const double& weight) {
+void TestAnalyzer::myHistoMaker(TString path, const vector<Jet>& jets, const double& weight) {
 	TString obj_path;
 	FillHist(path + "size", jets.size(), weight, 14, 0., 14.);
 	for (unsigned int i = 0; i < jets.size(); i++) {
@@ -167,7 +166,7 @@ void TestAnalyzer::MyHistoMaker(TString path, const vector<Jet>& jets, const dou
 	}	
 }
 
-void TestAnalyzer::MyHistoMaker(TString path, const Particle& METv, const double& weight) {
+void TestAnalyzer::myHistoMaker(TString path, const Particle& METv, const double& weight) {
 	FillHist(path + "pt", METv.Pt(), weight, 300, 0., 300.);
 	FillHist(path + "eta", METv.Eta(), weight, 48, -2.4, 2.4); // of course, 0.
 	FillHist(path + "phi", METv.Phi(), weight, 70, -3.5, 3.5);

@@ -16,5 +16,5 @@
 #pragma link C++ class SkimTree_HNFake+;
 #pragma link C++ class MeasureJetTaggingEfficiency+;
 #pragma link C++ class TestAnalyzer+;
-
+#pragma link C++ class SignalStudy+;
 #endif
