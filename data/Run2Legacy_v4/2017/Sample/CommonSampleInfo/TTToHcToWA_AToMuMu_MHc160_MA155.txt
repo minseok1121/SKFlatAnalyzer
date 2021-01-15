@@ -1,0 +1,2 @@
+# alias PD xsec nmc sumw
+TTToHcToWA_AToMuMu_MHc160_MA155	FullSim_TTToHcToWA_AToMuMu_MHc160_MA155	20	102506	1.0873e-09

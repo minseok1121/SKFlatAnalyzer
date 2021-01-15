@@ -1526,6 +1526,7 @@ int AnalyzerCore::GetPrElType_InSameSCRange_Public(int TruthIdx, const std::vect
 int AnalyzerCore::GetLeptonType_Public(int TruthIdx, const std::vector<Gen>& TruthColl){
 //Type : 1:EW-Prompt / 2: BSM-Prompt / 3:EW/BSM-Prompt-Tau Daughter 
 //       4:Internal Conversion from Soft QED Radiation (PS-level) / 5:Internal Conversion from Hard Process Photon (ME-level)
+//       6: From off-shell W - added for charged higgs search
 //      -1:Unmatched & not EW Conversion candidate (mis-reco. or external conversion within jets)
 //      -2:Hadron Daughter / -3:Daughter of Tau from Hadron or Parton / -4:Internal Conversion Daughter having hadronic origin
 //      -5:External Conversion from Hard process photon / -6:External conversion from t/EWV/EWlep
@@ -1569,7 +1570,8 @@ int AnalyzerCore::GetLeptonType_Public(int TruthIdx, const std::vector<Gen>& Tru
 
   if     ( TruthIdx==-1 )                                       LeptonType= 0;
   else if( fabs(MPID)==23 || fabs(MPID)==24 || fabs(MPID)==25 ) LeptonType= 1;
-  else if( IsSignalPID(MPID) )                                  LeptonType= 2;
+  else if( IsSignalPID(MPID) && fabs(MPID) != 37 )				LeptonType= 2; 	// to target A
+  else if( IsSignalPID(MPID) && fabs(MPID) == 37)				LeptonType = 6; // off-shell W
   else if( Status_orig>20 && Status_orig<30 )                   LeptonType= 1;//1)
   else if( fabs(MPID)>50 )                                      LeptonType=-2;
   else if( fabs(MPID)==15 && MStatus_last==2 ){

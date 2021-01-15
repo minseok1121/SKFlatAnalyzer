@@ -1,0 +1,2 @@
+# alias PD xsec nmc sumw
+TTToHcToWA_AToMuMu_MHc100_MA95	FullSim_TTToHcToWA_AToMuMu_MHc100_MA95	20	113245	1.56038e-08

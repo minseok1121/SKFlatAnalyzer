@@ -6,6 +6,7 @@ class GetEffLumi
 class MeasureJetTaggingEfficiency
 class SKFlatNtuple
 class SKFlatValidation
+class SignalStudy
 class SkimTree_Dilepton
 class SkimTree_HNFake
 class SkimTree_LRSMHighPt
@@ -17,6 +18,7 @@ header GetEffLumi.h
 header MeasureJetTaggingEfficiency.h
 header SKFlatNtuple.h
 header SKFlatValidation.h
+header SignalStudy.h
 header SkimTree_Dilepton.h
 header SkimTree_HNFake.h
 header SkimTree_LRSMHighPt.h

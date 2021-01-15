@@ -1,0 +1,2 @@
+# alias PD xsec nmc sumw
+TTToHcToWA_AToMuMu_MHc130_MA15	FullSim_TTToHcToWA_AToMuMu_MHc130_MA15	20	123837	0.0425434

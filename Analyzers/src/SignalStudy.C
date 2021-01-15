@@ -32,10 +32,10 @@ void SignalStudy::executeEvent(){
 	vector<Jet> jets = GetAllJets();				sort(jets.begin(), jets.end(), PtComparing);
 	
 	// select objects
-	vector<Muon> muons_passID = SelectMuons(muons, "POGMedium", 10., 2.4);
-	vector<Muon> muons_veto = SelectMuons(muons, "POGLoose", 8., 2.4);
-	vector<Electron> electrons_passID = SelectElectrons(electrons, "passMVAID_noIso_WP90", 20., 2.5);
-	vector<Electron> electrons_veto = SelectElectrons(electrons, "passVetoID", 15., 2.5);
+	vector<Muon> muons_passID = SelectMuons(muons, "POGMedium", 8., 2.4);
+	vector<Muon> muons_veto = SelectMuons(muons, "POGLoose", 5., 2.4);
+	vector<Electron> electrons_passID = SelectElectrons(electrons, "passMVAID_noIso_WP90", 8., 2.5);
+	vector<Electron> electrons_veto = SelectElectrons(electrons, "passVetoID", 5., 2.5);
 
 	// Jets
     vector<Jet> jets_tight = SelectJets(jets, "tight", 10., 2.4);
@@ -53,8 +53,10 @@ void SignalStudy::executeEvent(){
 	myCutflowMaker();
 	
 	// Classify Leptons
-	vector<Muon> muons_prompt, muons_ewprompt, muons_signal, muons_fromtau, muons_fake;
-	vector<Electron> electrons_prompt, electrons_ewprompt, electrons_fromtau, electrons_fake;
+	// vector<Muon> muons_prompt, muons_ewprompt, muons_signal, muons_fromtau, muons_fake;
+	// vector<Electron> electrons_prompt, electrons_ewprompt, electrons_fromtau, electrons_fake;
+	vector<Muon> muons_signal, muons_ewprompt, muons_offshellW, muons_fromtau, muons_fake;
+	vector<Electron> electrons_signal, electrons_ewprompt, electrons_offshellW, electrons_fromtau, electrons_conv, electrons_fake;
 
 	for (const auto &mu: muons_passID) {
 		vector<Gen> matched_gens;
@@ -72,14 +74,12 @@ void SignalStudy::executeEvent(){
 
 		if (matched_gen) {
 			int LepType = GetLeptonType_Public(matched_gen->Index(), gens);
-			if (LepType == 1) {
-				muons_prompt.emplace_back(mu);
+			if (LepType == 1)
 				muons_ewprompt.emplace_back(mu);
-			}
-			else if (LepType == 2) {
-				muons_prompt.emplace_back(mu);
+			else if (LepType == 2)
 				muons_signal.emplace_back(mu);
-			}
+			else if (LepType == 6)
+				muons_offshellW.emplace_back(mu);
 			else if (LepType == 3) 
 				muons_fromtau.emplace_back(mu);
 			else if (LepType < 0)
@@ -102,18 +102,47 @@ void SignalStudy::executeEvent(){
 		if (matched_gens.size() != 0)
 			matched_gen = &matched_gens.at(0);
 
+		// check all the electrons in the same SC
+		const double dPhiMax = 0.3, dEtaMax = 0.1;
 		if (matched_gen) {
-			int LepType = GetLeptonType_Public(matched_gen->Index(), gens);
-			if (LepType == 1) {
-				electrons_prompt.emplace_back(ele);
-				electrons_ewprompt.emplace_back(ele);
+			vector<int> LepTypesInSc;
+			for (unsigned int idx = 2; idx < gens.size(); idx++) {
+				auto this_gen = gens.at(idx);
+				const double dPhi = fabs(this_gen.Phi() - matched_gen->Phi());
+				const double dEta = fabs(this_gen.Eta() - matched_gen->Eta());
+				if (this_gen.Status() != 1) continue;
+				if (abs(this_gen.PID()) != 11) continue;
+				if (dPhi > dPhiMax) continue;
+				if (dEta > dEtaMax) continue;
+				int LepType = GetLeptonType_Public(idx, gens);
+				LepTypesInSc.emplace_back(LepType);
 			}
-			else if (LepType == 3) 
-				electrons_fromtau.emplace_back(ele);
-			else if (LepType < 0)
-				electrons_fake.emplace_back(ele);
+			bool isSignal 
+				= find(LepTypesInSc.begin(), LepTypesInSc.end(), 2) != LepTypesInSc.end();
+			bool isOffshellW 
+				= (!isSignal) && find(LepTypesInSc.begin(), LepTypesInSc.end(), 6) != LepTypesInSc.end();
+			bool isPrompt 
+				= (!(isOffshellW||isSignal))
+						&& find(LepTypesInSc.begin(), LepTypesInSc.end(), 1) != LepTypesInSc.end();
+			bool isFromTau 
+				= (!(isSignal||isOffshellW||isPrompt)) 
+					&& find(LepTypesInSc.begin(), LepTypesInSc.end(), 3) != LepTypesInSc.end();
+			bool isConv
+				= (!(isSignal||isOffshellW||isPrompt||isFromTau))
+					&& (find(LepTypesInSc.begin(), LepTypesInSc.end(), 4) != LepTypesInSc.end()
+					|| find(LepTypesInSc.begin(), LepTypesInSc.end(), 5) != LepTypesInSc.end());
+			if (isSignal)
+				electrons_signal.emplace_back(ele);
+			else if (isOffshellW)
+				electrons_offshellW.emplace_back(ele);
+			else if (isPrompt)
+				electrons_ewprompt.emplace_back(ele);
+			else if (isFromTau)
+				electrons_ewprompt.emplace_back(ele);
+			else if (isConv)
+				electrons_conv.emplace_back(ele);
 			else
-				continue;
+				electrons_fake.emplace_back(ele);
 		}
 	}
 	
@@ -131,9 +160,9 @@ void SignalStudy::executeEvent(){
 		myHistoMaker(path_3mu + "muons_passID/", muons_passID, weight);
 		myHistoMaker(path_3mu + "muons_signal/", muons_signal, weight);
 		myHistoMaker(path_3mu + "muons_ewprompt/", muons_ewprompt, weight);
+		myHistoMaker(path_3mu + "muons_offshellW/", muons_offshellW, weight);
+		myHistoMaker(path_3mu + "muons_fromtau/", muons_fromtau, weight);
 		myHistoMaker(path_3mu + "muons_fake/", muons_fake, weight);
-		myHistoMaker(path_3mu + "electrons_passID/", electrons_passID, weight);
-		myHistoMaker(path_3mu + "electrons_fake/", electrons_fake, weight);
 		myHistoMaker(path_3mu + "jets_cleaned/", jets_cleaned, weight);
 		myHistoMaker(path_3mu + "bjets_cleaned/", bjets_cleaned, weight);
 		if (muons_signal.size() == 2) {
@@ -149,9 +178,16 @@ void SignalStudy::executeEvent(){
 		TString path_1e2mu = "1e2mu/";
 		myHistoMaker(path_1e2mu + "muons_passID/", muons_passID, weight);
 		myHistoMaker(path_1e2mu + "muons_signal/", muons_signal, weight);
-		myHistoMaker(path_1e2mu + "electrons_ewprompt/", electrons_ewprompt, weight);
+		myHistoMaker(path_1e2mu + "muons_ewprompt/", muons_ewprompt, weight);
+		myHistoMaker(path_1e2mu + "muons_offshellW/", muons_offshellW, weight);
+		myHistoMaker(path_1e2mu + "muons_fromtau/", muons_fromtau, weight);
 		myHistoMaker(path_1e2mu + "muons_fake/", muons_fake, weight);
+		myHistoMaker(path_1e2mu + "electrons_signal/", electrons_signal, weight);
+		myHistoMaker(path_1e2mu + "electrons_ewprompt/", electrons_ewprompt, weight);
 		myHistoMaker(path_1e2mu + "electrons_passID/", electrons_passID, weight);
+		myHistoMaker(path_1e2mu + "electrons_offshellW/", electrons_offshellW, weight);
+		myHistoMaker(path_1e2mu + "electrons_fromtau/", electrons_fromtau, weight);
+		myHistoMaker(path_1e2mu + "electrons_conv/", electrons_conv, weight);
 		myHistoMaker(path_1e2mu + "electrons_fake/", electrons_fake, weight);
 		myHistoMaker(path_1e2mu + "jets_cleaned/", jets_cleaned, weight);
 		myHistoMaker(path_1e2mu + "bjets_cleaned/", bjets_cleaned, weight);
