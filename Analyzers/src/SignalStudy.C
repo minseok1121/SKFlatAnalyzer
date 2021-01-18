@@ -32,10 +32,10 @@ void SignalStudy::executeEvent(){
 	vector<Jet> jets = GetAllJets();				sort(jets.begin(), jets.end(), PtComparing);
 	
 	// select objects
-	vector<Muon> muons_passID = SelectMuons(muons, "POGMedium", 8., 2.4);
-	vector<Muon> muons_veto = SelectMuons(muons, "POGLoose", 5., 2.4);
-	vector<Electron> electrons_passID = SelectElectrons(electrons, "passMVAID_noIso_WP90", 8., 2.5);
-	vector<Electron> electrons_veto = SelectElectrons(electrons, "passVetoID", 5., 2.5);
+	vector<Muon> muons_passID = SelectMuons(muons, "POGMedium", 10., 2.4);
+	vector<Muon> muons_veto = SelectMuons(muons, "POGLoose", 8., 2.4);
+	vector<Electron> electrons_passID = SelectElectrons(electrons, "passMVAID_noIso_WP90", 10., 2.5);
+	vector<Electron> electrons_veto = SelectElectrons(electrons, "passVetoID", 8., 2.5);
 
 	// Jets
     vector<Jet> jets_tight = SelectJets(jets, "tight", 10., 2.4);
@@ -59,92 +59,37 @@ void SignalStudy::executeEvent(){
 	vector<Electron> electrons_signal, electrons_ewprompt, electrons_offshellW, electrons_fromtau, electrons_conv, electrons_fake;
 
 	for (const auto &mu: muons_passID) {
-		vector<Gen> matched_gens;
-        for (unsigned int idx=2; idx< gens.size(); idx++) {
-            auto this_gen = gens.at(idx);
-            if (this_gen.Status() != 1) continue;
-            if (abs(this_gen.PID()) != 13) continue;
-			if (this_gen.DeltaR(mu) > 0.1) continue;
-			matched_gens.emplace_back(this_gen);
-		}
-		sort(matched_gens.begin(), matched_gens.end(), PtComparing);
-		Gen* matched_gen = nullptr;
-		if (matched_gens.size() != 0)
-			matched_gen = &matched_gens.at(0);
-
-		if (matched_gen) {
-			int LepType = GetLeptonType_Public(matched_gen->Index(), gens);
-			if (LepType == 1)
-				muons_ewprompt.emplace_back(mu);
-			else if (LepType == 2)
-				muons_signal.emplace_back(mu);
-			else if (LepType == 6)
-				muons_offshellW.emplace_back(mu);
-			else if (LepType == 3) 
-				muons_fromtau.emplace_back(mu);
-			else if (LepType < 0)
-				muons_fake.emplace_back(mu);
-			else
-				continue;
-		}
+		int LepType = GetLeptonType(mu, gens);
+		if (LepType == 1)
+			muons_ewprompt.emplace_back(mu);
+		else if (LepType == 2)
+			muons_signal.emplace_back(mu);
+		else if (LepType == 6)
+			muons_offshellW.emplace_back(mu);
+		else if (LepType == 3) 
+			muons_fromtau.emplace_back(mu);
+		else if (LepType < 0)
+			muons_fake.emplace_back(mu);
+		else
+			continue;
 	}
 	for (const auto &ele: electrons_passID) {
-		vector<Gen> matched_gens;;
-		for (unsigned int idx=2; idx<gens.size(); idx++) {
-			auto this_gen = gens.at(idx);
-			if (this_gen.Status() != 1) continue;
-			if (abs(this_gen.PID() != 11)) continue;
-			if (this_gen.DeltaR(ele) > 0.1) continue;
-			matched_gens.emplace_back(this_gen);
-		}
-		sort(matched_gens.begin(), matched_gens.end(), PtComparing);
-		Gen* matched_gen = nullptr;
-		if (matched_gens.size() != 0)
-			matched_gen = &matched_gens.at(0);
-
-		// check all the electrons in the same SC
-		const double dPhiMax = 0.3, dEtaMax = 0.1;
-		if (matched_gen) {
-			vector<int> LepTypesInSc;
-			for (unsigned int idx = 2; idx < gens.size(); idx++) {
-				auto this_gen = gens.at(idx);
-				const double dPhi = fabs(this_gen.Phi() - matched_gen->Phi());
-				const double dEta = fabs(this_gen.Eta() - matched_gen->Eta());
-				if (this_gen.Status() != 1) continue;
-				if (abs(this_gen.PID()) != 11) continue;
-				if (dPhi > dPhiMax) continue;
-				if (dEta > dEtaMax) continue;
-				int LepType = GetLeptonType_Public(idx, gens);
-				LepTypesInSc.emplace_back(LepType);
-			}
-			bool isSignal 
-				= find(LepTypesInSc.begin(), LepTypesInSc.end(), 2) != LepTypesInSc.end();
-			bool isOffshellW 
-				= (!isSignal) && find(LepTypesInSc.begin(), LepTypesInSc.end(), 6) != LepTypesInSc.end();
-			bool isPrompt 
-				= (!(isOffshellW||isSignal))
-						&& find(LepTypesInSc.begin(), LepTypesInSc.end(), 1) != LepTypesInSc.end();
-			bool isFromTau 
-				= (!(isSignal||isOffshellW||isPrompt)) 
-					&& find(LepTypesInSc.begin(), LepTypesInSc.end(), 3) != LepTypesInSc.end();
-			bool isConv
-				= (!(isSignal||isOffshellW||isPrompt||isFromTau))
-					&& (find(LepTypesInSc.begin(), LepTypesInSc.end(), 4) != LepTypesInSc.end()
-					|| find(LepTypesInSc.begin(), LepTypesInSc.end(), 5) != LepTypesInSc.end());
-			if (isSignal)
-				electrons_signal.emplace_back(ele);
-			else if (isOffshellW)
-				electrons_offshellW.emplace_back(ele);
-			else if (isPrompt)
-				electrons_ewprompt.emplace_back(ele);
-			else if (isFromTau)
-				electrons_ewprompt.emplace_back(ele);
-			else if (isConv)
-				electrons_conv.emplace_back(ele);
-			else
-				electrons_fake.emplace_back(ele);
-		}
-	}
+		int LepType = GetLeptonType(ele, gens);
+		if (LepType == 1)
+			electrons_ewprompt.emplace_back(ele);
+		else if (LepType == 2)
+			electrons_signal.emplace_back(ele);
+		else if (LepType == 6)
+			electrons_offshellW.emplace_back(ele);
+		else if (LepType == 3)
+			electrons_fromtau.emplace_back(ele);
+		else if (LepType == 4 || LepType == 5)
+			electrons_conv.emplace_back(ele);
+		else if (LepType < 0)
+			electrons_fake.emplace_back(ele);
+		else
+			continue;
+    }	
 	
 	// set weight
 	double weight = 1.;
