@@ -1,0 +1,18 @@
+# VV
+WZTo3LNu_powheg
+ZZTo4L_powheg
+ZGToLLG_01J
+# ttV, tV
+ttHToNonbb
+ttWToLNu
+ttZToLLNuNu
+# tZq # not in the sample list
+TTG
+# VVV
+WWW
+WWZ
+WZZ
+ZZZ
+# HtoZZto4L
+VBF_HToZZTo4L
+ggHToZZTo4L

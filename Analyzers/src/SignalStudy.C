@@ -97,6 +97,8 @@ void SignalStudy::executeEvent(){
 	w_prefire = GetPrefireWeight(0);
 	w_gen = ev.MCweight()*weight_norm_1invpb;
 	w_lumi = ev.GetTriggerLumi("Full");
+	cout << "MCweight: " << ev.MCweight() << endl;
+	cout << "weight_norm_1invpb: " << weight_norm_1invpb << endl;
 	weight *= w_prefire*w_gen*w_lumi;
 
 	// 3mu channel
