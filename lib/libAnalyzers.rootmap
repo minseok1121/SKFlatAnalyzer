@@ -3,9 +3,11 @@
 class AnalyzerCore
 class ExampleRun
 class GetEffLumi
+class HistoMaker
 class MeasureJetTaggingEfficiency
 class SKFlatNtuple
 class SKFlatValidation
+class SigToBkg
 class SignalStudy
 class SkimTree_Dilepton
 class SkimTree_HNFake
@@ -15,9 +17,11 @@ class TestAnalyzer
 header AnalyzerCore.h
 header ExampleRun.h
 header GetEffLumi.h
+header HistoMaker.h
 header MeasureJetTaggingEfficiency.h
 header SKFlatNtuple.h
 header SKFlatValidation.h
+header SigToBkg.h
 header SignalStudy.h
 header SkimTree_Dilepton.h
 header SkimTree_HNFake.h

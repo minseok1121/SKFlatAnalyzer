@@ -17,4 +17,6 @@
 #pragma link C++ class MeasureJetTaggingEfficiency+;
 #pragma link C++ class TestAnalyzer+;
 #pragma link C++ class SignalStudy+;
+#pragma link C++ class SigToBkg+;
+#pragma link C++ class HistoMaker+;
 #endif

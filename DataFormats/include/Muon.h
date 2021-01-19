@@ -99,6 +99,8 @@ public:
   inline double softMVA() const { return j_softMVA; }
 
   //==== ID
+  bool Pass_HcToWATight() const;
+  bool Pass_HcToWALoose() const;
   bool PassID(TString ID) const;
   bool Pass_POGTightWithTightIso() const;
   bool Pass_POGHighPtWithLooseTrkIso() const;

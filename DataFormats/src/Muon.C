@@ -109,6 +109,10 @@ bool Muon::PassID(TString ID) const {
   if(ID=="LepMVALoose") return Pass_LeptonMVALoose();
   if(ID=="LepMVATight") return Pass_LeptonMVATight();
 
+  //==== HcToWA
+  if(ID=="HcToWATight") return Pass_HcToWATight();
+  if(ID=="HcToWALoose") return Pass_HcToWALoose();
+
   //==== No cut
   if(ID=="NOCUT") return true;
 
@@ -130,6 +134,20 @@ bool Muon::Pass_POGHighPtWithLooseTrkIso() const {
 }
 
 //==== TEST ID
+bool Muon::Pass_HcToWATight() const {
+	if (! isPOGMedium() ) return false;
+	if (! (MiniRelIso() < 0.1)) return false;
+	if (! (fabs(dZ()) < 0.1)) return false;
+	if (! (IP3Derr() != 0 && fabs(IP3D()/IP3Derr()) < 4.)) return false;
+	return true;
+}
+bool Muon::Pass_HcToWALoose() const {
+	if (! isPOGMedium() ) return false;
+	if (! (MiniRelIso() < 0.4)) return false;
+	if (! (fabs(dZ()) < 0.1)) return false;
+	if (! (IP3Derr() != 0 && fabs(IP3D()/IP3Derr()) < 4.)) return false;
+	return true;
+}
 
 bool Muon::Pass_TESTID() const {
   return true;
