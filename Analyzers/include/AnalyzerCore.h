@@ -229,6 +229,16 @@ public:
 
 
   //==== JSFillHist : 1D
+  
+  //==== Plotting (added by Jin)
+  map<TString, vector<TString>> _cuts;
+  void InitiateCutflow(const TString &region, const vector<TString>& cuts);
+  void FillCutflow(const TString& region, const TString& cut);
+  void FillObjects(const TString path, const vector<Muon>& muons, const double& weight);
+  void FillObjects(const TString path, const vector<Electron>& electrons, const double& weight);
+  void FillObjects(const TString path, const vector<Jet>& jets, const double& weight);
+  void FillObject(const TString path, const Particle& part, const double &weight);
+
   std::map< TString, std::map<TString, TH1D*> > JSmaphist_TH1D;
   TH1D* JSGetHist1D(TString suffix, TString histname);
   void JSFillHist(TString suffix, TString histname, double value, double weight, int n_bin, double x_min, double x_max);

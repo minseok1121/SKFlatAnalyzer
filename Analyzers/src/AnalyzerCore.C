@@ -1947,6 +1947,142 @@ TH1D* AnalyzerCore::JSGetHist1D(TString suffix, TString histname){
 
 }
 
+//==== Histogram Manager set by Jin
+void AnalyzerCore::InitiateCutflow(const TString& region, const vector<TString>& cuts) 
+{ 
+	this->_cuts[region] = cuts;
+}
+
+void AnalyzerCore::FillCutflow(const TString& region, const TString& cut) {
+	auto cuts = this->_cuts[region];
+	bool isFilled = false;
+	const unsigned int ncuts = cuts.size();
+	for (unsigned int i = 0; i < ncuts; i++) {
+		if (cut == cuts.at(i)) {
+			FillHist("cutflow/" + region, static_cast<double>(i), 1., ncuts, 0., static_cast<double>(ncuts));
+			isFilled = true;
+			break;
+		}
+	}
+
+	if (!isFilled)
+		cerr << "[AnalyzerCore::FillCutflow] no cut named " << cut << " in region " << region << endl;
+}
+
+void AnalyzerCore::FillObjects(const TString path, const vector<Muon>& muons, const double& weight) {
+	TString obj_path;
+    FillHist(path + "/size", muons.size(), weight, 10, 0., 10.);
+    for (unsigned int i = 0; i < muons.size(); i++) {
+        obj_path = path + "/" + TString::Itoa(i+1, 10) + "/";
+		const Muon& mu = muons.at(i);
+	
+		// pt eta phi
+        double this_pt = mu.Pt();
+        if (this_pt > 300.)
+            this_pt = 299.9;
+        FillHist(obj_path + "pt", this_pt, weight, 300, 0., 300.);
+        FillHist(obj_path + "eta", mu.Eta(), weight, 48, -2.4, 2.4);
+        FillHist(obj_path + "phi", mu.Phi(), weight, 64, -3.2, 3.2);
+    
+        // Isolation
+        double this_relIso = mu.RelIso();
+        double this_trkIso = mu.TrkIso()/mu.Pt();
+        double this_miniIso = mu.MiniRelIso();
+        if (this_relIso > 0.5)
+            this_relIso = 0.499;
+        if (this_trkIso > 0.8)
+            this_trkIso = 0.799;
+        if (this_miniIso > 0.8)
+            this_miniIso = 0.799;
+        FillHist(obj_path + "relIso", this_relIso, weight, 50, 0., 0.5);
+        FillHist(obj_path + "trkIso", this_trkIso, weight, 80, 0., 0.8);
+        FillHist(obj_path + "miniRelIso", this_miniIso, weight, 80, 0., 0.8);
+		
+		// Impact Parameters
+        double this_dZ = fabs(mu.dZ());
+        double this_dXY = fabs(mu.dXY());
+        double this_SIP3D = -999.;
+        if (mu.IP3Derr() != 0)
+            this_SIP3D = fabs(mu.IP3D()/mu.IP3Derr());
+        if (this_dZ > 0.8) this_dZ = 0.799;
+        if (this_dXY > 0.5) this_dXY = 0.499;
+        if (this_SIP3D > 10.) this_SIP3D = 9.99;
+        FillHist(obj_path + "dZ", this_dZ, weight, 80, 0., 0.8);
+        FillHist(obj_path + "dXY", this_dXY, weight, 50, 0., 0.5);
+        FillHist(obj_path + "SIP3D", this_SIP3D, weight, 100, 0., 10.);
+    }
+}
+
+void AnalyzerCore::FillObjects(const TString path, const vector<Electron>& electrons, const double& weight) {
+	TString obj_path;
+	FillHist(path + "/size", electrons.size(), weight, 10, 0., 10.);
+	for (unsigned int i = 0; i < electrons.size(); i++) {
+		obj_path = path + "/" + TString::Itoa(i+1, 10) + "/";
+		const Electron& ele = electrons.at(i);
+		// pt eta phi
+		double this_pt = ele.Pt();
+		if (this_pt > 300.)
+			this_pt = 299.9;
+		FillHist(obj_path + "pt", this_pt, weight, 300, 0., 300.);
+		FillHist(obj_path + "eta", ele.Eta(), weight, 50, -2.5, 2.5);
+		FillHist(obj_path + "phi", ele.Phi(), weight, 64, -3.2, 3.2);
+		
+		// Isolation
+		double this_relIso = ele.RelIso();
+		double this_trkIso = ele.TrkIso()/ele.Pt();
+		double this_miniIso = ele.MiniRelIso();
+		if (this_relIso > 0.5)
+			this_relIso = 0.499;
+		if (this_trkIso > 0.8)
+			this_trkIso = 0.799;
+		if (this_miniIso > 0.8)
+			this_miniIso = 0.799;
+		FillHist(obj_path + "relIso", this_relIso, weight, 50, 0., 0.5);
+		FillHist(obj_path + "trkIso", this_trkIso, weight, 80, 0., 0.8);
+		FillHist(obj_path + "miniRelIso", this_miniIso, weight, 80, 0., 0.8);
+
+		// Impact Parameters
+		double this_dZ = fabs(ele.dZ());
+		double this_dXY = fabs(ele.dXY());
+		double this_SIP3D = -999.;
+		if (ele.IP3Derr() != 0)
+			this_SIP3D = fabs(ele.IP3D() / ele.IP3Derr());
+		if (this_dZ > 0.8) this_dZ= 0.799;
+		if (this_dXY > 0.5) this_dXY = 0.499;
+		if (this_SIP3D > 10.) this_SIP3D = 9.99;
+		FillHist(obj_path + "dZ", this_dZ, weight, 80, 0., 0.8);
+		FillHist(obj_path + "dXY", this_dXY, weight, 50, 0., 0.5);
+		FillHist(obj_path + "SIP3D", this_SIP3D, weight, 100, 0., 10.);
+	
+		// Missing Hits
+		FillHist(obj_path + "nMissingHits", ele.NMissingHits(), weight, 10, 0., 10.);
+	}
+}
+
+void AnalyzerCore::FillObjects(TString path, const vector<Jet>& jets, const double& weight) {
+	TString obj_path;
+	FillHist(path + "/size", jets.size(), weight, 18, 0., 18.);
+	for (unsigned int i = 0; i < jets.size(); i++) {
+		obj_path = path + "/" + TString::Itoa(i+1, 10) + "/";
+		const Jet& jet = jets.at(i);
+
+		// pt eta phi
+		double this_pt = jet.Pt();
+		if (this_pt > 300.)
+			this_pt = 299.9;
+		FillHist(obj_path + "pt", this_pt, weight, 300, 0, 300.);
+		FillHist(obj_path + "eta",  jet.Eta(), weight, 48, -2.4, 2.4);
+		FillHist(obj_path + "phi", jet.Phi(), weight, 64, -3.2, 3.2);
+	}
+}
+
+void AnalyzerCore::FillObject(TString path, const Particle& part, const double& weight) {
+	FillHist(path + "/pt", part.Pt(), weight, 500, 0., 500.);
+	FillHist(path + "/eta", part.Eta(), weight, 60, -3.0, 3.0);
+	FillHist(path + "/phi", part.Phi(), weight, 64, -3.2, 3.2);
+	FillHist(path + "/mass", part.M(), weight, 200, 0., 200.);
+}
+
 void AnalyzerCore::JSFillHist(TString suffix, TString histname, double value, double weight, int n_bin, double x_min, double x_max){
 
   TH1D *this_hist = JSGetHist1D(suffix, histname);
