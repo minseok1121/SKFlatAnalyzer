@@ -135,10 +135,18 @@ void MCCorrection::ReadHistograms(){
     if(DataYear == 2017 && a!=MCSample) continue;
     
     TFile *file = new TFile(PUReweightPath+c);
-    if( (TH1D *)file->Get(a+"_"+b) ){
-      histDir->cd();
-      map_hist_pileup[a+"_"+b+"_pileup"] = (TH1D *)file->Get(a+"_"+b)->Clone();
-    }
+    //if( (TH1D *)file->Get(a+"_"+b) ){
+    //  histDir->cd();
+    //  map_hist_pileup[a+"_"+b+"_pileup"] = (TH1D *)file->Get(a+"_"+b)->Clone();
+    //}
+	if ((TH1D*)file->Get(a+"_"+b) || (TH1D*)file->Get(b)) {
+	  histDir->cd();
+	//wrongPU in 2017, b = central/sig_up/sig_down, c = Pileup_reweight_69p2_mb.root  ||  PU in 2016, 2018
+	  if ((TH1D*)file->Get(a+"_"+b))
+	    map_hist_pileup[a+"_"+b+"_pileup"] = (TH1D*)file->Get(a+"_"+b)->Clone();
+	  if ((TH1D*)file->Get(b))
+	    map_hist_pileup[a+"_"+b+"_pileup"] = (TH1D*)file->Get(b)->Clone();
+	}
     else{
       cout << "[MCCorrection::ReadHistograms] No : " << a + "_" + b << endl;
     }
@@ -265,7 +273,7 @@ double MCCorrection::MuonID_SF(TString ID, double eta, double pt, int sys){
 
   int this_bin(-999);
 
-  if(DataYear==2016){
+  if(DataYear==2016 || ID=="HcToWATight"){
     this_bin = this_hist->FindBin(eta,pt);
   }
   else{
@@ -774,24 +782,44 @@ double MCCorrection::GetPileUpWeight(int N_pileup, int syst){
   int this_bin = N_pileup+1;
   if(N_pileup >= 100) this_bin=100;
 
-  TString this_histname = "MC_" + TString::Itoa(DataYear,10);
-  if(syst == 0){
-    this_histname += "_central_pileup";
+  TString this_histname;
+  if (DataYear == 2016 || DataYear == 2018) {
+	this_histname = "MC_" + TString::Itoa(DataYear,10);
+	if(syst == 0){
+	  this_histname += "_central_pileup";
+	}
+	else if(syst == -1){
+      this_histname += "_sig_down_pileup";
+	}
+    else if(syst == 1){
+      this_histname += "_sig_up_pileup";
+    }
+    else{
+      cerr << "[MCCorrection::GetPileUpWeightBySampleName] syst should be 0, -1, or +1" << endl;
+      exit(EXIT_FAILURE);
+    }
   }
-  else if(syst == -1){
-    this_histname += "_sig_down_pileup";
+  else if (DataYear == 2017) {
+	this_histname = MCSample;
+	if (syst == 0)
+		this_histname += "_PUReweight_2017_pileup";
+	else if (syst == -1)
+		this_histname += "_PUReweight_2017_Down_pileup";
+	else if (syst == 1)
+		this_histname += "_PUReweight_2017_Up_pileup";
+	else {
+		cerr << "[MCCorrection::GetPileUpWeight] syst should be 0, -1, or +1" << endl;
+		exit(EXIT_FAILURE);
+	}
   }
-  else if(syst == 1){
-    this_histname += "_sig_up_pileup";
-  }
-  else{
-    cerr << "[MCCorrection::GetPileUpWeightBySampleName] syst should be 0, -1, or +1" << endl;
-    exit(EXIT_FAILURE);
+  else {
+	cerr << "[MCCorrection::GetPileUpWeight] Wrong Year" << endl;
+	exit(EXIT_FAILURE);
   }
 
   TH1D *this_hist = map_hist_pileup[this_histname];
   if(!this_hist){
-    cerr << "[MCCorrection::GetPileUpWeightBySampleName] No " << this_histname << endl;
+	cerr << "[MCCorrection::GetPileUpWeight] No " << this_histname << endl;
     exit(EXIT_FAILURE);
   }
 

@@ -1,27 +1,27 @@
-#ifndef SigToBkg_h
-#define SigToBkg_h
+#ifndef CRstudy_h
+#define CRstudy_h
 
 #include "AnalyzerCore.h"
 
-class SigToBkg : public AnalyzerCore {
+class CRstudy : public AnalyzerCore {
 public:
 	// constructor and destructor
-	SigToBkg();
-	~SigToBkg();
-	
+	CRstudy();
+	~CRstudy();
+
 	// Initialization
 	void initializeAnalyzer();
 	vector<TString> trigs_dimu, trigs_emu;
 	vector<TString> HcToWA_MuID, HcToWA_EleID;
 	vector<TString> regions;
-	vector<TString> cuts;
-	
-	// ExectueEvent
+	vector<TString> getCuts(TString region);
+
+	// ExecuteEvent
 	void executeEvent();
-	TString SignalRegionSelector(
+	TString ControlRegionSelector(
 			Event &ev,
 			vector<Muon> &muons_tight, vector<Electron> &electrons_tight,
-			vector<Muon> &muon_loose, vector<Electron> &electrons_loose,
+			vector<Muon> &muons_loose, vector<Electron> &electrons_loose,
 			vector<Jet> &jets, vector<Jet> &bjets);
 
 };
