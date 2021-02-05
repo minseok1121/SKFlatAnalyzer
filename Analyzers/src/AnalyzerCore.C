@@ -708,6 +708,22 @@ std::vector<Jet> AnalyzerCore::SelectJets(const std::vector<Jet>& jets, TString 
 
 }
 
+std::vector<Jet> AnalyzerCore::SelectPUvetoJets(const std::vector<Jet>& jets, const TString wp) {
+	std::vector<Jet> out;
+	for (const auto& j: jets) {
+		// only supported with pt < 50 jets
+		if (j.Pt() > 50 || fabs(j.Eta() > 5.))
+			out.emplace_back(j);
+		else {
+			if (j.PassPileupMVA(wp))
+				out.emplace_back(j);
+			else
+				continue;
+		}
+	}
+	return out;
+}
+
 std::vector<FatJet> AnalyzerCore::SelectFatJets(const std::vector<FatJet>& jets, TString id, double ptmin, double fetamax){
 
   std::vector<FatJet> out;
@@ -2069,7 +2085,7 @@ void AnalyzerCore::FillObjects(TString path, const vector<Jet>& jets, const doub
 		if (this_pt > 300.)
 			this_pt = 299.9;
 		FillHist(obj_path + "pt", this_pt, weight, 300, 0, 300.);
-		FillHist(obj_path + "eta",  jet.Eta(), weight, 48, -2.4, 2.4);
+		FillHist(obj_path + "eta",  jet.Eta(), weight, 54, -2.7, 2.7);
 		FillHist(obj_path + "phi", jet.Phi(), weight, 64, -3.2, 3.2);
 	}
 }

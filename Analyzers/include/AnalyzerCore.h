@@ -97,7 +97,7 @@ public:
   std::vector<Muon> SelectMuons(const std::vector<Muon>& muons, TString id, double ptmin, double fetamax);
 
   std::vector<Jet> SelectJets(const std::vector<Jet>& jets, TString id, double ptmin, double fetamax);
-
+  std::vector<Jet> SelectPUvetoJets(const std::vector<Jet>& jets, const TString wp);
   std::vector<FatJet> SelectFatJets(const std::vector<FatJet>& jets, TString id, double ptmin, double fetamax);
 
   //==================

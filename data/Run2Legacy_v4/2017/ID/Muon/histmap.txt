@@ -11,3 +11,11 @@ Trigger	Eff_DATA	Mu50_POGHighPtLooseTrkIso	HighPtMuonTriggerSF_Run2017.root	Eff_
 Trigger	Eff_MC	Mu50_POGHighPtLooseTrkIso	HighPtMuonTriggerSF_Run2017.root	Eff_MC
 Trigger Eff_DATA	Mu50_POGHighPt		MuonTriggerEfficiency_ZprimeToNN_Mu50_Run2017BCDEF_Central.root	TriggerEff_HNDilepton_BCDEF_Data
 Trigger Eff_MC		Mu50_POGHighPt		MuonTriggerEfficiency_ZprimeToNN_Mu50_Run2017BCDEF_Central.root	TriggerEff_HNDilepton_BCDEF_MC
+Trigger Eff_DATA DiMuIsoMu17_HNTopID   TrigSF_Mu17Leg_TopHNID.root                  muonEffi_data_eta_pt
+Trigger Eff_MC   DiMuIsoMu17_HNTopID   TrigSF_Mu17Leg_TopHNID.root                  muonEffi_mc_eta_pt
+Trigger Eff_DATA DiMuIsoMu8_HNTopID    TrigSF_Mu8Leg_TopHNID.root                   muonEffi_data_eta_pt
+Trigger Eff_MC   DiMuIsoMu8_HNTopID    TrigSF_Mu8Leg_TopHNID.root                   muonEffi_mc_eta_pt
+Trigger Eff_DATA EMuIsoMu23_HNTopID    TrigSF_EMuTrigMuLeg_TopHNID.root             hEff_EMuTrigMu23_Data_ALL
+Trigger Eff_MC   EMuIsoMu23_HNTopID    TrigSF_EMuTrigMuLeg_TopHNID.root             hEff_EMuTrigMu23_MC_ALL
+Trigger Eff_DATA EMuIsoMu8_HNTopID     TrigSF_EMuTrigMuLeg_TopHNID.root             hEff_EMuTrigMu8_Data_ALL
+Trigger Eff_MC   EMuIsoMu8_HNTopID     TrigSF_EMuTrigMuLeg_TopHNID.root             hEff_EMuTrigMu8_MC_ALL

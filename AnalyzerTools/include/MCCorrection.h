@@ -74,6 +74,7 @@ public:
   double GetPrefireWeight(const std::vector<Photon>& photons, const std::vector<Jet>& jets, int sys);
 
   std::map< TString, TH1D* > map_hist_pileup;
+  std::map< TString, TH2F* > map_hist_puveto;
   double GetPileUpWeightBySampleName(int N_pileup, int syst);
   double GetPileUpWeight(int N_pileup, int syst);
 
@@ -110,6 +111,10 @@ public:
   //==== 2a) Jet-by-jet updating of the b-tagging status
   bool IsBTagged_2a(JetTagging::Parameters jtp, const Jet& jet, string Syst="central");
 
+  float GetTriggerSF(vector<Electron>& EleColl, vector<Muon>& MuColl, TString SFKey, TString Option);
+  float TriggerEfficiency(vector<Electron>& EleColl, vector<Muon>& MuColl, TString SFKey, bool ReturnDataEff, TString Option);
+
+  double GetPUVetoSF(const vector<Jet>& jets, const TString wp);
 };
 
 #endif

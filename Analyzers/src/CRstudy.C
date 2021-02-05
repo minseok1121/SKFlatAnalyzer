@@ -72,11 +72,11 @@ void CRstudy::executeEvent(){
 	vector<Muon> muons_loose = SelectMuons(muons, "HcToWALoose", 10., 2.4);
 	vector<Electron> electrons_tight = SelectElectrons(electrons, "HcToWATight", 10., 2.5);
 	vector<Electron> electrons_loose = SelectElectrons(electrons, "HcToWALoose", 10., 2.5);
-	vector<Jet> jets_tight = SelectJets(jets, "tight", 20., 2.7);
+	vector<Jet> jets_tight = SelectJets(jets, "tight", 25., 2.4);
 	vector<Jet> jets_cleaned = JetsVetoLeptonInside(jets_tight, electrons_loose, muons_loose, 0.4);
-	vector<Jet> jets_subcoll = SelectJets(jets_cleaned, "tight", 20., 2.4);
+	//vector<Jet> jets_puveto = SelectPUvetoJets(jets_cleaned, "medium");
 	vector<Jet> bjets_cleaned;
-	for (const auto& jet: jets_subcoll) {
+	for (const auto& jet: jets_cleaned) {
 		const double this_discr = jet.GetTaggerResult(JetTagging::DeepCSV);
 		if (this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepJet, JetTagging::Medium))
 			bjets_cleaned.emplace_back(jet);
@@ -97,18 +97,23 @@ void CRstudy::executeEvent(){
 		const double w_gen = ev.MCweight() * weight_norm_1invpb;
 		const double w_lumi = ev.GetTriggerLumi("Full");
 		const double w_pileup = GetPileUpWeight(nPileUp, 0);
-		//cout << w_prefire << " " << w_gen << " " << w_lumi << " " << w_pileup << endl;
+		//cout << "w_prefire: " <<  w_prefire << endl;
+		//cout << "w_gen: " << w_gen << endl;
+		//cout << "w_lumi: " << w_lumi << endl;
+		//cout << "w_pileup: " << w_pileup << endl;
 		weight *= w_prefire*w_gen*w_lumi*w_pileup;
 
 		// ID scale factors
 		double w_idsf = 1.;
 		const TString ID = "HcToWATight";
+		double w_trigsf = 1.;
 		if (channel.Contains("DiMu")) {
 			const Muon& mu1 = muons_tight.at(0);
 			const Muon& mu2 = muons_tight.at(1);
 			const double mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), 0);
 			const double mu2_idsf = mcCorr->MuonID_SF(ID, mu2.Eta(), mu2.MiniAODPt(), 0);
 			w_idsf *= mu1_idsf*mu2_idsf;
+			w_trigsf = mcCorr->GetTriggerSF(electrons_tight, muons_tight, "DiMuIso_HNTopID", "");
 		}
 		if (channel.Contains("EMu")) {
 			const Muon& mu = muons_tight.at(0);
@@ -116,24 +121,32 @@ void CRstudy::executeEvent(){
 			const double mu_idsf = mcCorr->MuonID_SF(ID, mu.Eta(), mu.MiniAODPt(), 0);
 			const double ele_idsf = mcCorr->ElectronID_SF(ID, ele.scEta(), ele.Pt(), 0);
 			w_idsf *= mu_idsf*ele_idsf;
+			w_trigsf = mcCorr->GetTriggerSF(electrons_tight, muons_tight, "EMuIso_HNTopID", "");
 		}
 		//cout << "w_idsf: " << w_idsf << endl;
-		weight *= w_idsf;
+		//cout << "w_trigsf: " << w_trigsf << endl;
+		weight *= w_idsf*w_trigsf;
 
 		// b-tagging SF
 		JetTagging::Parameters jtp_DeepJet_Medium 
 			= JetTagging::Parameters(JetTagging::DeepJet, JetTagging::Medium, JetTagging::incl, JetTagging::mujets);
 								
-		const double w_btag = mcCorr->GetBTaggingReweight_1a(jets_subcoll, jtp_DeepJet_Medium);
+		const double w_btag = mcCorr->GetBTaggingReweight_1a(jets_cleaned, jtp_DeepJet_Medium);
 		//cout << "w_btag: " << w_btag << endl;
 		weight *= w_btag;
-
+		
+		// pu-veto SF
+		//const double w_puveto = mcCorr->GetPUVetoSF(jets_cleaned, "medium");
+		//cout << "w_puveto: " << w_puveto << endl;
+		//weight *= w_puveto;
 	}
-
+	
+	
 	// Fill Hist
 	FillObjects(channel + "/muons_tight", muons_tight, weight);
 	FillObjects(channel + "/electrons_tight", electrons_tight, weight);
 	FillObjects(channel + "/jets_cleaned", jets_cleaned, weight);
+	//FillObjects(channel + "/jets_puveto", jets_puveto, weight);
 	FillObjects(channel + "/bjets_cleaned", bjets_cleaned, weight);
 	FillObject(channel + "/METv", METv, weight);
 	if (channel == "DY_DiMu" || channel == "TT_DiMu") {
@@ -251,39 +264,3 @@ TString CRstudy::ControlRegionSelector(
 	}
 	return region;
 }
-
-		
-		
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	

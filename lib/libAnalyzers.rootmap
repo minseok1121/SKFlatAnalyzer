@@ -5,6 +5,7 @@ class CRstudy
 class ExampleRun
 class GetEffLumi
 class MeasureJetTaggingEfficiency
+class Preselection
 class SKFlatNtuple
 class SKFlatValidation
 class SigToBkg
@@ -19,6 +20,7 @@ header CRstudy.h
 header ExampleRun.h
 header GetEffLumi.h
 header MeasureJetTaggingEfficiency.h
+header Preselection.h
 header SKFlatNtuple.h
 header SKFlatValidation.h
 header SigToBkg.h

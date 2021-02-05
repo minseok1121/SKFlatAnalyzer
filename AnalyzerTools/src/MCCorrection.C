@@ -137,7 +137,7 @@ void MCCorrection::ReadHistograms(){
     TFile *file = new TFile(PUReweightPath+c);
     //if( (TH1D *)file->Get(a+"_"+b) ){
     //  histDir->cd();
-    //  map_hist_pileup[a+"_"+b+"_pileup"] = (TH1D *)file->Get(a+"_"+b)->Clone();
+    //  map_hist_puveto[a+"_"+b+"_pileup"] = (TH1D *)file->Get(a+"_"+b)->Clone();
     //}
 	if ((TH1D*)file->Get(a+"_"+b) || (TH1D*)file->Get(b)) {
 	  histDir->cd();
@@ -154,7 +154,57 @@ void MCCorrection::ReadHistograms(){
     delete file;
     origDir->cd();
   }
-/*
+
+  // Get PUveto SF
+  TString PUVetoReweightPath = datapath+"/"+TString::Itoa(DataYear,10)+"/PileUp/";
+  TString year = TString::Itoa(DataYear, 10);
+  TString path_puveto_eff = PUVetoReweightPath + "effcyPUID_81Xtraining.root";
+  TFile* f_puveto_eff = new TFile(path_puveto_eff);
+  if (!f_puveto_eff) {
+	  std::cerr << "[MCCorrection::ReadHistograms] No : " << path_puveto_eff << std::endl;
+	  exit(EXIT_FAILURE);
+  }
+  histDir->cd();
+  map_hist_puveto["PUVeto_eff_mc" + year+"_L"] 
+	  = (TH2F*)f_puveto_eff->Get("h2_eff_mc"+year+"_L")->Clone();
+  map_hist_puveto["PUVeto_eff_mc" + year+"_M"] 
+	  = (TH2F*)f_puveto_eff->Get("h2_eff_mc"+year+"_M")->Clone();
+  map_hist_puveto["PUVeto_eff_mc" + year+"_T"] 
+	  = (TH2F*)f_puveto_eff->Get("h2_eff_mc"+year+"_T")->Clone();
+  map_hist_puveto["PUVeto_mistag_mc" + year+"_L"] 
+	  = (TH2F*)f_puveto_eff->Get("h2_mistag_mc"+year+"_L")->Clone();
+  map_hist_puveto["PUVeto_mistag_mc" + year+"_M"] 
+	  = (TH2F*)f_puveto_eff->Get("h2_mistag_mc"+year+"_M")->Clone();
+  map_hist_puveto["PUVeto_mistag_mc" + year+"_T"] 
+	  = (TH2F*)f_puveto_eff->Get("h2_mistag_mc"+year+"_T")->Clone();
+  f_puveto_eff->Close();
+  delete f_puveto_eff;
+  origDir->cd();
+  // no systematic uncertainties yet
+  TString path_puveto_sf = PUVetoReweightPath + "scalefactorsPUID_81Xtraining.root";
+  TFile* f_puveto_sf = new TFile(path_puveto_sf);
+  if (!f_puveto_sf) {
+	  std::cerr << "[MCCorrection::ReadHistograms] No : " << path_puveto_sf << std::endl;
+	  exit(EXIT_FAILURE);
+  }
+  histDir->cd();
+  map_hist_puveto["PUVeto_eff_sf" + year+"_L"] 
+	  = (TH2F*)f_puveto_sf->Get("h2_eff_sf"+year+"_L")->Clone();
+  map_hist_puveto["PUVeto_eff_sf" + year+"_M"] 
+	  = (TH2F*)f_puveto_sf->Get("h2_eff_sf"+year+"_M")->Clone();
+  map_hist_puveto["PUVeto_eff_sf" + year+"_T"] 
+	  = (TH2F*)f_puveto_sf->Get("h2_eff_sf"+year+"_T")->Clone();
+  map_hist_puveto["PUVeto_mistag_sf" + year+"_L"] 
+	  = (TH2F*)f_puveto_sf->Get("h2_mistag_sf"+year+"_L")->Clone();
+  map_hist_puveto["PUVeto_mistag_sf" + year+"_M"] 
+	  = (TH2F*)f_puveto_sf->Get("h2_mistag_sf"+year+"_M")->Clone();
+  map_hist_puveto["PUVeto_mistag_sf" + year+"_T"] 
+	  = (TH2F*)f_puveto_sf->Get("h2_mistag_sf"+year+"_T")->Clone();  
+  f_puveto_sf->Close();
+  delete f_puveto_sf;
+  origDir->cd();
+
+  /*
   cout << "[MCCorrection::MCCorrection] map_hist_pileup :" << endl;
   for(std::map< TString, TH1D* >::iterator it=map_hist_pileup.begin(); it!=map_hist_pileup.end(); it++){
     cout << it->first << endl;

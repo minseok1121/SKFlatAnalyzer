@@ -40,7 +40,8 @@ public:
   bool PassID(TString ID) const;
 
   double GetTaggerResult(JetTagging::Tagger tg) const;
-
+  bool PassPileupMVA(TString WP) const;
+  double PileupJetId() const;
 private:
 
   double  j_area;
