@@ -1,16 +1,59 @@
 #include "Preselection.h"
 
 Preselection::Preselection() {}
-Preselection::~Preselection() {}
+Preselection::~Preselection() {
+	if (SkimBaseline) {
+		outfile->cd();
+		tree->Write();
+	}
+}
 
 void Preselection::initializeAnalyzer(){
 
 	// flags
-	RunLowPtJet = HasFlag("RunLowPtJet");
 	RunDeepCSV = HasFlag("RunDeepCSV");
-	cout << "[Preselection::initializeAnalyzer] RunLowPtJet = " << RunLowPtJet << endl;
+	RunPUVeto = HasFlag("RunPUVeto");
+	SkimBaseline = HasFlag("SkimBaseline");
+	SkipPUweight = HasFlag("SkipPUweight");
 	cout << "[Preselection::initializeAnalyzer] RunDeepCSV = " << RunDeepCSV << endl;
+	cout << "[Preselection::initializeAnalyzer] SkimBaseline = " << SkimBaseline << endl;
 
+	// prepare root file for RDataFrame
+	// TTree base
+	if (SkimBaseline) {
+		tree = new TTree("Events", "Events");
+		tree->Branch("ptMu1", &ptMu1);
+		tree->Branch("ptMu2", &ptMu2);
+		tree->Branch("ptMu3", &ptMu3);
+		tree->Branch("etaMu1", &etaMu1);
+		tree->Branch("etaMu2", &etaMu2);
+		tree->Branch("etaMu3", &etaMu3);
+		tree->Branch("phiMu1", &phiMu1);
+		tree->Branch("phiMu2", &phiMu2);
+		tree->Branch("phiMu3", &phiMu3);
+		tree->Branch("ptJ1", &ptJ1);
+		tree->Branch("ptJ2", &ptJ2);
+		tree->Branch("etaJ1", &etaJ1);
+		tree->Branch("etaJ2", &etaJ2);
+		tree->Branch("phiJ1", &phiJ1);
+		tree->Branch("phiJ2", &phiJ2);
+		tree->Branch("dRl1l2", &dRl1l2);
+		tree->Branch("dRl1l3", &dRl1l3);
+		tree->Branch("dRl2l3", &dRl2l3);
+		tree->Branch("dRj1l1", &dRj1l1);
+		tree->Branch("dRj1l2", &dRj1l2);
+		tree->Branch("dRj1l3", &dRj1l3);
+		tree->Branch("dRj2l1", &dRj2l3);
+		tree->Branch("dRj2l2", &dRj2l2);
+		tree->Branch("dRj2l3", &dRj2l3);
+		tree->Branch("dRj1j2", &dRj1j2);
+		tree->Branch("HT", &HT);
+		tree->Branch("ST", &ST);
+		tree->Branch("HToverST", &HToverST);
+		tree->Branch("MET", &MET);
+		//tree->Branch("mMuMu", &mMuMu);
+		//tree->Branch("mMuMu2", &mMuMu2);
+	}
 	// triggers
 	// only for 2017 currently
 	if (DataYear == 2017) {
@@ -47,13 +90,13 @@ void Preselection::initializeAnalyzer(){
 
 vector<TString> Preselection::getCuts(TString region) {
 	if (region == "Pre_3mu")
-		return {"nocut", "metfilter", "3mu", "trigger", "passSafePtCut", "exist_osmu", "Nj_ge2", "Nb_ge1"};
+		return {"nocut", "metfilter", "3mu", "trigger", "passSafePtCut", "exist_osmu", "mass_ge12", "Nj_ge2", "Nb_ge1"};
 	else if (region == "Pre_1e2mu")
-		return {"nocut", "metfilter", "1e2mu", "trigger", "passSafePtCut", "exist_osmu", "Nj_ge2", "Nb_ge1"};
+		return {"nocut", "metfilter", "1e2mu", "trigger", "passSafePtCut", "exist_osmu", "mass_ge12", "Nj_ge2", "Nb_ge1"};
 	else if (region == "DY_dimu")
 		return {"nocut", "metfilter", "dimu", "trigger", "passSafePtCut", "os_dimu", "OnshellZ", "NoBjet"};
 	else if (region == "TT_dimu")
-		return {"nocut", "metfilter", "dimu", "trigger", "passSafePtCut", "os_dimu", "OffshellZ", "dR_ge04", "Nj_ge2", "Nb_ge1"};
+		return {"nocut", "metfilter", "dimu", "trigger", "passSafePtCut", "os_dimu", "OffshellZ", "mass_ge12", "dR_ge04", "Nj_ge2", "Nb_ge1"};
 	else if (region == "TT_emu")
 		return {"nocut", "metfilter", "emu", "trigger", "passSafePtCut", "os_emu", "dR_ge04", "Nj_ge2", "Nb_ge1"};
 	else {
@@ -89,12 +132,10 @@ void Preselection::executeEvent(){
 	vector<Muon> muons_loose = SelectMuons(muons, "HcToWALoose", 10., 2.4);
 	vector<Electron> electrons_tight = SelectElectrons(electrons, "HcToWATight", 10., 2.5);
 	vector<Electron> electrons_loose = SelectElectrons(electrons, "HcToWALoose", 10., 2.5);
-	vector<Jet> jets_tight;
-	if (RunLowPtJet)
-		jets_tight = SelectJets(jets, "tight", 20., 2.4);
-	else
-		jets_tight = SelectJets(jets, "tight", 25., 2.4);
+	vector<Jet> jets_tight = SelectJets(jets, "tight", 20., 2.4);
 	vector<Jet> jets_cleaned = JetsVetoLeptonInside(jets_tight, electrons_loose, muons_loose, 0.4);
+	if (RunPUVeto)
+		jets_cleaned = SelectPUvetoJets(jets_cleaned, "tight");
 	vector<Jet> bjets_cleaned;
 	if (RunDeepCSV)
 		for (const auto& jet: jets_cleaned) {
@@ -123,7 +164,9 @@ void Preselection::executeEvent(){
 		const double w_prefire = GetPrefireWeight(0);
         const double w_gen = ev.MCweight() * weight_norm_1invpb;
         const double w_lumi = ev.GetTriggerLumi("Full");
-        const double w_pileup = GetPileUpWeight(nPileUp, 0); 
+		double w_pileup = 1.;
+		if (!SkipPUweight)
+			w_pileup = GetPileUpWeight(nPileUp, 0); 
         //cout << "w_prefire: " <<  w_prefire << endl;
         //cout << "w_gen: " << w_gen << endl;
         //cout << "w_lumi: " << w_lumi << endl;
@@ -134,7 +177,7 @@ void Preselection::executeEvent(){
         double w_idsf = 1.;
         const TString ID = "HcToWATight";
         double w_trigsf = 1.;
-        if (channel.Contains("DiMu")) {
+        if (channel.Contains("dimu")) {
             const Muon& mu1 = muons_tight.at(0);
             const Muon& mu2 = muons_tight.at(1);
             const double mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), 0);
@@ -142,14 +185,34 @@ void Preselection::executeEvent(){
             w_idsf *= mu1_idsf*mu2_idsf;
             w_trigsf = mcCorr->GetTriggerSF(electrons_tight, muons_tight, "DiMuIso_HNTopID", "");
         }
-        if (channel.Contains("EMu")) {
+        if (channel.Contains("emu")) {
             const Muon& mu = muons_tight.at(0);
             const Electron& ele = electrons_tight.at(0);
             const double mu_idsf = mcCorr->MuonID_SF(ID, mu.Eta(), mu.MiniAODPt(), 0);
             const double ele_idsf = mcCorr->ElectronID_SF(ID, ele.scEta(), ele.Pt(), 0);
+			//cout << "mu_idsf: " << mu_idsf << endl;
+			//cout << "ele_idsf: " << ele_idsf << endl;
             w_idsf *= mu_idsf*ele_idsf;
             w_trigsf = mcCorr->GetTriggerSF(electrons_tight, muons_tight, "EMuIso_HNTopID", "");
         }
+		if (channel.Contains("3mu")) {
+			const Muon& mu1 = muons_tight.at(0);
+			const Muon& mu2 = muons_tight.at(1);
+			const Muon& mu3 = muons_tight.at(2);
+			const double mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), 0);
+			const double mu2_idsf = mcCorr->MuonID_SF(ID, mu2.Eta(), mu2.MiniAODPt(), 0);
+			const double mu3_idsf = mcCorr->MuonID_SF(ID, mu3.Eta(), mu3.MiniAODPt(), 0);
+			w_idsf *= mu1_idsf*mu2_idsf*mu3_idsf;
+		}
+		if (channel.Contains("1e2mu")) {
+			const Muon& mu1 = muons_tight.at(0);
+			const Muon& mu2 = muons_tight.at(1);
+			const Electron& ele = electrons_tight.at(0);
+			const double mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), 0);
+			const double mu2_idsf = mcCorr->MuonID_SF(ID, mu2.Eta(), mu2.MiniAODPt(), 0);
+			const double ele_idsf = mcCorr->ElectronID_SF(ID, ele.scEta(), ele.Pt(), 0);
+			w_idsf *= mu1_idsf*mu2_idsf*ele_idsf;
+		}
         //cout << "w_idsf: " << w_idsf << endl;
         //cout << "w_trigsf: " << w_trigsf << endl;
         weight *= w_idsf*w_trigsf;
@@ -169,6 +232,13 @@ void Preselection::executeEvent(){
 		}
         //cout << "w_btag: " << w_btag << endl;
         weight *= w_btag;
+
+		// puveto
+		if (RunPUVeto) {
+			const double w_puveto = mcCorr->GetPUVetoSF(jets_cleaned, "tight");
+			//cout << "w_puveto: " << w_puveto << endl;
+			weight *= w_puveto;
+		}
 	}
 	// Fill Hist
 	FillObjects(channel + "/muons_tight", muons_tight, weight);
@@ -180,7 +250,36 @@ void Preselection::executeEvent(){
     if (channel == "DY_dimu" || channel == "TT_dimu") {
         const Particle ZCand = muons_tight.at(0) + muons_tight.at(1);
         FillObject(channel + "/ZCand", ZCand, weight);
-    }	
+    }
+	// Fill TTree
+	if (SkimBaseline) {
+		if (channel == "Pre_3mu") {
+			const Muon& mu1 = muons_tight.at(0);
+			const Muon& mu2 = muons_tight.at(1);
+			const Muon& mu3 = muons_tight.at(2);
+			const Jet& j1 = jets_cleaned.at(0);
+			const Jet& j2 = jets_cleaned.at(1);
+			ptMu1 = mu1.Pt(); ptMu2 = mu2.Pt(); ptMu3 = mu3.Pt();
+			etaMu1 = mu1.Eta(); etaMu2 = mu2.Eta(); etaMu3 = mu3.Eta();
+			phiMu1 = mu1.Phi(); phiMu2 = mu2.Phi(); phiMu3 = mu3.Phi();
+			ptJ1 = j1.Pt(); ptJ2 = j2.Pt();
+			etaJ1 = j1.Eta(); etaJ2 = j2.Eta();
+			phiJ1 = j1.Phi(); phiJ2 = j2.Phi();
+			dRl1l2 = mu1.DeltaR(mu2); dRl1l3 = mu1.DeltaR(mu3); dRl2l3 = mu2.DeltaR(mu3);
+			dRj1l1 = j1.DeltaR(mu1); dRj1l2 = j1.DeltaR(mu2); dRj1l3 = j1.DeltaR(mu3);
+			dRj2l1 = j2.DeltaR(mu1); dRj2l2 = j2.DeltaR(mu2); dRj2l3 = j2.DeltaR(mu3);
+			dRj1j2 = j1.DeltaR(j2);
+			for (const auto j: jets_cleaned) {
+				HT += j.Pt();
+				ST += j.Pt();
+			}
+			for (const auto mu: muons_tight)
+				ST += mu.Pt();
+			HToverST = HT / ST;
+			MET = METv.Pt();
+			tree->Fill();
+		}
+	}	
 }
 
 //================================================================================//
@@ -251,6 +350,10 @@ TString Preselection::RegionSelector(
 		}
 		else {
 			FillCutflow("TT_dimu", "OffshellZ");
+
+			if (ZCand.M() < 12)
+				return "";
+			FillCutflow("TT_dimu", "mass_ge12");
 			
 			if (lead.DeltaR(sub) < 0.4)
 				return "";
@@ -325,6 +428,17 @@ TString Preselection::RegionSelector(
 			return "";
 		FillCutflow("Pre_3mu", "exist_osmu");
 
+		const Particle ZCand1 = mu1 + mu2;
+		const Particle ZCand2 = mu2 + mu3;
+		const Particle ZCand3 = mu1 + mu3;
+		if (mu1.Charge() + mu2.Charge() == 0 && ZCand1.M() < 12.)
+			return "";
+		if (mu2.Charge() + mu3.Charge() == 0 && ZCand2.M() < 12.)
+			return "";
+		if (mu1.Charge() + mu3.Charge() == 0 && ZCand3.M() < 12.)
+			return "";
+		FillCutflow("Pre_3mu", "mass_ge12");
+
 		if (jets.size() < 2)
 			return "";
 		FillCutflow("Pre_3mu", "Nj_ge2");
@@ -358,6 +472,11 @@ TString Preselection::RegionSelector(
 			return "";
 		FillCutflow("Pre_1e2mu", "exist_osmu");
 
+		const Particle ZCand = lead + sub;
+		if (ZCand.M() < 12)
+			return "";
+		FillCutflow("Pre_1e2mu", "mass_ge12");
+
 		if (jets.size() < 2)
 			return "";
 		FillCutflow("Pre_1e2mu", "Nj_ge2");
@@ -371,32 +490,3 @@ TString Preselection::RegionSelector(
 		return "";
 }
 		
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

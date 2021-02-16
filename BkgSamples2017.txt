@@ -1,7 +1,7 @@
 # VV
 WZTo3LNu_powheg
 ZZTo4L_powheg
-# ZGToLLG_01J
+ZGToLLG_01J
 # ttV, tV
 ttHToNonbb
 ttWToLNu

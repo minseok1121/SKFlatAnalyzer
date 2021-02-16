@@ -97,6 +97,9 @@ WZ_pythia						PUReweight_2017_Up		PUReweight_2017.root
 ZZ_pythia						PUReweight_2017			PUReweight_2017.root
 ZZ_pythia						PUReweight_2017_Down	PUReweight_2017.root
 ZZ_pythia						PUReweight_2017_Up		PUReweight_2017.root
+ZGToLLG_01J						PUReweight_2017         PUReweight_2017.root
+ZGToLLG_01J						PUReweight_2017_Down    PUReweight_2017.root
+ZGToLLG_01J						PUReweight_2017_Up      PUReweight_2017.root
 TTToHcToWA_AToMuMu_MHc70_MA15   PUReweight_2017         PUReweight_2017.root
 TTToHcToWA_AToMuMu_MHc70_MA15   PUReweight_2017_Up      PUReweight_2017.root
 TTToHcToWA_AToMuMu_MHc70_MA15   PUReweight_2017_Down    PUReweight_2017.root

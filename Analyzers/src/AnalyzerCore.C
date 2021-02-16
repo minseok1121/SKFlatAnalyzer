@@ -1961,7 +1961,7 @@ TH1D* AnalyzerCore::JSGetHist1D(TString suffix, TString histname){
 
 }
 
-//==== Histogram Manager set by Jin
+//==== Custom Histogram Manager
 void AnalyzerCore::InitiateCutflow(const TString& region, const vector<TString>& cuts) 
 { 
 	this->_cuts[region] = cuts;
