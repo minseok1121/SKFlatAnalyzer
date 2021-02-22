@@ -1286,6 +1286,61 @@ double MCCorrection::GetMCJetTagEff(JetTagging::Tagger tagger, JetTagging::WP wp
           }
         }
         if(wp==JetTagging::Medium){
+	      if(JetPt >= 20.0 && JetPt < 30.0){
+            if(fabs(JetEta) >= 0.0 && fabs(JetEta) < 0.6) return 0.78145;
+            if(fabs(JetEta) >= 0.6 && fabs(JetEta) < 1.2) return 0.79070;
+            if(fabs(JetEta) >= 1.2 && fabs(JetEta) < 1.8) return 0.76126;
+            if(fabs(JetEta) >= 1.8 && fabs(JetEta) < 2.4) return 0.76199;
+          }
+          if(JetPt >= 30.0 && JetPt < 50.0){
+            if(fabs(JetEta) >= 0.0 && fabs(JetEta) < 0.6) return 0.80395;
+            if(fabs(JetEta) >= 0.6 && fabs(JetEta) < 1.2) return 0.80962;
+            if(fabs(JetEta) >= 1.2 && fabs(JetEta) < 1.8) return 0.78570;
+            if(fabs(JetEta) >= 1.8 && fabs(JetEta) < 2.4) return 0.79012;
+          }
+          if(JetPt >= 50.0 && JetPt < 70.0){
+            if(fabs(JetEta) >= 0.0 && fabs(JetEta) < 0.6) return 0.80602;
+            if(fabs(JetEta) >= 0.6 && fabs(JetEta) < 1.2) return 0.80975;
+            if(fabs(JetEta) >= 1.2 && fabs(JetEta) < 1.8) return 0.78380;
+            if(fabs(JetEta) >= 1.8 && fabs(JetEta) < 2.4) return 0.79414;
+          }
+          if(JetPt >= 70.0 && JetPt < 100.0){
+            if(fabs(JetEta) >= 0.0 && fabs(JetEta) < 0.6) return 0.80659;
+            if(fabs(JetEta) >= 0.6 && fabs(JetEta) < 1.2) return 0.80824;
+            if(fabs(JetEta) >= 1.2 && fabs(JetEta) < 1.8) return 0.77984;
+            if(fabs(JetEta) >= 1.8 && fabs(JetEta) < 2.4) return 0.79629;
+          }
+          if(JetPt >= 100.0 && JetPt < 140.0){
+            if(fabs(JetEta) >= 0.0 && fabs(JetEta) < 0.6) return 0.81708;
+            if(fabs(JetEta) >= 0.6 && fabs(JetEta) < 1.2) return 0.81800;
+            if(fabs(JetEta) >= 1.2 && fabs(JetEta) < 1.8) return 0.78704;
+            if(fabs(JetEta) >= 1.8 && fabs(JetEta) < 2.4) return 0.80702;
+          }
+          if(JetPt >= 140.0 && JetPt < 200.0){
+            if(fabs(JetEta) >= 0.0 && fabs(JetEta) < 0.6) return 0.83933;
+            if(fabs(JetEta) >= 0.6 && fabs(JetEta) < 1.2) return 0.83901;
+            if(fabs(JetEta) >= 1.2 && fabs(JetEta) < 1.8) return 0.80777;
+            if(fabs(JetEta) >= 1.8 && fabs(JetEta) < 2.4) return 0.82566;
+          }
+          if(JetPt >= 200.0 && JetPt < 300.0){
+            if(fabs(JetEta) >= 0.0 && fabs(JetEta) < 0.6) return 0.85526;
+            if(fabs(JetEta) >= 0.6 && fabs(JetEta) < 1.2) return 0.85291;
+            if(fabs(JetEta) >= 1.2 && fabs(JetEta) < 1.8) return 0.81653;
+            if(fabs(JetEta) >= 1.8 && fabs(JetEta) < 2.4) return 0.82745;
+          }
+          if(JetPt >= 300.0 && JetPt < 600.0){
+            if(fabs(JetEta) >= 0.0 && fabs(JetEta) < 0.6) return 0.84538;
+            if(fabs(JetEta) >= 0.6 && fabs(JetEta) < 1.2) return 0.83470;
+            if(fabs(JetEta) >= 1.2 && fabs(JetEta) < 1.8) return 0.78713;
+            if(fabs(JetEta) >= 1.8 && fabs(JetEta) < 2.4) return 0.79924;
+          }
+          if(JetPt >= 600.0 && JetPt < 1000.0){
+            if(fabs(JetEta) >= 0.0 && fabs(JetEta) < 0.6) return 0.79792;
+            if(fabs(JetEta) >= 0.6 && fabs(JetEta) < 1.2) return 0.78251;
+            if(fabs(JetEta) >= 1.2 && fabs(JetEta) < 1.8) return 0.70400;
+            if(fabs(JetEta) >= 1.8 && fabs(JetEta) < 2.4) return 0.75281;
+          }
+		  /*	
           if(JetPt >= 20.0 && JetPt < 30.0){
             if(fabs(JetEta) >= 0.0 && fabs(JetEta) < 0.6) return 0.77568;
             if(fabs(JetEta) >= 0.6 && fabs(JetEta) < 1.2) return 0.78422;
@@ -1340,6 +1395,7 @@ double MCCorrection::GetMCJetTagEff(JetTagging::Tagger tagger, JetTagging::WP wp
             if(fabs(JetEta) >= 1.2 && fabs(JetEta) < 1.8) return 0.72912;
             if(fabs(JetEta) >= 1.8 && fabs(JetEta) < 2.4) return 0.79193;
           }
+		  */
         }
         if(wp==JetTagging::Tight){
           if(JetPt >= 20.0 && JetPt < 30.0){

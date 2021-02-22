@@ -1,6 +1,7 @@
 [ libAnalyzers.so libAnalyzerTools.so libGEScaleSyst.so libDataFormats.so libTree.so ]
 # List of selected classes
 class AnalyzerCore
+class BaselineSelector
 class CRstudy
 class ExampleRun
 class GetEffLumi
@@ -16,6 +17,7 @@ class SkimTree_LRSMHighPt
 class SkimTree_SS2lOR3l
 class TestAnalyzer
 header AnalyzerCore.h
+header BaselineSelector.h
 header CRstudy.h
 header ExampleRun.h
 header GetEffLumi.h

@@ -14,7 +14,6 @@ void Preselection::initializeAnalyzer(){
 	RunDeepCSV = HasFlag("RunDeepCSV");
 	RunPUVeto = HasFlag("RunPUVeto");
 	SkimBaseline = HasFlag("SkimBaseline");
-	SkipPUweight = HasFlag("SkipPUweight");
 	cout << "[Preselection::initializeAnalyzer] RunDeepCSV = " << RunDeepCSV << endl;
 	cout << "[Preselection::initializeAnalyzer] SkimBaseline = " << SkimBaseline << endl;
 
@@ -22,37 +21,25 @@ void Preselection::initializeAnalyzer(){
 	// TTree base
 	if (SkimBaseline) {
 		tree = new TTree("Events", "Events");
-		tree->Branch("ptMu1", &ptMu1);
-		tree->Branch("ptMu2", &ptMu2);
-		tree->Branch("ptMu3", &ptMu3);
-		tree->Branch("etaMu1", &etaMu1);
-		tree->Branch("etaMu2", &etaMu2);
-		tree->Branch("etaMu3", &etaMu3);
-		tree->Branch("phiMu1", &phiMu1);
-		tree->Branch("phiMu2", &phiMu2);
-		tree->Branch("phiMu3", &phiMu3);
-		tree->Branch("ptJ1", &ptJ1);
-		tree->Branch("ptJ2", &ptJ2);
-		tree->Branch("etaJ1", &etaJ1);
-		tree->Branch("etaJ2", &etaJ2);
-		tree->Branch("phiJ1", &phiJ1);
-		tree->Branch("phiJ2", &phiJ2);
-		tree->Branch("dRl1l2", &dRl1l2);
-		tree->Branch("dRl1l3", &dRl1l3);
-		tree->Branch("dRl2l3", &dRl2l3);
-		tree->Branch("dRj1l1", &dRj1l1);
-		tree->Branch("dRj1l2", &dRj1l2);
-		tree->Branch("dRj1l3", &dRj1l3);
-		tree->Branch("dRj2l1", &dRj2l3);
-		tree->Branch("dRj2l2", &dRj2l2);
-		tree->Branch("dRj2l3", &dRj2l3);
+		tree->Branch("weight", &weight);
+		//tree->Branch("ptMu1", &ptMu1); tree->Branch("ptMu2", &ptMu2); tree->Branch("ptMu3", &ptMu3);
+		//tree->Branch("etaMu1", &etaMu1); tree->Branch("etaMu2", &etaMu2); tree->Branch("etaMu3", &etaMu3);
+		//tree->Branch("phiMu1", &phiMu1); tree->Branch("phiMu2", &phiMu2); tree->Branch("phiMu3", &phiMu3);
+		tree->Branch("ptMu1", &ptMu1); tree->Branch("ptMu2", &ptMu2); tree->Branch("ptEle", &ptEle);
+		tree->Branch("etaMu1", &etaMu1); tree->Branch("etaMu2", &etaMu2); tree->Branch("etaEle", &etaEle);
+		tree->Branch("phiMu1", &phiMu1); tree->Branch("phiMu2", &phiMu2); tree->Branch("phiEle", &phiEle);
+		tree->Branch("ptJ1", &ptJ1); tree->Branch("ptJ2", &ptJ2); tree->Branch("ptB1", &ptB1);
+		tree->Branch("etaJ1", &etaJ1); tree->Branch("etaJ2", &etaJ2); tree->Branch("etaB1", &etaB1);
+		tree->Branch("phiJ1", &phiJ1); tree->Branch("phiJ2", &phiJ2); tree->Branch("phiB1", &phiB1);
+		tree->Branch("dRl1l2", &dRl1l2); tree->Branch("dRl1l3", &dRl1l3); tree->Branch("dRl2l3", &dRl2l3);
+		tree->Branch("dRj1l1", &dRj1l1); tree->Branch("dRj1l2", &dRj1l2); tree->Branch("dRj1l3", &dRj1l3);
+		tree->Branch("dRj2l1", &dRj2l3); tree->Branch("dRj2l2", &dRj2l2); tree->Branch("dRj2l3", &dRj2l3);
+		tree->Branch("dRb1l1", &dRb1l1); tree->Branch("dRb1l2", &dRb1l2); tree->Branch("dRb1l3", &dRb1l3);
 		tree->Branch("dRj1j2", &dRj1j2);
-		tree->Branch("HT", &HT);
-		tree->Branch("ST", &ST);
-		tree->Branch("HToverST", &HToverST);
-		tree->Branch("MET", &MET);
-		//tree->Branch("mMuMu", &mMuMu);
-		//tree->Branch("mMuMu2", &mMuMu2);
+		tree->Branch("Nj", &Nj); tree->Branch("Nb", &Nb);
+		tree->Branch("HT", &HT); tree->Branch("LT", &LT); tree->Branch("MET", &MET); tree->Branch("ST", &ST); 
+		tree->Branch("HToverST", &HToverST); tree->Branch("LToverST", &LToverST);
+		tree->Branch("mMuMu", &mMuMu), tree->Branch("mMuMuJJ", &mMuMuJJ);
 	}
 	// triggers
 	// only for 2017 currently
@@ -96,7 +83,7 @@ vector<TString> Preselection::getCuts(TString region) {
 	else if (region == "DY_dimu")
 		return {"nocut", "metfilter", "dimu", "trigger", "passSafePtCut", "os_dimu", "OnshellZ", "NoBjet"};
 	else if (region == "TT_dimu")
-		return {"nocut", "metfilter", "dimu", "trigger", "passSafePtCut", "os_dimu", "OffshellZ", "mass_ge12", "dR_ge04", "Nj_ge2", "Nb_ge1"};
+		return {"nocut", "metfilter", "dimu", "trigger", "passSafePtCut", "os_dimu", "OffshellZ", "mass_ge12", "MET_ge40",  "dR_ge04", "Nj_ge2", "Nb_ge1"};
 	else if (region == "TT_emu")
 		return {"nocut", "metfilter", "emu", "trigger", "passSafePtCut", "os_emu", "dR_ge04", "Nj_ge2", "Nb_ge1"};
 	else {
@@ -130,43 +117,51 @@ void Preselection::executeEvent(){
 	// select objects
 	vector<Muon> muons_tight = SelectMuons(muons, "HcToWATight", 10., 2.4);
 	vector<Muon> muons_loose = SelectMuons(muons, "HcToWALoose", 10., 2.4);
+	vector<Muon> muons_veto = SelectMuons(muons, "POGLoose", 10., 2.4);
 	vector<Electron> electrons_tight = SelectElectrons(electrons, "HcToWATight", 10., 2.5);
 	vector<Electron> electrons_loose = SelectElectrons(electrons, "HcToWALoose", 10., 2.5);
-	vector<Jet> jets_tight = SelectJets(jets, "tight", 20., 2.4);
-	vector<Jet> jets_cleaned = JetsVetoLeptonInside(jets_tight, electrons_loose, muons_loose, 0.4);
+	vector<Electron> electrons_veto = SelectElectrons(electrons, "passMVAID_noIso_WPLoose", 10., 2.5);
+	vector<Jet> jets_tight = SelectJets(jets, "tight", 25., 2.4);
+	vector<Jet> jets_cleaned = JetsVetoLeptonInside(jets_tight, electrons_veto, muons_veto, 0.4);
 	if (RunPUVeto)
 		jets_cleaned = SelectPUvetoJets(jets_cleaned, "tight");
-	vector<Jet> bjets_cleaned;
+	vector<Jet> bjets_cleaned, jets_nonb;
 	if (RunDeepCSV)
 		for (const auto& jet: jets_cleaned) {
+			if (fabs(jet.Eta()) > 2.4)
+				continue;
 			const double this_discr = jet.GetTaggerResult(JetTagging::DeepCSV);
 			if (this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium))
 				bjets_cleaned.emplace_back(jet);
+			else
+				jets_nonb.emplace_back(jet);
 		}
 	else
 		for (const auto& jet: jets_cleaned) {
+			if (fabs(jet.Eta()) > 2.4)
+				continue;
 			const double this_discr = jet.GetTaggerResult(JetTagging::DeepJet);
 			if (this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepJet, JetTagging::Medium))
 				bjets_cleaned.emplace_back(jet);
+			else
+				jets_nonb.emplace_back(jet);
 		}
 
 	// Cutflow will be automatically generated inside the Selector
 	const TString channel = RegionSelector(
 			ev, muons_tight, electrons_tight, 
-			muons_loose, electrons_loose,
-			jets_cleaned, bjets_cleaned);
+			muons_veto, electrons_veto,
+			jets_cleaned, bjets_cleaned, METv);
 	if (channel == "")
 		return;
 
-	// set weight
-	double weight = 1.;
+	// initialize weight
+	weight = 1.;
 	if (!IsDATA) {
 		const double w_prefire = GetPrefireWeight(0);
         const double w_gen = ev.MCweight() * weight_norm_1invpb;
         const double w_lumi = ev.GetTriggerLumi("Full");
-		double w_pileup = 1.;
-		if (!SkipPUweight)
-			w_pileup = GetPileUpWeight(nPileUp, 0); 
+	    const double w_pileup = GetPileUpWeight(nPileUp, 0); 
         //cout << "w_prefire: " <<  w_prefire << endl;
         //cout << "w_gen: " << w_gen << endl;
         //cout << "w_lumi: " << w_lumi << endl;
@@ -222,7 +217,6 @@ void Preselection::executeEvent(){
 		if (RunDeepCSV) {
         	JetTagging::Parameters jtp_DeepCSV_Medium
             	= JetTagging::Parameters(JetTagging::DeepCSV, JetTagging::Medium, JetTagging::incl, JetTagging::mujets);
-
         	w_btag = mcCorr->GetBTaggingReweight_1a(jets_cleaned, jtp_DeepCSV_Medium);
 		}
 		else {
@@ -240,43 +234,86 @@ void Preselection::executeEvent(){
 			weight *= w_puveto;
 		}
 	}
+	// Make variables
+	// Initialize first
+	HT = -1.; LT = -1.; ST = -1.; MET = -1.; 
+	HToverST = -1.; LToverST = -1.; mMuMu = -1.;
+	for (const auto j: jets_cleaned) {
+		HT += j.Pt();
+		ST += j.Pt();
+	}
+	for (const auto mu: muons_tight) {
+		LT += mu.Pt();
+		ST += mu.Pt();
+	}
+	for (const auto ele: electrons_tight) {
+		LT += ele.Pt();
+		ST += ele.Pt();
+	}
+	MET = METv.Pt(); ST += MET;
+	HToverST = HT/ST; LToverST = LT/ST;
+	
 	// Fill Hist
 	FillObjects(channel + "/muons_tight", muons_tight, weight);
     FillObjects(channel + "/electrons_tight", electrons_tight, weight);
     FillObjects(channel + "/jets_cleaned", jets_cleaned, weight);
-    //FillObjects(channel + "/jets_puveto", jets_puveto, weight);
     FillObjects(channel + "/bjets_cleaned", bjets_cleaned, weight);
     FillObject(channel + "/METv", METv, weight);
     if (channel == "DY_dimu" || channel == "TT_dimu") {
         const Particle ZCand = muons_tight.at(0) + muons_tight.at(1);
         FillObject(channel + "/ZCand", ZCand, weight);
     }
+	// FillHist
+	FillHist(channel+"/HT", HT, weight, 1000, 0., 1000.);
+	FillHist(channel+"/LT", LT, weight, 500, 0., 500.);
+	FillHist(channel+"/ST", ST, weight, 1000, 0., 1000.);
+	FillHist(channel+"/HToverST", HToverST, weight, 100, 0., 1.);
+	FillHist(channel+"/LToverST", LToverST, weight, 100, 0., 1.);
+	if (channel == "Pre_1e2mu") {
+		const Particle ACand = muons_tight.at(0) + muons_tight.at(1);
+		FillObject(channel + "/ACand", ACand, weight);
+		FillHist(channel+"/mMuMu_finebinning", ACand.M(), weight, 20000, 0., 200.);
+	}
+
 	// Fill TTree
 	if (SkimBaseline) {
-		if (channel == "Pre_3mu") {
+		if (channel == "Pre_1e2mu") {
+			vector<Lepton> leptons;
+			for (const auto& mu: muons_tight)
+				leptons.emplace_back(mu);
+			for (const auto& ele: electrons_tight)
+				leptons.emplace_back(ele);
+			sort(leptons.begin(), leptons.end(), PtComparing);
 			const Muon& mu1 = muons_tight.at(0);
 			const Muon& mu2 = muons_tight.at(1);
-			const Muon& mu3 = muons_tight.at(2);
+			const Particle ACand = mu1 + mu2;
+			const Electron& ele = electrons_tight.at(0);
+			const Lepton& l1 = leptons.at(0);
+			const Lepton& l2 = leptons.at(1);
+			const Lepton& l3 = leptons.at(2);
 			const Jet& j1 = jets_cleaned.at(0);
 			const Jet& j2 = jets_cleaned.at(1);
-			ptMu1 = mu1.Pt(); ptMu2 = mu2.Pt(); ptMu3 = mu3.Pt();
-			etaMu1 = mu1.Eta(); etaMu2 = mu2.Eta(); etaMu3 = mu3.Eta();
-			phiMu1 = mu1.Phi(); phiMu2 = mu2.Phi(); phiMu3 = mu3.Phi();
+			const Jet& b = bjets_cleaned.at(0);
+			ptMu1 = mu1.Pt(); ptMu2 = mu2.Pt(); ptEle = ele.Pt();
+			etaMu1 = mu1.Eta(); etaMu2 = mu2.Eta(); etaEle = ele.Eta();
+			phiMu1 = mu1.Phi(); phiMu2 = mu2.Phi(); phiEle = ele.Phi();
+
 			ptJ1 = j1.Pt(); ptJ2 = j2.Pt();
 			etaJ1 = j1.Eta(); etaJ2 = j2.Eta();
 			phiJ1 = j1.Phi(); phiJ2 = j2.Phi();
-			dRl1l2 = mu1.DeltaR(mu2); dRl1l3 = mu1.DeltaR(mu3); dRl2l3 = mu2.DeltaR(mu3);
-			dRj1l1 = j1.DeltaR(mu1); dRj1l2 = j1.DeltaR(mu2); dRj1l3 = j1.DeltaR(mu3);
-			dRj2l1 = j2.DeltaR(mu1); dRj2l2 = j2.DeltaR(mu2); dRj2l3 = j2.DeltaR(mu3);
+			ptB1 = b.Pt(); etaB1 = b.Eta(); phiB1 = b.Phi();
+			dRl1l2 = l1.DeltaR(l2); dRl1l3 = l1.DeltaR(l3); dRl2l3 = l2.DeltaR(l3);
+			dRj1l1 = j1.DeltaR(l1); dRj1l2 = j1.DeltaR(l2); dRj1l3 = j1.DeltaR(l3);
+			dRb1l1 = b.DeltaR(l1); dRb1l2 = b.DeltaR(l2);  dRb1l3 = b.DeltaR(l3);
+			dRj2l1 = j2.DeltaR(l1); dRj2l2 = j2.DeltaR(l2); dRj2l3 = j2.DeltaR(l3);
 			dRj1j2 = j1.DeltaR(j2);
-			for (const auto j: jets_cleaned) {
-				HT += j.Pt();
-				ST += j.Pt();
-			}
-			for (const auto mu: muons_tight)
-				ST += mu.Pt();
-			HToverST = HT / ST;
-			MET = METv.Pt();
+			Nj = jets_cleaned.size(); Nb = bjets_cleaned.size();
+			mMuMu = ACand.M();
+			if (jets_nonb.size() == 1)
+				mMuMuJJ = (mu1 + mu2 + j1).M();
+			else if (jets_nonb.size() == 2)
+				mMuMuJJ = (mu1 + mu2 + j1 + j2).M();
+
 			tree->Fill();
 		}
 	}	
@@ -299,7 +336,7 @@ TString Preselection::RegionSelector(
 		Event& ev,
 		vector<Muon> &muons_tight, vector<Electron> &electrons_tight,
 		vector<Muon> &muons_loose, vector<Electron> &electrons_loose,
-		vector<Jet> &jets, vector<Jet> &bjets) {
+		vector<Jet> &jets, vector<Jet> &bjets, Particle &METv) {
 
 	TString region;
 	// devide by leptons first
@@ -354,6 +391,10 @@ TString Preselection::RegionSelector(
 			if (ZCand.M() < 12)
 				return "";
 			FillCutflow("TT_dimu", "mass_ge12");
+
+			if (METv.Pt() < 40.)
+				return "";
+			FillCutflow("TT_dimu", "MET_ge40");
 			
 			if (lead.DeltaR(sub) < 0.4)
 				return "";

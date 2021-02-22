@@ -20,5 +20,6 @@
 #pragma link C++ class SigToBkg+;
 #pragma link C++ class CRstudy+;
 #pragma link C++ class Preselection+;
+#pragma link C++ class BaselineSelector+;
 
 #endif

@@ -156,53 +156,55 @@ void MCCorrection::ReadHistograms(){
   }
 
   // Get PUveto SF
-  TString PUVetoReweightPath = datapath+"/"+TString::Itoa(DataYear,10)+"/PileUp/";
-  TString year = TString::Itoa(DataYear, 10);
-  TString path_puveto_eff = PUVetoReweightPath + "effcyPUID_81Xtraining.root";
-  TFile* f_puveto_eff = new TFile(path_puveto_eff);
-  if (!f_puveto_eff) {
-	  std::cerr << "[MCCorrection::ReadHistograms] No : " << path_puveto_eff << std::endl;
-	  exit(EXIT_FAILURE);
+  if (DataYear == 2017) {
+	TString PUVetoReweightPath = datapath+"/"+TString::Itoa(DataYear,10)+"/PileUp/";
+	TString year = TString::Itoa(DataYear, 10);
+	TString path_puveto_eff = PUVetoReweightPath + "effcyPUID_81Xtraining.root";
+	TFile* f_puveto_eff = new TFile(path_puveto_eff);
+	if (!f_puveto_eff) {
+		std::cerr << "[MCCorrection::ReadHistograms] No : " << path_puveto_eff << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	 histDir->cd();
+	map_hist_puveto["PUVeto_eff_mc" + year+"_L"] 
+		  = (TH2F*)f_puveto_eff->Get("h2_eff_mc"+year+"_L")->Clone();
+	map_hist_puveto["PUVeto_eff_mc" + year+"_M"] 
+		  = (TH2F*)f_puveto_eff->Get("h2_eff_mc"+year+"_M")->Clone();
+	map_hist_puveto["PUVeto_eff_mc" + year+"_T"] 
+		  = (TH2F*)f_puveto_eff->Get("h2_eff_mc"+year+"_T")->Clone();
+	map_hist_puveto["PUVeto_mistag_mc" + year+"_L"] 
+		  = (TH2F*)f_puveto_eff->Get("h2_mistag_mc"+year+"_L")->Clone();
+	map_hist_puveto["PUVeto_mistag_mc" + year+"_M"] 
+		  = (TH2F*)f_puveto_eff->Get("h2_mistag_mc"+year+"_M")->Clone();
+	map_hist_puveto["PUVeto_mistag_mc" + year+"_T"] 
+		  = (TH2F*)f_puveto_eff->Get("h2_mistag_mc"+year+"_T")->Clone();
+	f_puveto_eff->Close();
+	delete f_puveto_eff;
+	origDir->cd();
+	// no systematic uncertainties yet
+	TString path_puveto_sf = PUVetoReweightPath + "scalefactorsPUID_81Xtraining.root";
+	TFile* f_puveto_sf = new TFile(path_puveto_sf);
+	if (!f_puveto_sf) {
+		  std::cerr << "[MCCorrection::ReadHistograms] No : " << path_puveto_sf << std::endl;
+		  exit(EXIT_FAILURE);
+	}
+	histDir->cd();
+	map_hist_puveto["PUVeto_eff_sf" + year+"_L"] 
+		  = (TH2F*)f_puveto_sf->Get("h2_eff_sf"+year+"_L")->Clone();
+	map_hist_puveto["PUVeto_eff_sf" + year+"_M"] 
+		  = (TH2F*)f_puveto_sf->Get("h2_eff_sf"+year+"_M")->Clone();
+	map_hist_puveto["PUVeto_eff_sf" + year+"_T"] 
+		  = (TH2F*)f_puveto_sf->Get("h2_eff_sf"+year+"_T")->Clone();
+	map_hist_puveto["PUVeto_mistag_sf" + year+"_L"] 
+		  = (TH2F*)f_puveto_sf->Get("h2_mistag_sf"+year+"_L")->Clone();
+	map_hist_puveto["PUVeto_mistag_sf" + year+"_M"] 
+		  = (TH2F*)f_puveto_sf->Get("h2_mistag_sf"+year+"_M")->Clone();
+	map_hist_puveto["PUVeto_mistag_sf" + year+"_T"] 
+		  = (TH2F*)f_puveto_sf->Get("h2_mistag_sf"+year+"_T")->Clone();  
+	f_puveto_sf->Close();
+	delete f_puveto_sf;
+	origDir->cd();
   }
-  histDir->cd();
-  map_hist_puveto["PUVeto_eff_mc" + year+"_L"] 
-	  = (TH2F*)f_puveto_eff->Get("h2_eff_mc"+year+"_L")->Clone();
-  map_hist_puveto["PUVeto_eff_mc" + year+"_M"] 
-	  = (TH2F*)f_puveto_eff->Get("h2_eff_mc"+year+"_M")->Clone();
-  map_hist_puveto["PUVeto_eff_mc" + year+"_T"] 
-	  = (TH2F*)f_puveto_eff->Get("h2_eff_mc"+year+"_T")->Clone();
-  map_hist_puveto["PUVeto_mistag_mc" + year+"_L"] 
-	  = (TH2F*)f_puveto_eff->Get("h2_mistag_mc"+year+"_L")->Clone();
-  map_hist_puveto["PUVeto_mistag_mc" + year+"_M"] 
-	  = (TH2F*)f_puveto_eff->Get("h2_mistag_mc"+year+"_M")->Clone();
-  map_hist_puveto["PUVeto_mistag_mc" + year+"_T"] 
-	  = (TH2F*)f_puveto_eff->Get("h2_mistag_mc"+year+"_T")->Clone();
-  f_puveto_eff->Close();
-  delete f_puveto_eff;
-  origDir->cd();
-  // no systematic uncertainties yet
-  TString path_puveto_sf = PUVetoReweightPath + "scalefactorsPUID_81Xtraining.root";
-  TFile* f_puveto_sf = new TFile(path_puveto_sf);
-  if (!f_puveto_sf) {
-	  std::cerr << "[MCCorrection::ReadHistograms] No : " << path_puveto_sf << std::endl;
-	  exit(EXIT_FAILURE);
-  }
-  histDir->cd();
-  map_hist_puveto["PUVeto_eff_sf" + year+"_L"] 
-	  = (TH2F*)f_puveto_sf->Get("h2_eff_sf"+year+"_L")->Clone();
-  map_hist_puveto["PUVeto_eff_sf" + year+"_M"] 
-	  = (TH2F*)f_puveto_sf->Get("h2_eff_sf"+year+"_M")->Clone();
-  map_hist_puveto["PUVeto_eff_sf" + year+"_T"] 
-	  = (TH2F*)f_puveto_sf->Get("h2_eff_sf"+year+"_T")->Clone();
-  map_hist_puveto["PUVeto_mistag_sf" + year+"_L"] 
-	  = (TH2F*)f_puveto_sf->Get("h2_mistag_sf"+year+"_L")->Clone();
-  map_hist_puveto["PUVeto_mistag_sf" + year+"_M"] 
-	  = (TH2F*)f_puveto_sf->Get("h2_mistag_sf"+year+"_M")->Clone();
-  map_hist_puveto["PUVeto_mistag_sf" + year+"_T"] 
-	  = (TH2F*)f_puveto_sf->Get("h2_mistag_sf"+year+"_T")->Clone();  
-  f_puveto_sf->Close();
-  delete f_puveto_sf;
-  origDir->cd();
 
   /*
   cout << "[MCCorrection::MCCorrection] map_hist_pileup :" << endl;
@@ -1084,7 +1086,6 @@ double MCCorrection::GetJetTaggingSF(JetTagging::Parameters jtp, int JetFlavor, 
 }
 
 double MCCorrection::GetJetTaggingCutValue(JetTagging::Tagger tagger, JetTagging::WP wp){
-
   if(DataYear==2016){
     if(tagger==JetTagging::DeepCSV){
       if(wp==JetTagging::Loose)  return 0.2217;
@@ -1114,6 +1115,10 @@ double MCCorrection::GetJetTaggingCutValue(JetTagging::Tagger tagger, JetTagging
       if(wp==JetTagging::Tight)  return 0.7489;
     }
   }
+  // 3 years are integrated in 10_2_X dataset
+  // need double check!
+  // https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation102X
+
   if(DataYear==2018){
     if(tagger==JetTagging::DeepCSV){
       if(wp==JetTagging::Loose)  return 0.1241;
@@ -1143,6 +1148,8 @@ double MCCorrection::GetBTaggingReweight_1a(const vector<Jet>& jets, JetTagging:
 
   double Prob_MC(1.), Prob_DATA(1.);
   for(unsigned int i=0; i<jets.size(); i++){
+	if (fabs(jets.at(i).Eta()) > 2.4)
+		continue;
     double this_MC_Eff = GetMCJetTagEff(jtp.j_Tagger, jtp.j_WP, jets.at(i).hadronFlavour(), jets.at(i).Pt(), jets.at(i).Eta());
     double this_SF = GetJetTaggingSF(jtp,
                                      jets.at(i).hadronFlavour(),
