@@ -1,12 +1,12 @@
 [ libAnalyzers.so libAnalyzerTools.so libGEScaleSyst.so libDataFormats.so libTree.so ]
 # List of selected classes
 class AnalyzerCore
-class BaselineSelector
 class CRstudy
 class ExampleRun
 class GetEffLumi
 class MeasureJetTaggingEfficiency
 class Preselection
+class RegionSelector
 class SKFlatNtuple
 class SKFlatValidation
 class SigToBkg
@@ -17,12 +17,12 @@ class SkimTree_LRSMHighPt
 class SkimTree_SS2lOR3l
 class TestAnalyzer
 header AnalyzerCore.h
-header BaselineSelector.h
 header CRstudy.h
 header ExampleRun.h
 header GetEffLumi.h
 header MeasureJetTaggingEfficiency.h
 header Preselection.h
+header RegionSelector.h
 header SKFlatNtuple.h
 header SKFlatValidation.h
 header SigToBkg.h
