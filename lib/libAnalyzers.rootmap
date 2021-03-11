@@ -6,9 +6,9 @@ class ExampleRun
 class GetEffLumi
 class MeasureJetTaggingEfficiency
 class Preselection
-class RegionSelector
 class SKFlatNtuple
 class SKFlatValidation
+class Selector
 class SigToBkg
 class SignalStudy
 class SkimTree_Dilepton
@@ -22,9 +22,9 @@ header ExampleRun.h
 header GetEffLumi.h
 header MeasureJetTaggingEfficiency.h
 header Preselection.h
-header RegionSelector.h
 header SKFlatNtuple.h
 header SKFlatValidation.h
+header Selector.h
 header SigToBkg.h
 header SignalStudy.h
 header SkimTree_Dilepton.h

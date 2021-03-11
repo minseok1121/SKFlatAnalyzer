@@ -1,0 +1,21 @@
+# fake
+DYJets
+TTLL_powheg
+# VV
+WZTo3LNu_powheg
+ZZTo4L_powheg
+ZGToLLG_01J
+# ttX
+ttHToNonbb
+ttWToLNu
+ttZToLLNuNu
+TTG
+# tZq # not in the sample list
+# VVV
+WWW
+WWZ
+WZZ
+ZZZ
+# HtoZZto4L
+VBF_HToZZTo4L
+ggHToZZTo4L
