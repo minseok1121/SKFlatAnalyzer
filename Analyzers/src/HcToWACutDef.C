@@ -27,7 +27,7 @@ TString Selector::RegionSelector(
 		Event& ev,
 		vector<Muon>& muons_tight, vector<Electron>& electrons_tight,
 		vector<Muon>& muons_loose, vector<Electron>& electrons_loose,
-		vector<Jet>& jets, vector<Jet>& bjets, Particle& METv) {
+		vector<Jet>& jets, vector<Jet>& bjets, Particle& METv, const TString syst) {
 	TString region;
 	// devide by leptons first
 	if (muons_tight.size() == 2 && muons_loose.size() == 2
@@ -54,63 +54,63 @@ TString Selector::RegionSelector(
 
 	// DY_OSdimu, TT_OSdimu
 	if (region == "dimu") {
-		FillCutflow("DY_OSdimu", "dimu");
-		FillCutflow("TT_OSdimu", "dimu");
+		FillCutflow("DY_OSdimu", "dimu", syst);
+		FillCutflow("TT_OSdimu", "dimu", syst);
 		if (!ev.PassTrigger(trigs_dblmu)) return "";
-		FillCutflow("DY_OSdimu", "trigger");
-		FillCutflow("TT_OSdimu", "trigger");
+		FillCutflow("DY_OSdimu", "trigger", syst);
+		FillCutflow("TT_OSdimu", "trigger", syst);
 
 		const Muon& lead = muons_tight.at(0);
 		const Muon& sub = muons_tight.at(1);
 		if (! (lead.Pt() > 20.)) return "";
 		if (! (sub.Pt() > 10.)) return "";
-		FillCutflow("DY_OSdimu", "safePtCut");
-		FillCutflow("TT_OSdimu", "safePtCut");
+		FillCutflow("DY_OSdimu", "safePtCut", syst);
+		FillCutflow("TT_OSdimu", "safePtCut", syst);
 
 		if (lead.Charge() + sub.Charge() != 0) return "";
-		FillCutflow("DY_OSdimu", "OSdimu");
-		FillCutflow("TT_OSdimu", "OSdimu");
+		FillCutflow("DY_OSdimu", "OSdimu", syst);
+		FillCutflow("TT_OSdimu", "OSdimu", syst);
 
 		// divide DY and TT
 		Particle ZCand = lead + sub;
 		if (fabs(ZCand.M() - 91.2) < 15.) {
 			// DY_OSdimu
-			FillCutflow("DY_OSdimu", "OnshellZ");
+			FillCutflow("DY_OSdimu", "OnshellZ", syst);
 			
 			if (bjets.size() > 0) return "";
-			FillCutflow("DY_OSdimu", "NoBjet");
+			FillCutflow("DY_OSdimu", "NoBjet", syst);
 			
 			return "DY_OSdimu";
 		}
 		else {
 			// TT_OSdimu
-			FillCutflow("TT_OSdimu", "OffshellZ");
+			FillCutflow("TT_OSdimu", "OffshellZ", syst);
 
 			if (ZCand.M() < 12.) return "";
-			FillCutflow("TT_OSdimu", "MOsdimu_ge12");
+			FillCutflow("TT_OSdimu", "MOsdimu_ge12", syst);
 
 			if (METv.Pt() < 40.) return "";
-			FillCutflow("TT_OSdimu", "MET_ge40");
+			FillCutflow("TT_OSdimu", "MET_ge40", syst);
 
 
 			if (lead.DeltaR(sub) < 0.4) return "";
-			FillCutflow("TT_OSdimu", "dRll_ge04");
+			FillCutflow("TT_OSdimu", "dRll_ge04", syst);
 
 			if (jets.size() < 2) return "";
-			FillCutflow("TT_OSdimu", "Nj_ge2");
+			FillCutflow("TT_OSdimu", "Nj_ge2", syst);
 
 			if (bjets.size() < 2) return "";
-			FillCutflow("TT_OSdimu", "Nb_ge2");
+			FillCutflow("TT_OSdimu", "Nb_ge2", syst);
 			
 			return "TT_OSdimu";
 		}
 	}
 	else if (region == "emu") {
 		// TT_OSemu
-		FillCutflow("TT_OSemu", "emu");
+		FillCutflow("TT_OSemu", "emu", syst);
 		
 		if (!ev.PassTrigger(trigs_emu)) return "";
-		FillCutflow("TT_OSemu", "trigger");
+		FillCutflow("TT_OSemu", "trigger", syst);
 
 		const Muon& mu = muons_tight.at(0);
 		const Electron& ele = electrons_tight.at(0);
@@ -118,30 +118,30 @@ TString Selector::RegionSelector(
 		if (mu.Pt() > 10. && ele.Pt() > 25.) passSafeCut = true;
 		if (mu.Pt() > 25. && ele.Pt() > 15.) passSafeCut = true;
 		if (!passSafeCut) return "";
-		FillCutflow("TT_OSemu", "safePtCut");
+		FillCutflow("TT_OSemu", "safePtCut", syst);
 
 		if (mu.Charge() + ele.Charge() != 0) return "";
-		FillCutflow("TT_OSemu", "OSemu");
+		FillCutflow("TT_OSemu", "OSemu", syst);
 
 		if (mu.DeltaR(ele) < 0.4) return "";
-		FillCutflow("TT_OSemu", "dRll_ge04");
+		FillCutflow("TT_OSemu", "dRll_ge04", syst);
 
 		if (jets.size() < 2) return "";
-		FillCutflow("TT_OSemu", "Nj_ge2");
+		FillCutflow("TT_OSemu", "Nj_ge2", syst);
 
 		if (bjets.size() < 1) return "";
-		FillCutflow("TT_OSemu", "Nb_ge1");
+		FillCutflow("TT_OSemu", "Nb_ge1", syst);
 		
 		return "TT_OSemu";
 	}
 	else if (region == "3mu") {
 		// SR_3mu, WZ_3mu
-		FillCutflow("SR_3mu", "3mu");
-		FillCutflow("WZ_3mu", "3mu");
+		FillCutflow("SR_3mu", "3mu", syst);
+		FillCutflow("WZ_3mu", "3mu", syst);
 		
 		if (!ev.PassTrigger(trigs_dblmu)) return "";
-		FillCutflow("SR_3mu", "trigger");
-		FillCutflow("WZ_3mu", "trigger");
+		FillCutflow("SR_3mu", "trigger", syst);
+		FillCutflow("WZ_3mu", "trigger", syst);
 
 		const Muon& mu1 = muons_tight.at(0);
 		const Muon& mu2 = muons_tight.at(1);
@@ -149,13 +149,13 @@ TString Selector::RegionSelector(
 		if (mu1.Pt() < 20.) return "";
 		if (mu2.Pt() < 10.) return "";
 		if (mu3.Pt() < 10.) return "";
-		FillCutflow("SR_3mu", "safePtCut");
-		FillCutflow("WZ_3mu", "safePtCut");
+		FillCutflow("SR_3mu", "safePtCut", syst);
+		FillCutflow("WZ_3mu", "safePtCut", syst);
 
 		const int chargeSum = mu1.Charge() + mu2.Charge() + mu3.Charge();
 		if (abs(chargeSum) != 1) return "";
-		FillCutflow("SR_3mu", "ExistOSdimu");
-		FillCutflow("WZ_3mu", "ExistOSdimu");
+		FillCutflow("SR_3mu", "ExistOSdimu", syst);
+		FillCutflow("WZ_3mu", "ExistOSdimu", syst);
 
 		const Particle ZCand1 = mu1 + mu2;
 		const Particle ZCand2 = mu2 + mu3;
@@ -163,20 +163,20 @@ TString Selector::RegionSelector(
 		if (mu1.Charge() + mu2.Charge() == 0 && ZCand1.M() < 12.) return "";
 		if (mu2.Charge() + mu3.Charge() == 0 && ZCand2.M() < 12.) return "";
 		if (mu1.Charge() + mu3.Charge() == 0 && ZCand3.M() < 12.) return "";
-		FillCutflow("SR_3mu", "MOSdimu_ge12");
-		FillCutflow("WZ_3mu", "MOSdimu_ge12");
+		FillCutflow("SR_3mu", "MOSdimu_ge12", syst);
+		FillCutflow("WZ_3mu", "MOSdimu_ge12", syst);
 
 		// Divide SR and WZ
 		if (jets.size() > 1) {
-			FillCutflow("SR_3mu", "Nj_ge2");
+			FillCutflow("SR_3mu", "Nj_ge2", syst);
 			if (bjets.size() < 1) return "";
-			FillCutflow("SR_3mu", "Nb_ge1");
+			FillCutflow("SR_3mu", "Nb_ge1", syst);
 			return "SR_3mu";
 		}
 		else {
-			FillCutflow("WZ_3mu", "Nj_le1");
+			FillCutflow("WZ_3mu", "Nj_le1", syst);
 			if (bjets.size() > 0) return "";
-			FillCutflow("WZ_3mu", "NoBjet");
+			FillCutflow("WZ_3mu", "NoBjet", syst);
 			return "WZ_3mu";
 		}
 	}
@@ -184,8 +184,8 @@ TString Selector::RegionSelector(
 		// SR_1e2mu, WZ_1e2mu
 		// "noCut", "METFilter", "1e2mu", "trigger", "safePtCut", "OSdimu", "MOSdimu_g    e12", "Nj_le1", "NoBjet"
 		// "noCut", "METFilter", "1e2mu", "trigger", "safePtCut", "OSdimu", "MOSdimu_g    e12","Nj_ge2", "Nb_ge1"
-		FillCutflow("SR_1e2mu", "1e2mu");
-		FillCutflow("WZ_1e2mu", "1e2mu");
+		FillCutflow("SR_1e2mu", "1e2mu", syst);
+		FillCutflow("WZ_1e2mu", "1e2mu", syst);
 
 		const Muon& lead = muons_tight.at(0);
 		const Muon& sub = muons_tight.at(1);
@@ -193,56 +193,77 @@ TString Selector::RegionSelector(
 		bool passSafeCut = false;
 		if (EMuTrigOnly) {
 			if (!ev.PassTrigger(trigs_emu)) return "";
-			FillCutflow("SR_1e2mu", "trigger");
-			FillCutflow("WZ_1e2mu", "trigger");
+			FillCutflow("SR_1e2mu", "trigger", syst);
+			FillCutflow("WZ_1e2mu", "trigger", syst);
 
 			if (lead.Pt() > 10. && ele.Pt() > 25.) passSafeCut = true;
 			if (lead.Pt() > 25. && ele.Pt() > 15.) passSafeCut = true;
 			if (!passSafeCut) return "";
-			FillCutflow("SR_1e2mu", "safePtCut");
-			FillCutflow("WZ_1e2mu", "safePtCut");
+			FillCutflow("SR_1e2mu", "safePtCut", syst);
+			FillCutflow("WZ_1e2mu", "safePtCut", syst);
 		}
 		else {
-			if (!(ev.PassTrigger(trigs_emu) || ev.PassTrigger(trigs_dblmu))) return "";
-			FillCutflow("SR_1e2mu", "trigger");
-			FillCutflow("WZ_1e2mu", "trigger");
+			if (IsDATA && DataStream=="DoubleMuon") {
+				if (!(ev.PassTrigger(trigs_dblmu))) return "";
+				FillCutflow("SR_1e2mu", "trigger", syst);
+				FillCutflow("WZ_1e2mu", "trigger", syst);
 
-			if (ev.PassTrigger(trigs_emu)) {
+				if (lead.Pt() > 20. && sub.Pt() > 10.) passSafeCut = true;
+				if (!passSafeCut) return "";
+				FillCutflow("SR_1e2mu", "safePtCut", syst);
+				FillCutflow("WZ_1e2mu", "safePtCut", syst);
+			}
+			else if (IsDATA && DataStream=="MuonEG") {
+				if (!(ev.PassTrigger(trigs_emu))) return "";
+				FillCutflow("SR_1e2mu", "trigger", syst);
+				FillCutflow("WZ_1e2mu", "trigger", syst);
+
 				if (lead.Pt() > 10. && ele.Pt() > 25.) passSafeCut = true;
 				if (lead.Pt() > 25. && ele.Pt() > 15.) passSafeCut = true;
 				if (!passSafeCut) return "";
-				FillCutflow("SR_1e2mu", "safePtCut");
-				FillCutflow("WZ_1e2mu", "safePtCut");
+				FillCutflow("SR_1e2mu", "safePtCut", syst);
+				FillCutflow("WZ_1e2mu", "safePtCut", syst);
 			}
 			else {
-				// dbl muon trigger
-				if (lead.Pt() > 20. && sub.Pt() > 10.) passSafeCut = true;
+				// MC
+				if (!(ev.PassTrigger(trigs_emu) || ev.PassTrigger(trigs_dblmu))) return "";
+				FillCutflow("SR_1e2mu", "trigger", syst);
+				FillCutflow("WZ_1e2mu", "trigger", syst);
+
+				if (ev.PassTrigger(trigs_dblmu)) {
+					if (lead.Pt() > 20. && sub.Pt() > 10.) passSafeCut = true;
+				}
+				else {
+					// not pass dblmu but pass emu
+					if (lead.Pt() > 10. && ele.Pt() > 25.) passSafeCut = true;
+					if (lead.Pt() > 25. && ele.Pt() > 15.) passSafeCut = true;
+				}
 				if (!passSafeCut) return "";
-				FillCutflow("SR_1e2mu", "safePtCut");
-				FillCutflow("WZ_1e2mu", "safePtCut");
+				FillCutflow("SR_1e2mu", "safePtCut", syst);
+				FillCutflow("SR_1e2mu", "safePtCut", syst);
 			}
 		}
 
 		if (lead.Charge() + sub.Charge() != 0) return "";
-		FillCutflow("SR_1e2mu", "OSdimu");
-		FillCutflow("WZ_1e2mu", "OSdimu");
+		FillCutflow("SR_1e2mu", "OSdimu", syst);
+		FillCutflow("WZ_1e2mu", "OSdimu", syst);
 
 		const Particle ZCand = lead+sub;
 		if (ZCand.M() < 12.) return "";
-		FillCutflow("SR_1e2mu", "MOSdimu_ge12");
-		FillCutflow("WZ_1e2mu", "MOSdimu_ge12");
+		FillCutflow("SR_1e2mu", "MOSdimu_ge12", syst);
+		FillCutflow("WZ_1e2mu", "MOSdimu_ge12", syst);
 
 		if (jets.size() > 1.) {
-			FillCutflow("SR_1e2mu", "Nj_ge2");
+			FillCutflow("SR_1e2mu", "Nj_ge2", syst);
 			
 			if (bjets.size() < 1.) return "";
-			FillCutflow("SR_1e2mu", "Nb_ge1");
+			FillCutflow("SR_1e2mu", "Nb_ge1", syst);
 			return "SR_1e2mu";
 		}
 		else {
-			FillCutflow("WZ_1e2mu", "Nj_le1");
+			FillCutflow("WZ_1e2mu", "Nj_le1", syst);
 			if (bjets.size() > 1.) return "";
-			FillCutflow("WZ_1e2mu", "NoBjet");
+			FillCutflow("WZ_1e2mu", "NoBjet", syst);
 			return "WZ_1e2mu";
 		}
 	}

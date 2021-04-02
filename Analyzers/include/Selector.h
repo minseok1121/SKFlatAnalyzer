@@ -9,17 +9,21 @@ public:
 	Selector();
 	~Selector();
 
+	// aliases
+
 	// Initialize
 	void initializeAnalyzer();
+	bool RunSysts;
 	bool RunDeepCSV; // PU veto will not be applied
 	bool EMuTrigOnly;
-	bool SkimSR3mu, SkimSR1e2mu;
+	bool SkimSR3mu, SkimSR1e2mu, SkimWZ3mu, SkimWZ1e2mu;
 	bool AllRegions, DiLepOnly, TriLepOnly; // on/off manually
 	double weight;
 	vector<TString> trigs_dblmu, trigs_emu;
 	vector<TString> HcToWA_MuID, HcToWA_EleID;
 	vector<TString> regions;
 	vector<TString> getCuts(TString region);
+	vector<TString> Systematics;
 
 	TTree* tree;
 	unsigned int nMuons; 
@@ -47,15 +51,22 @@ public:
 
 	// Execute Event
     void executeEvent();
+	vector<Muon> muons_all;
+	vector<Electron> electrons_all;
+	vector<Jet> jets_all;
+	vector<Gen> gens;
+
+	// With systematics
+	void executeEventWithSystematics(const TString& syst);
 	TString RegionSelector(
 			Event& ev,
 			vector<Muon>& muons_tight, vector<Electron>& electrons_tight,
 			vector<Muon>& muons_loose, vector<Electron>& electrons_loose,
-			vector<Jet>& jets, vector<Jet>& bjets, Particle& METv);
+			vector<Jet>& jets, vector<Jet>& bjets, Particle& METv, const TString syst);
 	double getWeight(
 			const TString channel, Event& ev,
 			vector<Muon>& muons, vector<Electron>& electrons,
-			vector<Jet>& jets);
+			vector<Jet>& jets, const TString syst);
 };
 
 

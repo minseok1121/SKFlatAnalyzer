@@ -2,7 +2,10 @@
 # List of selected classes
 class AnalyzerCore
 class CRstudy
+class ClosureTest
 class ExampleRun
+class FakeEstimator
+class FakeMeasurement
 class GetEffLumi
 class MeasureJetTaggingEfficiency
 class Preselection
@@ -18,7 +21,10 @@ class SkimTree_SS2lOR3l
 class TestAnalyzer
 header AnalyzerCore.h
 header CRstudy.h
+header ClosureTest.h
 header ExampleRun.h
+header FakeEstimator.h
+header FakeMeasurement.h
 header GetEffLumi.h
 header MeasureJetTaggingEfficiency.h
 header Preselection.h

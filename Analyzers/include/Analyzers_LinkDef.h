@@ -21,4 +21,7 @@
 #pragma link C++ class CRstudy+;
 #pragma link C++ class Preselection+;
 #pragma link C++ class Selector+;
+#pragma link C++ class FakeEstimator+;
+#pragma link C++ class FakeMeasurement+;
+#pragma link C++ class ClosureTest+;
 #endif

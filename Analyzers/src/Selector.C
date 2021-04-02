@@ -2,7 +2,7 @@
 
 Selector::Selector() {}
 Selector::~Selector() {
-	if (SkimSR3mu || SkimSR1e2mu) {
+	if (SkimSR3mu || SkimSR1e2mu || SkimWZ3mu || SkimWZ1e2mu) {
 		outfile->cd();
 		tree->Write();
 	}
@@ -10,18 +10,26 @@ Selector::~Selector() {
 
 void Selector::initializeAnalyzer(){
  	// flags
+	RunSysts = HasFlag("RunSysts");
     RunDeepCSV = HasFlag("RunDeepCSV");
     EMuTrigOnly = HasFlag("EMuTrigOnly");
     SkimSR3mu = HasFlag("SkimSR3mu");
 	SkimSR1e2mu = HasFlag("SkimSR1e2mu");
+	SkimWZ3mu = HasFlag("SkimWZ3mu");
+	SkimWZ1e2mu = HasFlag("SkimWZ1e2mu");
 	cout << "[Selector::initializeAnalyzer] RunDeepCSV = " << RunDeepCSV << endl;
     cout << "[Selector::initializeAnalyzer] EMuTrigOnly = " << EMuTrigOnly << endl;
     cout << "[Selector::initializeAnalyzer] SkimSR3mu = " << SkimSR3mu << endl;
 	cout << "[Selector::initializeAnalyzer] SkimSR1e2mu = " << SkimSR1e2mu << endl;
+	cout << "[Selector::initializeAnalyzer] SkimWZ3mu = " << SkimWZ3mu << endl;
+	cout << "[Selector::initializeAnalyzer] SkimWZ1e2mu = " << SkimWZ1e2mu << endl;
 
 	// Set TTree
-	if (SkimSR3mu || SkimSR1e2mu) {
+	if (SkimSR3mu || SkimSR1e2mu || SkimWZ3mu || SkimWZ1e2mu) {
 		tree = new TTree("Events", "Events");
+		tree->Branch("run", &run);
+		tree->Branch("event", &event);
+		tree->Branch("lumi", &lumi);
 		tree->Branch("weight", &weight);
 		tree->Branch("nMuons", &nMuons);
 		tree->Branch("muons_pt", muons_pt, "muons_pt[nMuons]/D");
@@ -79,27 +87,69 @@ void Selector::initializeAnalyzer(){
 	
 	// initiate regions and cutflows
     regions = {"SR_3mu", "SR_1e2mu", "WZ_3mu", "WZ_1e2mu", "DY_OSdimu", "TT_OSdimu", "TT_OSemu"};
-    for (const auto& region: regions)
+    for (const auto& region: regions) {
         InitiateCutflow(region, this->getCuts(region));
+	}
+
+	// Systematics
+	Systematics = {"Central"};
+	if (RunSysts)
+		Systematics = {
+			"Central", "JetResUp", "JetResDown", "JetEnUp", "JetEnDown", 
+			"MuonEnUp", "MuonEnDown", "ElectronResUp", "ElectronResDown", 
+			"ElectronEnUp", "ElectronEnDown", "IDSFUp", "IDSFDown", 
+			"PUCorrUp", "PUCorrDown", "BtagUp", "BtagDown"
+		};
 }
 
-void Selector::executeEvent(){
+void Selector::executeEvent() {
+	// Get All objects
+	gens = GetGens();
+	muons_all = GetAllMuons();
+	electrons_all = GetAllElectrons();
+	jets_all = GetAllJets();
+	
+	for (const auto& syst : Systematics)
+		executeEventWithSystematics(syst);
+}
+void Selector::executeEventWithSystematics(const TString& syst){
+	
 	// Fill All Cutflows
 	for (const auto& region: regions)
-		FillCutflow(region, "noCut");
+		FillCutflow(region, "noCut", syst);
 
 	if (!PassMETFilter()) return;
 	for (const auto& region: regions)
-		FillCutflow(region, "METFilter");
+		FillCutflow(region, "METFilter", syst);
 
-	// Object Definitions
+	vector<Muon> muons = muons_all;
+	vector<Electron> electrons = electrons_all;
+	vector<Jet> jets = jets_all;
+	// Resolution, Energy scale
+	if (syst == "JetResUp")
+		jets = SmearJets(jets, +1);
+	if (syst == "JetResDown")
+		jets = SmearJets(jets, -1);
+	if (syst == "JetEnUp")
+		jets = ScaleJets(jets, +1);
+	if (syst == "JetEnDown")
+		jets = ScaleJets(jets, -1);
+	if (syst == "MuonEnUp")
+		muons = ScaleMuons(muons, +1);
+	if (syst == "MuonEnDown")
+		muons = ScaleMuons(muons, -1);
+	if (syst == "ElectronResUp")
+		electrons = SmearElectrons(electrons, +1);
+	if (syst == "ElectronResDown")
+		electrons = SmearElectrons(electrons, -1);
+	if (syst == "ElectronEnUp")
+		electrons = ScaleElectrons(electrons, +1);
+	if (syst == "ElectronEnDown")
+		electrons = ScaleElectrons(electrons, -1);
+
+
 	Event ev = GetEvent();
-	vector<Gen> gens = GetGens();
-	vector<Muon> muons = GetAllMuons();
-	vector<Electron> electrons = GetAllElectrons();
-	vector<Jet> jets = GetAllJets();
-	Particle METv = ev.GetMETVector(); // phi correction applid in SKFlat
-
+	Particle METv = ev.GetMETVector(); // phi correction applied
 	// sort at the first time, don't want to be confused
 	sort(muons.begin(), muons.end(), PtComparing);
 	sort(electrons.begin(), electrons.end(), PtComparing);
@@ -135,24 +185,24 @@ void Selector::executeEvent(){
 	const TString channel = RegionSelector(
 			ev, muons_tight, electrons_tight,
 			muons_loose, electrons_loose,
-			jets_lepVeto, bjets_lepVeto, METv);
+			jets_lepVeto, bjets_lepVeto, METv, syst);
 	if (channel == "")
 		return;
 
 	// initialize weight
-	weight = getWeight(channel, ev, muons_tight, electrons_tight, jets_lepVeto);
+	weight = getWeight(channel, ev, muons_tight, electrons_tight, jets_lepVeto, syst);
 		
 	// Fill Hists
-	FillObjects(channel + "/muons_tight", muons_tight, weight);
-	FillObjects(channel + "/electrons_tight", electrons_tight, weight);
-	FillObjects(channel + "/jets_lepVeto", jets_lepVeto, weight);
-	FillObjects(channel + "/bjets_lepVeto", bjets_lepVeto, weight);
-	FillObject(channel + "/METv", METv, weight);
+	FillObjects(channel+"/"+syst+"/muons_tight", muons_tight, weight);
+	FillObjects(channel+"/"+syst+"/electrons_tight", electrons_tight, weight);
+	FillObjects(channel+"/"+syst+"/jets_lepVeto", jets_lepVeto, weight);
+	FillObjects(channel+"/"+syst+"/bjets_lepVeto", bjets_lepVeto, weight);
+	FillObject(channel+"/"+syst+"/METv", METv, weight);
 	if (channel == "DY_OSdimu" || channel == "TT_OSdimu") {
 		const Particle ZCand = muons_tight.at(0) + muons_tight.at(1);
-		FillObject(channel + "/ZCand", ZCand, weight);
+		FillObject(channel+"/"+syst+"/ZCand", ZCand, weight);
 	}
-	if (channel == "SR_3mu" && SkimSR3mu) {
+	if ((channel == "SR_3mu" && SkimSR3mu) || (channel == "WZ_3mu" && SkimWZ3mu)) {
 		nMuons = muons_tight.size();
 		for (unsigned int i = 0; i < nMuons; i++) {
 			muons_pt[i] = muons_tight.at(i).Pt();
@@ -180,7 +230,7 @@ void Selector::executeEvent(){
 
 		tree->Fill();
 	}
-	if (channel == "SR_1e2mu" && SkimSR1e2mu) {
+	if ((channel == "SR_1e2mu" && SkimSR1e2mu) || (channel == "WZ_1e2mu" && SkimWZ1e2mu)) {
 		nElectrons = electrons_tight.size();
 		electrons_pt[0] = electrons_tight.at(0).Pt();
 		electrons_eta[0] = electrons_tight.at(0).Eta();
@@ -199,22 +249,21 @@ void Selector::executeEvent(){
         }
         
 		nJets = jets_lepVeto.size();
-        for (unsigned int i = 0; i < nJets; i++) {
-            jets_pt[i] = jets_lepVeto.at(i).Pt();
-            jets_eta[i] = jets_lepVeto.at(i).Eta();
-            jets_phi[i] = jets_lepVeto.at(i).Phi();
-            const double this_discr = 
-                jets_lepVeto.at(i).GetTaggerResult(JetTagging::DeepJet);
-            if (this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepJet, JetTagging::Medium))
-                jets_isBtagged[i] = true;
-            else
-                jets_isBtagged[i] = false;
-        }
+		for (unsigned int i = 0; i < nJets; i++) {
+			jets_pt[i] = jets_lepVeto.at(i).Pt();
+			jets_eta[i] = jets_lepVeto.at(i).Eta();
+			jets_phi[i] = jets_lepVeto.at(i).Phi();
+			const double this_discr = 
+				jets_lepVeto.at(i).GetTaggerResult(JetTagging::DeepJet);
+			if (this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepJet, JetTagging::Medium))
+				jets_isBtagged[i] = true;
+			else
+				jets_isBtagged[i] = false;
+		}
         
 		METv_pt = METv.Pt();
         METv_phi = METv.Phi();
-
+	
         tree->Fill();
-
 	}
 }

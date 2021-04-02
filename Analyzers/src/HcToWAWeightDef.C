@@ -3,7 +3,7 @@
 double Selector::getWeight(
 		const TString channel, Event& ev, 
 		vector<Muon>& muons, vector<Electron>& electrons, 
-		vector<Jet>& jets) {
+		vector<Jet>& jets, const TString syst) {
 	if (IsDATA)
 		return 1.;
 
@@ -13,7 +13,14 @@ double Selector::getWeight(
 	const double w_prefire = GetPrefireWeight(0);
 	const double w_gen = ev.MCweight()*weight_norm_1invpb;
 	const double w_lumi = ev.GetTriggerLumi("Full");
-	const double w_pileup = GetPileUpWeight(nPileUp, 0);
+
+	double w_pileup;
+	if (syst == "PUCorrUp")
+		w_pileup = GetPileUpWeight(nPileUp, +1);
+	else if (syst == "PUCorrDown")
+		w_pileup = GetPileUpWeight(nPileUp, -1);
+	else
+		w_pileup = GetPileUpWeight(nPileUp, 0);
 	//cout << "w_prefire: " <<  w_prefire << endl;
     //cout << "w_gen: " << w_gen << endl;
     //cout << "w_lumi: " << w_lumi << endl;
@@ -24,6 +31,15 @@ double Selector::getWeight(
 	const TString ID = "HcToWATight";
 	double w_trigsf = 1.;
 	//cout << "channel: " << channel << endl;
+	if (channel.Contains("dimu")) {
+		const Muon& mu1 = muons.at(0);
+		const Muon& mu2 = muons.at(1);
+		const double mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), 0);
+		const double mu2_idsf = mcCorr->MuonID_SF(ID, mu2.Eta(), mu2.MiniAODPt(), 0);
+		w_idsf *= mu1_idsf*mu2_idsf;
+		w_trigsf =
+			mcCorr->GetTriggerSF(electrons, muons, "DiMuIso_HNTopID", "");
+	}
 	if (channel.Contains("emu")) {
         const Muon& mu = muons.at(0);
         const Electron& ele = electrons.at(0);
@@ -39,9 +55,22 @@ double Selector::getWeight(
         const Muon& mu1 = muons.at(0);
         const Muon& mu2 = muons.at(1);
         const Muon& mu3 = muons.at(2);
-        const double mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), 0);
-        const double mu2_idsf = mcCorr->MuonID_SF(ID, mu2.Eta(), mu2.MiniAODPt(), 0);
-        const double mu3_idsf = mcCorr->MuonID_SF(ID, mu3.Eta(), mu3.MiniAODPt(), 0);
+		double mu1_idsf, mu2_idsf, mu3_idsf;
+		if (syst == "IDSFUp") {
+			mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), +1);
+			mu2_idsf = mcCorr->MuonID_SF(ID, mu2.Eta(), mu2.MiniAODPt(), +1);
+			mu3_idsf = mcCorr->MuonID_SF(ID, mu3.Eta(), mu3.MiniAODPt(), +1);
+		}
+		else if (syst == "IDSFDown") {
+			mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), -1);
+			mu2_idsf = mcCorr->MuonID_SF(ID, mu2.Eta(), mu2.MiniAODPt(), -1);
+			mu3_idsf = mcCorr->MuonID_SF(ID, mu3.Eta(), mu3.MiniAODPt(), -1);
+		}
+		else {
+			mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), 0);
+			mu2_idsf = mcCorr->MuonID_SF(ID, mu2.Eta(), mu2.MiniAODPt(), 0);
+			mu3_idsf = mcCorr->MuonID_SF(ID, mu3.Eta(), mu3.MiniAODPt(), 0);
+		}
         w_idsf *= mu1_idsf*mu2_idsf*mu3_idsf;
         w_trigsf = 
 			mcCorr->GetTriggerSF(electrons, muons, "DiMuIso_HNTopID", "");
@@ -52,9 +81,22 @@ double Selector::getWeight(
         const Muon& mu1 = muons.at(0);
         const Muon& mu2 = muons.at(1);
         const Electron& ele = electrons.at(0);
-        const double mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), 0);
-        const double mu2_idsf = mcCorr->MuonID_SF(ID, mu2.Eta(), mu2.MiniAODPt(), 0);
-        const double ele_idsf = mcCorr->ElectronID_SF(ID, ele.scEta(), ele.Pt(), 0);
+		double mu1_idsf, mu2_idsf, ele_idsf;
+		if (syst == "IDSFUp") {
+			mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), +1);
+			mu2_idsf = mcCorr->MuonID_SF(ID, mu2.Eta(), mu2.MiniAODPt(), +1);
+			ele_idsf = mcCorr->ElectronID_SF(ID, ele.scEta(), ele.Pt(), +1);
+		}
+		else if (syst == "IDSFDown") {
+			mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), -1);
+			mu2_idsf = mcCorr->MuonID_SF(ID, mu2.Eta(), mu2.MiniAODPt(), -1);
+			ele_idsf = mcCorr->ElectronID_SF(ID, ele.scEta(), ele.Pt(), -1);
+		}
+		else {
+			mu1_idsf = mcCorr->MuonID_SF(ID, mu1.Eta(), mu1.MiniAODPt(), 0);
+			mu2_idsf = mcCorr->MuonID_SF(ID, mu2.Eta(), mu2.MiniAODPt(), 0);
+			ele_idsf = mcCorr->ElectronID_SF(ID, ele.scEta(), ele.Pt(), 0);
+		}
         w_idsf *= mu1_idsf*mu2_idsf*ele_idsf;
         if (EMuTrigOnly)
             w_trigsf
@@ -77,12 +119,24 @@ double Selector::getWeight(
     if (RunDeepCSV) {
         JetTagging::Parameters jtp_DeepCSV_Medium
             = JetTagging::Parameters(JetTagging::DeepCSV, JetTagging::Medium, JetTagging::incl, JetTagging::mujets);
-        w_btag = mcCorr->GetBTaggingReweight_1a(jets, jtp_DeepCSV_Medium);
+		w_btag = mcCorr->GetBTaggingReweight_1a(jets, jtp_DeepCSV_Medium);
+		//if (syst == "BtagUp")
+		//	w_btag = mcCorr->GetBTaggingReweight_1a(jets, jtp_DeepCSV_Medium, +1);
+		//else if (syst == "BtagDown")
+		//	w_btag = mcCorr->GetBTaggingReweight_1a(jets, jtp_DeepCSV_Medium, -1);
+		//else
+		//	w_btag = mcCorr->GetBTaggingReweight_1a(jets, jtp_DeepCSV_Medium, 0);
     }
     else {
         JetTagging::Parameters jtp_DeepJet_Medium
             = JetTagging::Parameters(JetTagging::DeepJet, JetTagging::Medium, JetTagging::incl, JetTagging::mujets);
         w_btag = mcCorr->GetBTaggingReweight_1a(jets, jtp_DeepJet_Medium);
+		//if (syst == "BtagUp")
+		//	w_btag = mcCorr->GetBTaggingReweight_1a(jets, jtp_DeepJet_Medium, +1);
+		//else if (syst == "BtagDown")
+		//	w_btag = mcCorr->GetBTaggingReweight_1a(jets, jtp_DeepJet_Medium, -1);
+		//else
+		//	w_btag = mcCorr->GetBTaggingReweight_1a(jets, jtp_DeepJet_Medium, 0);
     }
     //cout << "w_btag: " << w_btag << endl;
     out *= w_btag;

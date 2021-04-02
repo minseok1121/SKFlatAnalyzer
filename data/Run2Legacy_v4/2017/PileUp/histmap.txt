@@ -76,9 +76,9 @@ SingleTop_tW_top_NoFullyHad		PUReweight_2017_Up		PUReweight_2017.root
 SingleTop_tW_antitop_NoFullyHad	PUReweight_2017			PUReweight_2017.root
 SingleTop_tW_antitop_NoFullyHad	PUReweight_2017_Down	PUReweight_2017.root
 SingleTop_tW_antitop_NoFullyHad	PUReweight_2017_Up		PUReweight_2017.root
-SingleTop_sch					PUReweight_2017			PUReweight_2017.root
-SingleTop_sch					PUReweight_2017_Down	PUReweight_2017.root
-SingleTop_sch					PUReweight_2017_Up		PUReweight_2017.root
+SingleTop_sch_Lep				PUReweight_2017			PUReweight_2017.root
+SingleTop_sch_Lep				PUReweight_2017_Down	PUReweight_2017.root
+SingleTop_sch_Lep				PUReweight_2017_Up		PUReweight_2017.root
 TTG								PUReweight_2017			PUReweight_2017.root
 TTG								PUReweight_2017_Down	PUReweight_2017.root
 TTG								PUReweight_2017_Up		PUReweight_2017.root

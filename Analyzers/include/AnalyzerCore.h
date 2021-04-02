@@ -233,7 +233,7 @@ public:
   //==== Plotting (added by Jin)
   map<TString, vector<TString>> _cuts;
   void InitiateCutflow(const TString &region, const vector<TString>& cuts);
-  void FillCutflow(const TString& region, const TString& cut);
+  void FillCutflow(const TString& region, const TString& cut, TString syst="Central");
   void FillObjects(const TString path, const vector<Muon>& muons, const double& weight);
   void FillObjects(const TString path, const vector<Electron>& electrons, const double& weight);
   void FillObjects(const TString path, const vector<Jet>& jets, const double& weight);

@@ -1967,20 +1967,25 @@ void AnalyzerCore::InitiateCutflow(const TString& region, const vector<TString>&
 	this->_cuts[region] = cuts;
 }
 
-void AnalyzerCore::FillCutflow(const TString& region, const TString& cut) {
+void AnalyzerCore::FillCutflow(const TString& region, const TString& cut, TString syst) {
 	auto cuts = this->_cuts[region];
 	bool isFilled = false;
 	const unsigned int ncuts = cuts.size();
+	
+	// find the right place of the cut and fill
 	for (unsigned int i = 0; i < ncuts; i++) {
 		if (cut == cuts.at(i)) {
-			FillHist("cutflow/" + region, static_cast<double>(i), 1., ncuts, 0., static_cast<double>(ncuts));
+			FillHist("cutflow/"+region+"/"+syst, static_cast<double>(i), 1., ncuts, 0., static_cast<double>(ncuts));
 			isFilled = true;
 			break;
 		}
 	}
 
-	if (!isFilled)
+	// wrong cut name if the code runs to this point
+	if (!isFilled) {
 		cerr << "[AnalyzerCore::FillCutflow] no cut named " << cut << " in region " << region << endl;
+		exit(EXIT_FAILURE);
+	}
 }
 
 void AnalyzerCore::FillObjects(const TString path, const vector<Muon>& muons, const double& weight) {

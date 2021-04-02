@@ -130,9 +130,15 @@ double Event::GetTriggerLumi(TString trig){
       //return 2.605;;
       return 2.605*1.33461;
     }
+	else if(trig=="HLT_Mu8_TrkIsoVVL_v") {
+		return 2.8997;
+	}
     else if(trig=="HLT_Mu17_v"){
       return 70.039;
     }
+	else if(trig=="HLT_Mu17_TrkIsoVVL_v") {
+		return 65.8989;
+	}
     else if(trig=="HLT_Mu19_v"){
       return 46.205;
     }
