@@ -2,13 +2,13 @@
 
 vector<TString> Selector::getCuts(TString region) {
 	if (region == "SR_3mu")
-		return {"noCut", "METFilter", "3mu", "trigger", "safePtCut", "ExistOSdimu", "MOSdimu_ge12", "Nj_ge2", "Nb_ge1"};
+		return {"noCut", "METFilter", "3mu", "trigger", "safePtCut", "ExistOSdimu", "MOSdimu_ge12", "Nj_ge3", "Nb_ge2"};
 	else if (region == "SR_1e2mu")
-		return {"noCut", "METFilter", "1e2mu", "trigger", "safePtCut", "OSdimu", "MOSdimu_ge12","Nj_ge2", "Nb_ge1"};
-	else if (region == "WZ_3mu")
-		return {"noCut", "METFilter", "3mu", "trigger", "safePtCut", "ExistOSdimu", "MOSdimu_ge12","Nj_le1", "NoBjet"};
-	else if (region == "WZ_1e2mu")
-		return {"noCut", "METFilter", "1e2mu", "trigger", "safePtCut", "OSdimu", "MOSdimu_ge12", "Nj_le1", "NoBjet"};
+		return {"noCut", "METFilter", "1e2mu", "trigger", "safePtCut", "OSdimu", "MOSdimu_ge12", "Nj_ge3", "Nb_ge2"};
+	else if (region == "ZFake_3mu")
+		return {"noCut", "METFilter", "3mu", "trigger", "safePtCut", "ExistOSDimu", "MOSdimu_ge12", "OnshellZ", "NoBjet"};
+	else if (region == "ZFake_1e2mu")
+		return {"noCut", "METFilter", "1e2mu", "trigger", "safePtCut", "OSdimu", "OnshellZ", "NoBjet");
 	else if (region == "DY_OSdimu")
 		return {"noCut", "METFilter", "dimu", "trigger", "safePtCut", "OSdimu", "OnshellZ", "NoBjet"};
 	else if (region == "TT_OSdimu")
@@ -135,13 +135,13 @@ TString Selector::RegionSelector(
 		return "TT_OSemu";
 	}
 	else if (region == "3mu") {
-		// SR_3mu, WZ_3mu
+		// SR_3mu, ZFake_3mu
 		FillCutflow("SR_3mu", "3mu", syst);
-		FillCutflow("WZ_3mu", "3mu", syst);
+		FillCutflow("ZFake_3mu", "3mu", syst);
 		
 		if (!ev.PassTrigger(trigs_dblmu)) return "";
 		FillCutflow("SR_3mu", "trigger", syst);
-		FillCutflow("WZ_3mu", "trigger", syst);
+		FillCutflow("ZFake_3mu", "trigger", syst);
 
 		const Muon& mu1 = muons_tight.at(0);
 		const Muon& mu2 = muons_tight.at(1);
@@ -150,12 +150,12 @@ TString Selector::RegionSelector(
 		if (mu2.Pt() < 10.) return "";
 		if (mu3.Pt() < 10.) return "";
 		FillCutflow("SR_3mu", "safePtCut", syst);
-		FillCutflow("WZ_3mu", "safePtCut", syst);
+		FillCutflow("ZFake_3mu", "safePtCut", syst);
 
 		const int chargeSum = mu1.Charge() + mu2.Charge() + mu3.Charge();
 		if (abs(chargeSum) != 1) return "";
 		FillCutflow("SR_3mu", "ExistOSdimu", syst);
-		FillCutflow("WZ_3mu", "ExistOSdimu", syst);
+		FillCutflow("ZFake_3mu", "ExistOSdimu", syst);
 
 		const Particle ZCand1 = mu1 + mu2;
 		const Particle ZCand2 = mu2 + mu3;
@@ -164,21 +164,25 @@ TString Selector::RegionSelector(
 		if (mu2.Charge() + mu3.Charge() == 0 && ZCand2.M() < 12.) return "";
 		if (mu1.Charge() + mu3.Charge() == 0 && ZCand3.M() < 12.) return "";
 		FillCutflow("SR_3mu", "MOSdimu_ge12", syst);
-		FillCutflow("WZ_3mu", "MOSdimu_ge12", syst);
+		FillCutflow("ZFake_3mu", "MOSdimu_ge12", syst);
 
-		// Divide SR and WZ
-		if (jets.size() > 1) {
-			FillCutflow("SR_3mu", "Nj_ge2", syst);
-			if (bjets.size() < 1) return "";
-			FillCutflow("SR_3mu", "Nb_ge1", syst);
-			return "SR_3mu";
-		}
-		else {
-			FillCutflow("WZ_3mu", "Nj_le1", syst);
-			if (bjets.size() > 0) return "";
-			FillCutflow("WZ_3mu", "NoBjet", syst);
-			return "WZ_3mu";
-		}
+		bool existOnshellZ = false;
+		if (mu1.Charge() + mu2.Charge() == 0 && fabs(ZCand1.M() - 91.2) < 10.) existOnshellZ = true;
+		if (mu2.Charge() + mu3.Charge() == 0 && fabs(ZCand2.M() - 91.2) < 10.) existOnshellZ = true;
+		if (mu1.Charge() + mu3.Charge() == 0 && fabs(ZCand3.M() - 91.2) < 10.) existOnshellZ = true;
+
+		// Divde SR and ZFake
+		if (jets.size() > 3 && bjets.size() > 2) 
+			region = "SR_3mu";
+		else if (existOnshellZ && bjets.size() == 0)
+			region = "ZFake_3mu";
+		else 
+			region = "";
+
+		if (region == "SR_3mu")
+			if (jets.size() > 3)
+			
+	
 	}
 	else if (region == "1e2mu") {
 		// SR_1e2mu, WZ_1e2mu

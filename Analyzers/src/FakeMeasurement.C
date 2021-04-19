@@ -384,7 +384,8 @@ void FakeMeasurement::executeEventWithSystematics(const TString& syst) {
 			const double absEta = fabs(ele.Eta());
 			const double Mt = MT(ele, METv);
 			const double MET = METv.Pt();
-			double ptCorrBin[] = {10., 15., 20., 25., 35., 50., 70., 100.};
+			//double ptCorrBin[] = {10., 15., 20., 25., 35., 50., 70., 100.};
+			double ptCorrBin[] = {10., 20., 35., 50., 70};
 			double absEtaBin[] = {0., 0.8, 1.479, 2.5};
 
 			TString region = "";
@@ -432,7 +433,7 @@ void FakeMeasurement::executeEventWithSystematics(const TString& syst) {
                     FillHist(histkey+"MT", Mt, weight, 200, 0., 200.);
                     if (ptCorr < 20.) {
 						histkey = channel+"/"+ID+"/"+syst;
-                        FillHist(histkey, ptCorr, absEta, weight, 7, ptCorrBin, 3, absEtaBin);
+                        FillHist(histkey, ptCorr, absEta, weight, 4, ptCorrBin, 3, absEtaBin);
 					}
 				}
 				if (ele.PassID("HcToWATight")) {
@@ -460,7 +461,7 @@ void FakeMeasurement::executeEventWithSystematics(const TString& syst) {
                         FillHist(histkey+"MT", Mt, weight, 200, 0., 200.);
 						if (ptCorr < 20.) {
 							histkey = channel+"/"+ID+"/"+syst;
-							FillHist(histkey, ptCorr, absEta, weight, 7, ptCorrBin, 3, absEtaBin);
+							FillHist(histkey, ptCorr, absEta, weight, 4, ptCorrBin, 3, absEtaBin);
 						}
 					}
                 }
@@ -502,7 +503,7 @@ void FakeMeasurement::executeEventWithSystematics(const TString& syst) {
                     FillHist(histkey+"MT", Mt, weight, 200, 0., 200.);
                     if (20. < ptCorr && ptCorr < 35.) {
 						histkey = channel+"/"+ID+"/"+syst;
-                        FillHist(histkey, ptCorr, absEta, weight, 7, ptCorrBin, 3, absEtaBin);
+                        FillHist(histkey, ptCorr, absEta, weight, 4, ptCorrBin, 3, absEtaBin);
 					}
 				}
 				
@@ -531,7 +532,7 @@ void FakeMeasurement::executeEventWithSystematics(const TString& syst) {
                         FillHist(histkey+"MT", Mt, weight, 200, 0., 200.);
 						if (20. < ptCorr && ptCorr < 35.) {
 							histkey = channel+"/"+ID+"/"+syst;
-							FillHist(histkey, ptCorr, absEta, weight, 7, ptCorrBin, 3, absEtaBin);
+							FillHist(histkey, ptCorr, absEta, weight, 4, ptCorrBin, 3, absEtaBin);
 						}
 					}
                 }
@@ -573,7 +574,7 @@ void FakeMeasurement::executeEventWithSystematics(const TString& syst) {
                     FillHist(histkey+"MT", Mt, weight, 200, 0., 200.);
                     if (ptCorr > 35.) {
 						histkey = channel+"/"+ID+"/"+syst;
-                        FillHist(histkey, ptCorr, absEta, weight, 7, ptCorrBin, 3, absEtaBin);
+                        FillHist(histkey, ptCorr, absEta, weight, 4, ptCorrBin, 3, absEtaBin);
 					}
 				}
 				if (ele.PassID("HcToWATight")) {
@@ -601,7 +602,7 @@ void FakeMeasurement::executeEventWithSystematics(const TString& syst) {
                         FillHist(histkey+"MT", Mt, weight, 200, 0., 200.);
 						if (ptCorr > 35.) {
 							histkey = channel+"/"+ID+"/"+syst;
-							FillHist(histkey, ptCorr, absEta, weight, 7, ptCorrBin, 3, absEtaBin);
+							FillHist(histkey, ptCorr, absEta, weight, 4, ptCorrBin, 3, absEtaBin);
 						}
 					}
                 }

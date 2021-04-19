@@ -4,12 +4,12 @@ TTLL_powheg
 # VV
 WZTo3LNu_powheg
 ZZTo4L_powheg
-ZGToLLG_01J
+# ZGToLLG_01J
 # ttX
 ttHToNonbb
 ttWToLNu
 ttZToLLNuNu
-TTG
+# TTG
 # tZq # not in the sample list
 # VVV
 WWW

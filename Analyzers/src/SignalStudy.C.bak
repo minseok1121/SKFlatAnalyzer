@@ -1,0 +1,217 @@
+#include "SignalStudy.h"
+
+//==== Constructor & Destructor
+SignalStudy::SignalStudy(): __called(0) {}
+SignalStudy::~SignalStudy() {}
+
+void SignalStudy::initializeAnalyzer(){
+	// B-tagging
+	// Use 'mujets' in ttbar topology since it's statistically independent
+	vector<JetTagging::Parameters> jtps;
+	jtps.emplace_back(
+		JetTagging::Parameters(JetTagging::DeepCSV, JetTagging::Medium, JetTagging::incl, JetTagging::mujets));
+	mcCorr->SetJetTaggingParameters(jtps);
+}
+
+void SignalStudy::executeEvent(){
+	// initialize cutflow
+	myCutflowMaker();
+
+	// MET Filter
+	if (!PassMETFilter()) return;
+	myCutflowMaker();
+
+	Event ev = GetEvent();
+	Particle METv = ev.GetMETVector();
+
+	// object definition
+	// electrons, muons, jets, bjets
+	vector<Gen> gens = GetGens();
+	vector<Muon> muons = GetAllMuons();				sort(muons.begin(), muons.end(), PtComparing);
+	vector<Electron> electrons = GetAllElectrons();	sort(electrons.begin(), electrons.end(), PtComparing);
+	vector<Jet> jets = GetAllJets();				sort(jets.begin(), jets.end(), PtComparing);
+	
+	// select objects
+	vector<Muon> muons_passID = SelectMuons(muons, "POGMedium", 10., 2.4);
+	vector<Muon> muons_veto = SelectMuons(muons, "POGLoose", 8., 2.4);
+	vector<Electron> electrons_passID = SelectElectrons(electrons, "passMVAID_noIso_WP90", 10., 2.5);
+	vector<Electron> electrons_veto = SelectElectrons(electrons, "passVetoID", 8., 2.5);
+
+	// Jets
+    vector<Jet> jets_tight = SelectJets(jets, "tight", 10., 2.4);
+    vector<Jet> jets_cleaned = JetsVetoLeptonInside(jets_tight, electrons_veto, muons_veto, 0.4);
+	vector<Jet> bjets_cleaned;
+    for (const auto &jet: jets_cleaned) {
+        double this_discr = jet.GetTaggerResult(JetTagging::DeepCSV);
+        if (this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium))
+            bjets_cleaned.emplace_back(jet);
+    }
+	
+	// Select Events
+	SIGNAL signal = SignalSelector(muons_passID, electrons_passID, muons_veto, electrons_veto);
+	if (signal == NONE) return;
+	myCutflowMaker();
+	
+	// Classify Leptons
+	// vector<Muon> muons_prompt, muons_ewprompt, muons_signal, muons_fromtau, muons_fake;
+	// vector<Electron> electrons_prompt, electrons_ewprompt, electrons_fromtau, electrons_fake;
+	vector<Muon> muons_signal, muons_ewprompt, muons_offshellW, muons_fromtau, muons_fake;
+	vector<Electron> electrons_signal, electrons_ewprompt, electrons_offshellW, electrons_fromtau, electrons_conv, electrons_fake;
+
+	for (const auto &mu: muons_passID) {
+		int LepType = GetLeptonType(mu, gens);
+		if (LepType == 1)
+			muons_ewprompt.emplace_back(mu);
+		else if (LepType == 2)
+			muons_signal.emplace_back(mu);
+		else if (LepType == 6)
+			muons_offshellW.emplace_back(mu);
+		else if (LepType == 3) 
+			muons_fromtau.emplace_back(mu);
+		else if (LepType < 0)
+			muons_fake.emplace_back(mu);
+		else
+			continue;
+	}
+	for (const auto &ele: electrons_passID) {
+		int LepType = GetLeptonType(ele, gens);
+		if (LepType == 1)
+			electrons_ewprompt.emplace_back(ele);
+		else if (LepType == 2)
+			electrons_signal.emplace_back(ele);
+		else if (LepType == 6)
+			electrons_offshellW.emplace_back(ele);
+		else if (LepType == 3)
+			electrons_fromtau.emplace_back(ele);
+		else if (LepType == 4 || LepType == 5)
+			electrons_conv.emplace_back(ele);
+		else if (LepType < 0)
+			electrons_fake.emplace_back(ele);
+		else
+			continue;
+    }	
+	
+ // set weight
+	double weight = 1.;
+	double w_prefire, w_gen, w_lumi;
+	w_prefire = GetPrefireWeight(0);
+	w_gen = ev.MCweight()*weight_norm_1invpb;
+	w_lumi = ev.GetTriggerLumi("Full");
+	cout << "MCweight: " << ev.MCweight() << endl;
+	cout << "weight_norm_1invpb: " << weight_norm_1invpb << endl;
+	weight *= w_prefire*w_gen*w_lumi;
+
+	// 3mu channel
+	if (signal == SR3MU) {
+		TString path_3mu = "3mu/";
+		myHistoMaker(path_3mu + "muons_passID/", muons_passID, weight);
+		myHistoMaker(path_3mu + "muons_signal/", muons_signal, weight);
+		myHistoMaker(path_3mu + "muons_ewprompt/", muons_ewprompt, weight);
+		myHistoMaker(path_3mu + "muons_offshellW/", muons_offshellW, weight);
+		myHistoMaker(path_3mu + "muons_fromtau/", muons_fromtau, weight);
+		myHistoMaker(path_3mu + "muons_fake/", muons_fake, weight);
+		myHistoMaker(path_3mu + "jets_cleaned/", jets_cleaned, weight);
+		myHistoMaker(path_3mu + "bjets_cleaned/", bjets_cleaned, weight);
+		if (muons_signal.size() == 2) {
+			Particle ACand = muons_signal.at(0) + muons_signal.at(1);
+			double deltaR = muons_signal.at(0).DeltaR(muons_signal.at(1));
+			myHistoMaker(path_3mu + "ACand/", ACand, weight);
+			FillHist(path_3mu + "Event/deltaR", deltaR, weight, 100, 0., 1.);
+		}
+		myHistoMaker(path_3mu + "METv/", METv, weight);
+	}
+	// 1e2mu channel
+	if (signal == SR1E2MU) {
+		TString path_1e2mu = "1e2mu/";
+		myHistoMaker(path_1e2mu + "muons_passID/", muons_passID, weight);
+		myHistoMaker(path_1e2mu + "muons_signal/", muons_signal, weight);
+		myHistoMaker(path_1e2mu + "muons_ewprompt/", muons_ewprompt, weight);
+		myHistoMaker(path_1e2mu + "muons_offshellW/", muons_offshellW, weight);
+		myHistoMaker(path_1e2mu + "muons_fromtau/", muons_fromtau, weight);
+		myHistoMaker(path_1e2mu + "muons_fake/", muons_fake, weight);
+		myHistoMaker(path_1e2mu + "electrons_signal/", electrons_signal, weight);
+		myHistoMaker(path_1e2mu + "electrons_ewprompt/", electrons_ewprompt, weight);
+		myHistoMaker(path_1e2mu + "electrons_passID/", electrons_passID, weight);
+		myHistoMaker(path_1e2mu + "electrons_offshellW/", electrons_offshellW, weight);
+		myHistoMaker(path_1e2mu + "electrons_fromtau/", electrons_fromtau, weight);
+		myHistoMaker(path_1e2mu + "electrons_conv/", electrons_conv, weight);
+		myHistoMaker(path_1e2mu + "electrons_fake/", electrons_fake, weight);
+		myHistoMaker(path_1e2mu + "jets_cleaned/", jets_cleaned, weight);
+		myHistoMaker(path_1e2mu + "bjets_cleaned/", bjets_cleaned, weight);
+		if (muons_signal.size() == 2) {
+			Particle ACand = muons_signal.at(0) + muons_signal.at(1);
+			double deltaR = muons_signal.at(0).DeltaR(muons_signal.at(1));
+			myHistoMaker(path_1e2mu + "ACand/", ACand, weight);
+			FillHist(path_1e2mu + "Event/deltaR", deltaR, weight, 100, 0., 1.);
+		}
+		myHistoMaker(path_1e2mu + "METv/", METv, weight);
+	}
+}
+
+// Other functions
+void SignalStudy::myCutflowMaker() {
+    FillHist("cutflow", __called, 1., 20, 0., 20.);
+    __called++;
+}
+
+SignalStudy::SIGNAL SignalStudy::SignalSelector(vector<Muon> &muons_passID, vector<Electron> &electrons_passID,
+									vector<Muon> &muons_veto, vector<Electron> &electrons_veto) {
+	if (muons_passID.size() == 3 
+			&& electrons_passID.size() == 0 
+			&& muons_veto.size() == 3 
+			&& electrons_veto.size() == 0)
+		return SR3MU;
+	else if (muons_passID.size() == 2
+			&& electrons_passID.size() == 1
+			&& muons_veto.size() == 2
+			&& electrons_veto.size() == 1)
+		return SR1E2MU;
+	else
+		return NONE;
+}
+	
+void SignalStudy::myHistoMaker(TString path, const vector<Muon> &muons, const double &weight) {
+    TString obj_path;
+    FillHist(path+"size", muons.size(), weight, 14, 0., 14.);
+    for (unsigned int i = 0; i < muons.size(); i++) {
+        obj_path = path + TString::Itoa(i+1, 10) + "/";
+        FillHist(obj_path+"pt", muons.at(i).Pt(), weight, 300, 0., 300.);
+        FillHist(obj_path + "eta", muons.at(i).Eta(), weight, 50, -2.5, 2.5);
+        FillHist(obj_path + "phi", muons.at(i).Phi(), weight, 70, -3.5, 3.5);
+        FillHist(obj_path + "RelIso", muons.at(i).RelIso(), weight, 50, 0., 0.5);
+        FillHist(obj_path + "TrkIso", muons.at(i).TrkIso()/muons.at(i).Pt(), weight, 80, 0., 0.8);
+        FillHist(obj_path + "dXY", fabs(muons.at(i).dXY()), weight, 50, 0., 0.5);
+        FillHist(obj_path + "dZ", fabs(muons.at(i).dZ()), weight, 80, 0., 0.8);
+        FillHist(obj_path + "MVA", muons.at(i).MVA(), weight, 100, -1., 1);
+    }
+}
+void SignalStudy::myHistoMaker(TString path, const vector<Electron>& electrons, const double& weight) {
+    TString obj_path;
+    FillHist(path+"size", electrons.size(), weight, 14, 0., 14.);
+    for (unsigned int i = 0; i < electrons.size(); i++) {
+        obj_path = path + TString::Itoa(i+1, 10) + "/";
+        FillHist(obj_path + "pt", electrons.at(i).Pt(), weight, 300, 0., 300.);
+        FillHist(obj_path + "eta", electrons.at(i).Eta(), weight, 50, -2.5, 2.5);
+        FillHist(obj_path + "phi", electrons.at(i).Phi(), weight, 70, -3.5, 3.5);
+        FillHist(obj_path + "RelIso", electrons.at(i).RelIso(), weight, 50, 0., 0.5);
+        FillHist(obj_path + "dXY", fabs(electrons.at(i).dXY()), weight, 50, 0., 0.5);
+        FillHist(obj_path + "dZ", fabs(electrons.at(i).dZ()), weight, 80, 0., 0.8);
+    }
+}
+void SignalStudy::myHistoMaker(TString path, const vector<Jet>& jets, const double& weight) {
+    TString obj_path;
+    FillHist(path + "size", jets.size(), weight, 14, 0., 14.);
+    for (unsigned int i = 0; i < jets.size(); i++) {
+        obj_path = path + TString::Itoa(i+1, 10) + "/";
+        FillHist(obj_path + "pt", jets.at(i).Pt(), weight, 300, 0., 300.);
+        FillHist(obj_path + "eta", jets.at(i).Eta(), weight, 48, -2.4, 2.4);
+        FillHist(obj_path + "phi", jets.at(i).Phi(), weight, 70, -3.5, 3.5);
+    }
+}
+
+void SignalStudy::myHistoMaker(TString path, const Particle& part, const double& weight) {
+    FillHist(path + "pt", part.Pt(), weight, 300, 0., 300.);
+    FillHist(path + "eta", part.Eta(), weight, 48, -2.4, 2.4);
+    FillHist(path + "phi", part.Phi(), weight, 70, -3.5, 3.5);
+	FillHist(path + "mass", part.M(), weight, 300, 0., 300.);
+}

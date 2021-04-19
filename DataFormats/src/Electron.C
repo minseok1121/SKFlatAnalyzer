@@ -177,6 +177,7 @@ bool Electron::PassID(TString ID) const{
 //==== HcTowA
 bool Electron::Pass_HcToWATight() const {
 	if (! passMVAID_noIso_WP90()) return false;
+	//if (! passMVAID_noIso_WP80()) return false;
 	if (! (MiniRelIso() < 0.1)) return false;
 	if (! (IP3Derr() != 0. && fabs(IP3D()/IP3Derr()) < 4.)) return false;
 	if (! (fabs(dZ()) < 0.1)) return false;
@@ -189,7 +190,7 @@ bool Electron::Pass_HcToWATight() const {
 bool Electron::Pass_HcToWALoose() const {
 	if (! passMVAID_noIso_WPLoose()) return false;
 	if (! (MiniRelIso() < 0.4)) return false;
-	if (! (IP3Derr() != 0.&&fabs(IP3D()/IP3Derr()) < 4.)) return false;
+	if (! (IP3Derr() != 0. && fabs(IP3D()/IP3Derr()) < 4.)) return false;
 	if (! (fabs(dZ()) < 0.1)) return false;
 	if (! Pass_CaloIdL_TrackIdL_IsoVL17() ) return false;
 	if (! PassConversionVeto()) return false;
