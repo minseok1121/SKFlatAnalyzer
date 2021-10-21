@@ -385,7 +385,8 @@ void FakeMeasurement::executeEventWithSystematics(const TString& syst) {
 			const double Mt = MT(ele, METv);
 			const double MET = METv.Pt();
 			//double ptCorrBin[] = {10., 15., 20., 25., 35., 50., 70., 100.};
-			double ptCorrBin[] = {10., 20., 35., 50., 70};
+			//double ptCorrBin[] = {10., 20., 35., 50., 70};
+			double ptCorrBin[] = {15., 20., 35., 50., 70.};
 			double absEtaBin[] = {0., 0.8, 1.479, 2.5};
 
 			TString region = "";

@@ -24,4 +24,6 @@
 #pragma link C++ class FakeEstimator+;
 #pragma link C++ class FakeMeasurement+;
 #pragma link C++ class ClosureTest+;
+#pragma link C++ class ElectronTightID+;
+
 #endif

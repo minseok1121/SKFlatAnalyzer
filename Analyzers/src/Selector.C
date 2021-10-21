@@ -12,11 +12,12 @@ void Selector::initializeAnalyzer(){
 	SkimEMu = HasFlag("SkimEMu");
 	Skim3Mu = HasFlag("Skim3Mu");
 	Skim1E2Mu = HasFlag("Skim1E2Mu");
+	SkimSignal = HasFlag("SkimSignal");
 	cout << "[Selector::initializeAnalyzer] SkimDiMu = " << SkimDiMu << endl;
 	cout << "[Selector::initializeAnalyzer] SkimEMu = " << SkimEMu << endl;
 	cout << "[Selector::initializeAnalyzer] Skim3Mu = " << Skim3Mu << endl;
 	cout << "[Selector::initializeAnalyzer] Skim1E2Mu = " << Skim1E2Mu << endl;
-
+	cout << "[Selector::initializeAnalyzer] SkimSignal = " << SkimSignal << endl;
 	// Triggers
 	if (DataYear == 2017) {
         trigs_dblmu.clear(); trigs_emu.clear();
@@ -56,6 +57,8 @@ void Selector::initializeAnalyzer(){
     tree->Branch("muons_phi", muons_phi, "muons_phi[nMuons]/F");
     tree->Branch("muons_mass", muons_mass, "muons_mass[nMuons]/F");
 	tree->Branch("muons_miniIso", muons_miniIso, "muons_miniIso[nMuons]/F");
+	tree->Branch("muons_scaleUp", muons_scaleUp, "muons_scaleUp[nMuons]/F");
+	tree->Branch("muons_scaleDown", muons_scaleDown, "muons_scaleDown[nMuons]/F");
     tree->Branch("muons_charge", muons_charge, "muons_charge[nMuons]/I");
     tree->Branch("muons_lepType", muons_lepType, "muons_lepType[nMuons]/I");
 	tree->Branch("muons_isTight", muons_isTight, "muons_isTight[nMuons]/O");
@@ -65,6 +68,10 @@ void Selector::initializeAnalyzer(){
     tree->Branch("electrons_phi", electrons_phi, "electrons_phi[nElectrons]/F");
     tree->Branch("electrons_mass", electrons_mass, "electrons_mass[nElectrons]/F");
 	tree->Branch("electrons_miniIso", electrons_miniIso, "electrons_miniIso[nElectrons]/F");
+	tree->Branch("electrons_scaleUp", electrons_scaleUp, "electrons_scaleUp[nElectrons]/F");
+	tree->Branch("electrons_scaleDown", electrons_scaleDown, "electrons_scaleDown[nElectrons]/F");
+	tree->Branch("electrons_smearUp", electrons_smearUp, "electrons_smearUp[nElectrons]/F");
+	tree->Branch("electrons_smearDown", electrons_smearDown, "electrons_smearDown[nElectrons]/F");
     tree->Branch("electrons_charge", electrons_charge, "electrons_charge[nElectrons]/I");
     tree->Branch("electrons_lepType", electrons_lepType, "electrons_lepType[nElectrons]/I");
 	tree->Branch("electrons_isTight", electrons_isTight, "electrons_isTight[nElectrons]/O");
@@ -73,10 +80,25 @@ void Selector::initializeAnalyzer(){
     tree->Branch("jets_eta", jets_eta, "jets_eta[nJets]/F");
     tree->Branch("jets_phi", jets_phi, "jets_phi[nJets]/F");
 	tree->Branch("jets_mass", jets_mass, "jets_mass[nJets]/F");
+	tree->Branch("jets_scaleUp", jets_scaleUp, "jets_scaleUp[nJets]/F");
+	tree->Branch("jets_scaleDown", jets_scaleDown, "jets_scaleDown[nJets]/F");
+	tree->Branch("jets_smearUp", jets_smearUp, "jets_smearUp[nJets]/F");
+	tree->Branch("jets_smearDown", jets_smearDown, "jets_smearDown[nJets]/F");
+	tree->Branch("jets_btagScore", jets_btagScore, "jets_btagScore[nJets]/F");	
 	tree->Branch("jets_isBtagged", jets_isBtagged, "jets_isBtagged[nJets]/O");
-	tree->Branch("METv_Pt", &METv_pt);
+	tree->Branch("METv_pt", &METv_pt);
 	tree->Branch("METv_eta", &METv_eta);
 	tree->Branch("METv_phi", &METv_phi);
+	if (SkimSignal) {
+		tree->Branch("A_pt", &A_pt);
+		tree->Branch("A_eta", &A_eta);
+		tree->Branch("A_phi", &A_phi);
+		tree->Branch("A_mass", &A_mass);
+		tree->Branch("Hc_pt", &Hc_pt);
+		tree->Branch("Hc_eta", &Hc_eta);
+		tree->Branch("Hc_phi", &Hc_phi);
+		tree->Branch("Hc_mass", &Hc_mass);
+	}
 	tree->Branch("genWeight", &genWeight);
 	tree->Branch("trigLumi", &trigLumi);
 	tree->Branch("weights_L1Prefire", weights_L1Prefire, "weights_L1Prefire[3]/F");
@@ -253,6 +275,8 @@ void Selector::executeEvent(){
 		muons_phi[i] = mu.Phi();
 		muons_mass[i] = mu.M();
 		muons_miniIso[i] = mu.MiniRelIso();
+		muons_scaleUp[i] = mu.MomentumShift(+1)/mu.Pt();
+		muons_scaleDown[i] = mu.MomentumShift(-1)/mu.Pt();
 		muons_charge[i] = mu.Charge();
 		muons_lepType[i] = GetLeptonType(mu, gens);
 		muons_isTight[i] = mu.PassID("HcToWATight");
@@ -265,26 +289,56 @@ void Selector::executeEvent(){
 		electrons_phi[i] = ele.Phi();
 		electrons_mass[i] = ele.M();
 		electrons_miniIso[i] = ele.MiniRelIso();
+		electrons_scaleUp[i] = ele.EnShift(+1);
+		electrons_scaleDown[i] = ele.EnShift(-1);
+		electrons_smearUp[i] = ele.ResShift(+1);
+		electrons_smearDown[i] = ele.ResShift(-1);
 		electrons_charge[i] = ele.Charge();
 		electrons_lepType[i] = GetLeptonType(ele, gens);
 		electrons_isTight[i] = ele.PassID("HcToWATight");
 	}
 	nJets = jets_lepVeto.size();
 	const float bcut = mcCorr->GetJetTaggingCutValue(JetTagging::DeepJet, JetTagging::Medium);
-	//const float bcut = mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium);
+	
 	for (unsigned int i = 0; i< nJets; i++) {
 		const Jet& jet = jets_lepVeto.at(i);
 		jets_pt[i] = jet.Pt();
 		jets_eta[i] = jet.Eta();
 		jets_phi[i] = jet.Phi();
 		jets_mass[i] = jet.M();
-		const float this_discr = jet.GetTaggerResult(JetTagging::DeepJet);
-		//const float this_discr = jet.GetTaggerResult(JetTagging::DeepCSV);
-		jets_isBtagged[i] = this_discr > bcut;
+		jets_scaleUp[i] = jet.EnShift(+1);
+		jets_scaleDown[i] = jet.EnShift(-1);
+		jets_smearUp[i] = jet.ResShift(+1);
+		jets_smearDown[i] = jet.ResShift(-1);
+		jets_btagScore[i] = jet.GetTaggerResult(JetTagging::DeepJet);
+		//const float this_discr = jet.GetTaggerResult(JetTagging::DeepJet);
+		jets_isBtagged[i] = jets_btagScore[i] > bcut;
 	}
 	METv_pt = METv.Pt();
 	METv_eta = METv.Eta();
 	METv_phi= METv.Phi();
+
+	// Hc and A
+	if (SkimSignal) {
+		A_pt = 0.; A_eta = 0.; A_phi = 0.; A_mass = 0.;
+		Hc_pt = 0.; Hc_eta = 0.; Hc_phi = 0.; Hc_mass = 0.;
+		for (const auto& gen: gens) {
+			if (abs(gen.PID()) == 36) { // A
+				A_pt = gen.Pt();
+				A_eta = gen.Eta();
+				A_phi = gen.Phi();
+				A_mass = gen.M();
+			}
+			else if (abs(gen.PID()) == 37) { // Hc
+				Hc_pt = gen.Pt();
+				Hc_eta = gen.Eta();
+				Hc_phi = gen.Phi();
+				Hc_mass = gen.M();
+			}
+			else {
+				continue;
+			}
+		}
+	}
 	tree->Fill();
 }
-
