@@ -2143,3 +2143,78 @@ void AnalyzerCore::FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatje
 
 }
 
+//==== Private plotting tools
+void AnalyzerCore::FillMuons(const TString path, const vector<Muon> &muons, const double &weight, bool fill_id=false) {
+		FillHist(path+"/size", muons.size(), weight, 10, 0., 10.);
+		for (unsigned int i = 0; i < muons.size(); i++) {
+				TString obj_path = path+"/"+TString::Itoa(i+1, 10);
+				const Muon &mu = muons.at(i);
+
+				// pt eta phi
+				FillHist(obj_path+"/pt", mu.Pt(), weight, 1000, 0., 1000.);
+				FillHist(obj_path+"/eta", mu.Eta(), weight, 96, -2.4, 2.4);
+				FillHist(obj_path+"/phi", mu.Phi(), weight, 128, -3.2, 3.2);
+				
+				// ID distributions
+				if (!fill_id) return;
+				// isolation
+				FillHist(obj_path+"/relIso", mu.RelIso(), weight, 100, 0., 1.);
+				FillHist(obj_path+"/trkIso", mu.TrkIso()/mu.Pt(), weight, 100, 0., 1.);
+				FillHist(obj_path+"/miniRelIso", mu.MiniRelIso(), weight, 100, 0., 1.);
+				// Impact parameters
+				FillHist(obj_path+"/dZ", mu.dZ(), weight, 100, 0., 1.);
+				FillHist(obj_path+"/dXY", mu.dXY(), weight, 100, 0., 1.);
+				if (mu.IP3Derr() != 0.)
+						FillHist(obj_path+"/SIP3D", fabs(mu.IP3D()/mu.IP3Derr()), weight, 100, 0, 10.);
+		}
+}
+
+void AnalyzerCore::FillElectrons(const TString path, const vector<Electron> &electrons, const double &weight, bool fill_id=false) {
+		FillHist(path+"/size", electrons.size(), weight, 10, 0., 10.);
+		for (unsigned int i = 0; i < electrons.size(); i++) {
+				TString obj_path = path+"/"+TString::Itoa(i+1, 10);
+				const Electron &ele = electrons.at(i);
+				
+				// pt eta phi
+				FillHist(obj_path+"/pt", ele.Pt(), weight, 1000, 0., 1000.);
+				FillHist(obj_path+"/eta", ele.Eta(), weight, 100, -2.5, 2.5);
+				FillHist(obj_path+"/phi", ele.Phi(), weight, 128, -3.2, 3.2);
+
+				// ID distributions
+				if (!fill_id) return;
+				// MVA
+				FillHist(obj_path+"/MVAIso", ele.MVAIso(), weight, 100, 0., 1.);
+				FillHist(obj_path+"/MVANoIso", ele.MVANoIso(), weight, 100, 0., 1.);
+				// isolation
+				FillHist(obj_path+"/relIso", ele.RelIso(), weight, 100, 0., 1.);
+				FillHist(obj_path+"/trkIsk", ele.TrkIso()/ele.Pt(), weight, 100, 0., 1.);
+				FillHist(obj_path+"/miniRelIso", ele.MiniRelIso(), weight, 100, 0., 1.);
+				// Impact parameters
+				FillHist(obj_path+"/dZ", ele.dZ(), weight, 100, 0., 1.);
+				FillHist(obj_path+"/dXY", ele.dXY(), weight, 100, 0., 1.);
+				if (ele.IP3Derr() != 0.)
+						FillHist(obj_path+"/SIP3D", fabs(ele.IP3D()/ele.IP3Derr()), weight, 100, 0., 10.);
+				// Missing Hits
+				FillHist(obj_path+"/nMissingHits", ele.NMissingHits(), weight, 10, 0., 10.);
+		}
+}
+
+void AnalyzerCore::FillJets(const TString path, const vector<Jet> &jets, const double &weight) {
+		FillHist(path+"/size", jets.size(), weight, 10, 0., 10.);
+		for (unsigned int i = 0; i < jets.size(); i++) {
+				TString obj_path = path+"/"+TString::Itoa(i+1, 10);
+				const Jet &jet = jets.at(i);
+
+				// pt eta phi
+				FillHist(obj_path+"/pt", jet.Pt(), weight, 1000, 0., 1000.);
+				FillHist(obj_path+"/eta", jet.Eta(), weight, 200, -5., 5.);
+				FillHist(obj_path+"/phi", jet.Phi(), weight, 128, -3.2, 3.2);
+		}
+}
+
+void AnalyzerCore::FillObject(const TString path, const Particle &part, const double &weight) {
+		FillHist(path+"/pt", part.Pt(), weight, 1000, 0., 1000.);
+		FillHist(path+"/eta", part.Eta(), weight, 200, -5., 5.);
+		FillHist(path+"/phi", part.Phi(), weight, 128, -3.2, 3.2);
+		FillHist(path+"/mass", part.M(), weight, 1000, 0., 1000.);
+}

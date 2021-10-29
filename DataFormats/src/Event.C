@@ -73,6 +73,17 @@ double Event::GetTriggerLumi(TString trig){
     else if(trig=="HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_v") return 11.033890219;
     else if(trig=="HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v") return 52.790026620;
     else if(trig=="HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v") return 19517.523849863;
+    //==== additional triggers
+		/*
+    else if(trig=="HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v") return 19517.523850;
+    else if(trig=="HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v") return;
+    else if(trig=="HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v") return;
+    else if(trig=="HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v") return;
+    else if(trig=="HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v") return;
+    else if(trig=="HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v") return;
+    else if(trig=="HLT_Mu8_TrkIsoVVL_v") return;
+    else if(trig=="HLT_Mu17_TrkIsoVVL_v") return;
+		*/
   }else if(j_DataEra=="2016postVFP"){
     if(trig=="Full") return 16812.151722482;
     else if(trig=="HLT_Mu3_PFJet40_v") return 3.580526616;
@@ -95,6 +106,17 @@ double Event::GetTriggerLumi(TString trig){
     else if(trig=="HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_v") return 3.980060594;
     else if(trig=="HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v") return 10.699483420;
     else if(trig=="HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v") return 16812.151722482;
+    //==== additional triggers
+		/*
+    else if(trig=="HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v") return;
+    else if(trig=="HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v") return;
+    else if(trig=="HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v") return;
+    else if(trig=="HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v") return;
+    else if(trig=="HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v") return;
+    else if(trig=="HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v") return;
+    else if(trig=="HLT_Mu8_TrkIsoVVL_v") return;
+    else if(trig=="HLT_Mu17_TrkIsoVVL_v") return;
+		*/
   }else if(j_DataEra=="2017"){
     if(trig=="Full") return 41477.877400009;
     else if(trig=="HLT_Mu3_PFJet40_v") return 4.607782551;
@@ -136,6 +158,16 @@ double Event::GetTriggerLumi(TString trig){
     else if(trig=="HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8_v") return 27121.940558082;
     else if(trig=="HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v") return 36674.511073834;
     else if(trig=="HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8_v") return 27121.940558082;
+    //==== additional triggers
+		/*
+    else if(trig=="HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v") return;
+    else if(trig=="HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_Mass3p8_v") return;
+    else if(trig=="HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v") return;
+    else if(trig=="HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v") return;
+    else if(trig=="HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v") return;
+    else if(trig=="HLT_Mu8_TrkIsoVVL_v") return;
+    else if(trig=="HLT_Mu17_TrkIsoVVL_v") return;
+		*/
   }else if(j_DataEra=="2018"){
     if(trig=="Full") return 59827.879502925;
     else if(trig=="HLT_Mu3_PFJet40_v") return 2.704239929;
@@ -169,6 +201,16 @@ double Event::GetTriggerLumi(TString trig){
     else if(trig=="HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8_v") return 59827.879502925;
     else if(trig=="HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v") return 59827.879502925;
     else if(trig=="HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8_v") return 59827.879502925;
+    //==== additional triggers
+		/*
+    else if(trig=="HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v") return;
+    else if(trig=="HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_Mass3p8_v") return;
+    else if(trig=="HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v") return;
+    else if(trig=="HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v") return;
+    else if(trig=="HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v") return;
+    else if(trig=="HLT_Mu8_TrkIsoVVL_v") return;
+    else if(trig=="HLT_Mu17_TrkIsoVVL_v") return;
+		*/
   }
 
   cout << "[Event::GetTriggerLumi] Wrong trigger (DataEra=" << j_DataEra << ", trig=" << trig << ")" << endl;

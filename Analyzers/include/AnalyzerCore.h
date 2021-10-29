@@ -39,13 +39,9 @@ public:
   AnalyzerCore();
   ~AnalyzerCore();
 
-  virtual void initializeAnalyzer(){
+  virtual void initializeAnalyzer(){};
 
-  };
-
-  virtual void executeEvent(){
-
-  };
+  virtual void executeEvent(){};
 
   //==================
   //==== Get objects
@@ -255,6 +251,12 @@ public:
   void SwitchToTempDir();
   TFile *outfile=NULL;
   void SetOutfilePath(TString outname);
+
+  //==== private plotting tools
+	void FillMuons(const TString path, const vector<Muon> &muons, const double &weight, bool fill_id);
+	void FillElectrons(const TString path, const vector<Electron> &electrons, const double &weight, bool fill_id);
+	void FillJets(const TString path, const vector<Jet> &jets, const double &weight);
+	void FillObject(const TString path, const Particle &part, const double &weight);
 
 };
 
