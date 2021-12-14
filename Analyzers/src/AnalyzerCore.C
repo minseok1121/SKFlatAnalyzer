@@ -2144,7 +2144,59 @@ void AnalyzerCore::FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatje
 }
 
 //==== Private plotting tools
-void AnalyzerCore::FillMuons(const TString path, const vector<Muon> &muons, const double &weight, bool fill_id=false) {
+void AnalyzerCore::FillMuon(const TString path, const Muon &muon, const double &weight) {	
+		FillHist(path+"/pt", muon.Pt(), weight, 1000, 0., 1000.);
+    FillHist(path+"/eta", muon.Eta(), weight, 96, -2.4, 2.4);
+    FillHist(path+"/phi", muon.Phi(), weight, 128, -3.2, 3.2);
+
+    // ID distributions
+    // isolation
+    FillHist(path+"/relIso", muon.RelIso(), weight, 100, 0., 1.);
+    FillHist(path+"/trkIso", muon.TrkIso()/muon.Pt(), weight, 100, 0., 1.);
+    FillHist(path+"/miniRelIso", muon.MiniRelIso(), weight, 100, 0., 1.);
+    // Impact parameters
+    FillHist(path+"/dZ", muon.dZ(), weight, 100, 0., 1.);
+    FillHist(path+"/dXY", muon.dXY(), weight, 100, 0., 1.);
+		FillHist(path+"/IP3D", muon.IP3D(), weight, 100, 0., 1.);
+		FillHist(path+"/IP3Derr", muon.IP3Derr(), weight, 100, 0., 1.);
+    if (muon.IP3Derr() != 0.)
+				FillHist(path+"/SIP3D", fabs(muon.IP3D()/muon.IP3Derr()), weight, 100, 0, 10.);
+}
+
+void AnalyzerCore::FillElectron(const TString path, const Electron &electron, const double &weight) {
+		FillHist(path+"/pt", electron.Pt(), weight, 1000, 0., 1000.);
+    FillHist(path+"/eta", electron.Eta(), weight, 100, -2.5, 2.5);
+    FillHist(path+"/phi", electron.Phi(), weight, 128, -3.2, 3.2);
+
+		// inner barrel: |eta| < 0.8
+		// outer barrel: 0.8 < |eta| < 1.479
+		// endcap: 1.479 < |eta| < 2.5
+		TString eta_region = "";
+		if (fabs(electron.Eta()) < 0.8) eta_region = "InnerBarrel";
+		else if (fabs(electron.Eta()) < 1.479) eta_region = "OuterBarrel";
+		else if (fabs(electron.Eta()) < 2.5) eta_region = "EndCap";
+		else return;
+
+    // MVA
+    FillHist(path+"/"+eta_region+"/MVAIso", electron.MVAIso(), weight, 200, -1., 1.);
+    FillHist(path+"/"+eta_region+"/MVANoIso", electron.MVANoIso(), weight, 200, -1., 1.);
+    // isolation
+    FillHist(path+"/relIso", electron.RelIso(), weight, 100, 0., 1.);
+    FillHist(path+"/trkIso", electron.TrkIso()/electron.Pt(), weight, 100, 0., 1.);
+    FillHist(path+"/miniRelIso", electron.MiniRelIso(), weight, 100, 0., 1.);
+    // Impact parameters
+    FillHist(path+"/dZ", fabs(electron.dZ()), weight, 100, 0., 1.);
+    FillHist(path+"/dXY", fabs(electron.dXY()), weight, 100, 0., 1.);
+		FillHist(path+"/IP3D", fabs(electron.IP3D()), weight, 100, 0., 1.);
+		FillHist(path+"/IP3Derr", fabs(electron.IP3Derr()), weight, 100, 0., 1.);
+    if (electron.IP3Derr() != 0.)
+        FillHist(path+"/SIP3D", fabs(electron.IP3D()/electron.IP3Derr()), weight, 100, 0., 10.);
+    // Missing Hits & Conversion
+    FillHist(path+"/nMissingHits", electron.NMissingHits(), weight, 10, 0., 10.);
+		FillHist(path+"/passConversionVeto", electron.PassConversionVeto(), weight, 2, 0., 2.);
+}
+		
+void AnalyzerCore::FillMuons(TString path, vector<Muon> &muons, double &weight, bool fill_id=false) {
 		FillHist(path+"/size", muons.size(), weight, 10, 0., 10.);
 		for (unsigned int i = 0; i < muons.size(); i++) {
 				TString obj_path = path+"/"+TString::Itoa(i+1, 10);
@@ -2154,22 +2206,27 @@ void AnalyzerCore::FillMuons(const TString path, const vector<Muon> &muons, cons
 				FillHist(obj_path+"/pt", mu.Pt(), weight, 1000, 0., 1000.);
 				FillHist(obj_path+"/eta", mu.Eta(), weight, 96, -2.4, 2.4);
 				FillHist(obj_path+"/phi", mu.Phi(), weight, 128, -3.2, 3.2);
-				
+
+				// drift chamber: |eta| < 1.2
+				// CSC: 0.9 < |eta| < 2.4
+				// RPC: |eta| < 1.9
 				// ID distributions
-				if (!fill_id) return;
+				if (!fill_id) continue;
 				// isolation
 				FillHist(obj_path+"/relIso", mu.RelIso(), weight, 100, 0., 1.);
 				FillHist(obj_path+"/trkIso", mu.TrkIso()/mu.Pt(), weight, 100, 0., 1.);
 				FillHist(obj_path+"/miniRelIso", mu.MiniRelIso(), weight, 100, 0., 1.);
 				// Impact parameters
-				FillHist(obj_path+"/dZ", mu.dZ(), weight, 100, 0., 1.);
-				FillHist(obj_path+"/dXY", mu.dXY(), weight, 100, 0., 1.);
+				FillHist(obj_path+"/dZ", fabs(mu.dZ()), weight, 100, 0., 1.);
+				FillHist(obj_path+"/dXY", fabs(mu.dXY()), weight, 100, 0., 1.);
+				FillHist(obj_path+"/IP3D", fabs(mu.IP3D()), weight, 100, 0., 1.);
+				FillHist(obj_path+"/IP3Derr", fabs(mu.IP3Derr()), weight, 100, 0., 1.);
 				if (mu.IP3Derr() != 0.)
 						FillHist(obj_path+"/SIP3D", fabs(mu.IP3D()/mu.IP3Derr()), weight, 100, 0, 10.);
 		}
 }
 
-void AnalyzerCore::FillElectrons(const TString path, const vector<Electron> &electrons, const double &weight, bool fill_id=false) {
+void AnalyzerCore::FillElectrons(TString path, vector<Electron> &electrons, double &weight, bool fill_id=false) {
 		FillHist(path+"/size", electrons.size(), weight, 10, 0., 10.);
 		for (unsigned int i = 0; i < electrons.size(); i++) {
 				TString obj_path = path+"/"+TString::Itoa(i+1, 10);
@@ -2181,7 +2238,7 @@ void AnalyzerCore::FillElectrons(const TString path, const vector<Electron> &ele
 				FillHist(obj_path+"/phi", ele.Phi(), weight, 128, -3.2, 3.2);
 
 				// ID distributions
-				if (!fill_id) return;
+				if (!fill_id) continue;
 				// MVA
 				FillHist(obj_path+"/MVAIso", ele.MVAIso(), weight, 100, 0., 1.);
 				FillHist(obj_path+"/MVANoIso", ele.MVANoIso(), weight, 100, 0., 1.);
@@ -2199,7 +2256,7 @@ void AnalyzerCore::FillElectrons(const TString path, const vector<Electron> &ele
 		}
 }
 
-void AnalyzerCore::FillJets(const TString path, const vector<Jet> &jets, const double &weight) {
+void AnalyzerCore::FillJets(TString path, vector<Jet> &jets, double &weight) {
 		FillHist(path+"/size", jets.size(), weight, 10, 0., 10.);
 		for (unsigned int i = 0; i < jets.size(); i++) {
 				TString obj_path = path+"/"+TString::Itoa(i+1, 10);
@@ -2212,7 +2269,7 @@ void AnalyzerCore::FillJets(const TString path, const vector<Jet> &jets, const d
 		}
 }
 
-void AnalyzerCore::FillObject(const TString path, const Particle &part, const double &weight) {
+void AnalyzerCore::FillObject(TString path, Particle &part, double &weight) {
 		FillHist(path+"/pt", part.Pt(), weight, 1000, 0., 1000.);
 		FillHist(path+"/eta", part.Eta(), weight, 200, -5., 5.);
 		FillHist(path+"/phi", part.Phi(), weight, 128, -3.2, 3.2);

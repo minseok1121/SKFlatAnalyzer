@@ -123,6 +123,17 @@ public:
   bool Pass_SUSYMVAWP(TString wp) const;
   bool Pass_SUSYTight() const;
   bool Pass_SUSYLoose() const;
+	bool Pass_HcToWATight16() const;
+	bool Pass_HcToWATight17() const;
+	bool Pass_HcToWATight18() const;
+	bool Pass_HcToWALoose16() const;
+	bool Pass_HcToWALoose17() const;
+	bool Pass_HcToWALoose18() const;
+	bool Pass_HcToWATight() const;
+	bool Pass_HcToWALoose() const;
+	bool Pass_CaloIdL_TrackIdL_IsoVL16() const;
+	bool Pass_CaloIdL_TrackIdL_IsoVL17() const;
+	bool Pass_CaloIdL_TrackIdL_IsoVL18() const;
 
   void SetRelPFIso_Rho(double r);
   double EA();

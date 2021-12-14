@@ -1,4 +1,4 @@
-export SKFlat_WD=`pwd`
+export SKFlat_WD="/data6/Users/choij/SKFlatAnalyzer"
 export SKFlat_LIB_PATH=$SKFlat_WD/lib/
 mkdir -p $SKFlat_LIB_PATH
 mkdir -p $SKFlat_WD/tar

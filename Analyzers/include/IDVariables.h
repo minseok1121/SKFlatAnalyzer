@@ -7,13 +7,13 @@ class IDVariables : public AnalyzerCore {
 
 public:
   void initializeAnalyzer();
+	vector<TString> MuonIDs;
+	vector<TString> ElectronIDs;
 	
   void executeEvent();
 	vector<Muon> AllMuons;
 	vector<Electron> AllElectrons;
 	vector<Gen> GenParts;
-
-	TString MuonID, ElectronID;
 
   IDVariables();
   ~IDVariables();

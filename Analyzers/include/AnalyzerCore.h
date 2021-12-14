@@ -253,10 +253,12 @@ public:
   void SetOutfilePath(TString outname);
 
   //==== private plotting tools
-	void FillMuons(const TString path, const vector<Muon> &muons, const double &weight, bool fill_id);
-	void FillElectrons(const TString path, const vector<Electron> &electrons, const double &weight, bool fill_id);
-	void FillJets(const TString path, const vector<Jet> &jets, const double &weight);
-	void FillObject(const TString path, const Particle &part, const double &weight);
+	void FillMuon(const TString path, const Muon &muon, const double &weight);
+	void FillElectron(const TString path, const Electron &electron, const double &weight);
+	void FillMuons(TString path, vector<Muon> &muons, double &weight, bool fill_id);
+	void FillElectrons(TString path, vector<Electron> &electrons, double &weight, bool fill_id);
+	void FillJets(TString path, vector<Jet> &jets, double &weight);
+	void FillObject(TString path, Particle &part, double &weight);
 
 };
 

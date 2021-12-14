@@ -1,8 +1,10 @@
-DYJets_MG	DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8	6077.22	103287684	103287684.0
+# alias PD xsec nmc sumw
 DYJets	DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8	6077.22	194627557	130944545.0
+DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8		18610		141702252		141702252.0
 DYJetsToEE_MiNNLO	DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos	1976.17	258885723	217328801.0
 DYJetsToMuMu_MiNNLO	DYJetsToMuMu_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos	1976.17	163242537	137042275.0
 DYJetsToTauTau_MiNNLO	DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos	1147.39	44790998	37602676.0
+DYJets_MG	DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8	6077.22	103287684	103287684.0
 SingleTop_tW_antitop_NoFullyHad	ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8	19.20	8426707	8426271.0
 SingleTop_tW_top_NoFullyHad	ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8	19.20	8498506	8498070.0
 TTLJ_powheg	TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8	365.34	355332000	352462632.0
