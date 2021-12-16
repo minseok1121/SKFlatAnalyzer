@@ -2194,6 +2194,32 @@ void AnalyzerCore::FillElectron(const TString path, const Electron &electron, co
     // Missing Hits & Conversion
     FillHist(path+"/nMissingHits", electron.NMissingHits(), weight, 10, 0., 10.);
 		FillHist(path+"/passConversionVeto", electron.PassConversionVeto(), weight, 2, 0., 2.);
+		// Trigger Emulation Cuts
+		if (fabs(electron.scEta()) <= 1.479) {
+				FillHist(path+"/Barrel/Full5x5_sigmaIetaIeta", electron.Full5x5_sigmaIetaIeta(), weight, 1000, 0., 1.);
+				FillHist(path+"/Barrel/HoverE", electron.HoverE(), weight, 100, 0., 1.);
+				FillHist(path+"/Barrel/ecalPFClusterIso", electron.ecalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
+				FillHist(path+"/Barrel/hcalPFClusterIso", electron.hcalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
+				// To check rho dependence
+				FillHist(path+"/Barrel/rho", electron.Rho(), weight, 100, 0., 1.);
+				FillHist(path+"/Barrel/ecalPFClusterIso_rho", (electron.ecalPFClusterIso()/electron.Pt()-0.5)/electron.Rho(), weight, 100, 0., 1.);
+				FillHist(path+"/Barrel/hcalPfClusterIso_rho", (electron.hcalPFClusterIso()/electron.Pt()-0.3)/electron.Rho(), weight, 100, 0., 1.);
+				FillHist(path+"/Barrel/dEtaSeed", fabs(electron.dEtaSeed()), weight, 1000, 0., 1.);
+				FillHist(path+"/Barrel/dPhiIn", fabs(electron.dPhiIn()), weight, 100, 0., 1.);
+				FillHist(path+"/Barrel/dr03TkSumPt", electron.dr03TkSumPt()/electron.Pt(), weight, 100, 0., 1.);
+		}
+		else {
+				FillHist(path+"/EndCap/Full5x5_sigmaIetaIeta", electron.Full5x5_sigmaIetaIeta(), weight, 1000, 0., 1.);
+        FillHist(path+"/EndCap/HoverE", electron.HoverE(), weight, 100, 0., 1.);
+        FillHist(path+"/EndCap/ecalPFClusterIso", electron.ecalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
+        FillHist(path+"/EndCap/hcalPFClusterIso", electron.hcalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
+				FillHist(path+"/EndCap/rho", electron.Rho(), weight, 100, 0., 1.);
+				FillHist(path+"/EndCap/ecalPFClusterIso_rho", (electron.ecalPFClusterIso()/electron.Pt()-0.5)/electron.Rho(), weight, 100, 0., 1.);
+				FillHist(path+"/EndCap/hcalPfClusterIso_rho", (electron.hcalPFClusterIso()/electron.Pt()-0.3)/electron.Rho(), weight, 100, 0., 1.);
+        FillHist(path+"/EndCap/dEtaSeed", fabs(electron.dEtaSeed()), weight, 1000, 0., 1.);
+        FillHist(path+"/EndCap/dPhiIn", fabs(electron.dPhiIn()), weight, 100, 0., 1.);
+        FillHist(path+"/EndCap/dr03TkSumPt", electron.dr03TkSumPt()/electron.Pt(), weight, 100, 0., 1.);
+    }
 }
 		
 void AnalyzerCore::FillMuons(TString path, vector<Muon> &muons, double &weight, bool fill_id=false) {

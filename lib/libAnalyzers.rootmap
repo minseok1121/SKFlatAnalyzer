@@ -13,6 +13,7 @@ class SkimTree_LRSMHighPt
 class SkimTree_SS2lOR3l
 class TutorialRun
 class diLepRegion
+class trigEmuCuts
 header AnalyzerCore.h
 header ExampleRun.h
 header GetEffLumi.h
@@ -26,3 +27,4 @@ header SkimTree_LRSMHighPt.h
 header SkimTree_SS2lOR3l.h
 header TutorialRun.h
 header diLepRegion.h
+header trigEmuCuts.h
