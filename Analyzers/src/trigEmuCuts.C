@@ -69,16 +69,17 @@ void trigEmuCuts::executeEvent(){
 		sort(jets_all.begin(), jets_all.end(), PtComparing);
 
 		// select objects
-		vector<Muon> muons_tight = SelectMuons(muons_all, "HcToWATight", 10., 2.4);
-		vector<Muon> muons_loose = SelectMuons(muons_all, "HcToWALoose", 10., 2.4);
+		vector<Muon> muons_tight = SelectMuons(muons_all, "HcToWATight", 30., 2.4);
+		vector<Muon> muons_loose = SelectMuons(muons_all, "HcToWALoose", 30., 2.4);
 		vector<Electron> electrons = SelectElectrons(electrons_all, "NOCUT", 10., 2.5);
 		vector<Jet> jets_tight = SelectJets(jets_all, "tight", 30., 2.4);
 		vector<Jet> jets = JetsVetoLeptonInside(jets_tight, electrons, muons_loose, 0.4);
 		vector<Jet> bjets;
 		for (const auto &jet: jets) {
 				const double score = jet.GetTaggerResult(JetTagging::DeepJet);
-				if (score > mcCorr->GetJetTaggingCutValue(JetTagging::DeepJet, JetTagging::Medium))
-						bjets.emplace_back(jet);
+				const double bcut 
+						= mcCorr->GetJetTaggingCutValue(JetTagging::DeepJet, JetTagging::Medium);
+				if (score > bcut) bjets.emplace_back(jet);
 		}
 
 		// event selection
@@ -101,6 +102,7 @@ void trigEmuCuts::executeEvent(){
         FillJets("passEle23/bjets", bjets, weight);
         FillObject("passEle23/METv", METv, weight);
 		}
+		return;
 }
 
 TString trigEmuCuts::selectEvent(
