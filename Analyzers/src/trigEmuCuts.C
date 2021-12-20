@@ -5,6 +5,7 @@ trigEmuCuts::~trigEmuCuts() {}
 
 void trigEmuCuts::initializeAnalyzer(){
 		// Trigger Settings
+		/*
 		AllEMuTrigs = {
 				"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
 				"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
@@ -13,6 +14,7 @@ void trigEmuCuts::initializeAnalyzer(){
 				"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v",
 				"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v"
 		};
+		*/
 		if (DataEra == "2016preVFP") {
 				Ele12Trigs = {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
 						          "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"
@@ -43,7 +45,9 @@ void trigEmuCuts::initializeAnalyzer(){
 				cerr << "Wrong DataEra " << DataEra << "!" << endl;
 				exit(EXIT_FAILURE);
 		}
-
+		AllEMuTrigs.clear();
+		for (const auto &trig: Ele12Trigs) AllEMuTrigs.emplace_back(trig);
+		for (const auto &trig: Ele23Trigs) AllEMuTrigs.emplace_back(trig);
 		// B-tagging
 		vector<JetTagging::Parameters> jtps = {
 				JetTagging::Parameters(JetTagging::DeepJet, JetTagging::Medium, JetTagging::incl, JetTagging::mujets) };
@@ -80,7 +84,7 @@ void trigEmuCuts::executeEvent(){
 		// event selection
 		TString channel = selectEvent(ev, muons_tight, muons_loose, electrons, jets, bjets, METv);
 		if (channel == "") return;
-
+		
 		// Now fill histograms
 		double weight = 1.;
 		if (channel.Contains("Ele12")) {
@@ -105,11 +109,12 @@ TString trigEmuCuts::selectEvent(
 				Particle &METv) {
 		if (! (muons_tight.size() == 1 && muons_loose.size() == 1 && electrons.size() == 1))
 				return "";
-		const Muon			&mu = muons_tight.at(0);
-		const Electron	&ele = electrons.at(0);
+		Muon			&mu = muons_tight.at(0);
+		Electron	&ele = electrons.at(0);
 		// trigger matching
 		bool matched = false;
 		for (const auto &trig: AllEMuTrigs) {
+				// cout << trig << endl;
 				if (ele.PassPath(trig)) {
 						matched = true;
 						break;

@@ -2174,7 +2174,7 @@ void AnalyzerCore::FillElectron(const TString path, const Electron &electron, co
 		TString eta_region = "";
 		if (fabs(electron.Eta()) < 0.8) eta_region = "InnerBarrel";
 		else if (fabs(electron.Eta()) < 1.479) eta_region = "OuterBarrel";
-		else if (fabs(electron.Eta()) < 2.5) eta_region = "EndCap";
+		else if (fabs(electron.Eta()) < 2.5) eta_region = "Endcap";
 		else return;
 
     // MVA
@@ -2201,24 +2201,26 @@ void AnalyzerCore::FillElectron(const TString path, const Electron &electron, co
 				FillHist(path+"/Barrel/ecalPFClusterIso", electron.ecalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
 				FillHist(path+"/Barrel/hcalPFClusterIso", electron.hcalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
 				// To check rho dependence
-				FillHist(path+"/Barrel/rho", electron.Rho(), weight, 100, 0., 1.);
-				FillHist(path+"/Barrel/ecalPFClusterIso_rho", (electron.ecalPFClusterIso()/electron.Pt()-0.5)/electron.Rho(), weight, 100, 0., 1.);
-				FillHist(path+"/Barrel/hcalPfClusterIso_rho", (electron.hcalPFClusterIso()/electron.Pt()-0.3)/electron.Rho(), weight, 100, 0., 1.);
+				FillHist(path+"/Barrel/rho", electron.Rho(), weight, 100, 0., 100.);
+				FillHist(path+"/Barrel/relPFIso_Rho", electron.RelPFIso_Rho(), weight, 100, 0., 50.);
+				FillHist(path+"/Barrel/ecalPFClusterIso_rho", (electron.ecalPFClusterIso()/electron.Pt()-0.5)/electron.RelPFIso_Rho(), weight, 100, 0., 1.);
+				FillHist(path+"/Barrel/hcalPFClusterIso_rho", (electron.hcalPFClusterIso()/electron.Pt()-0.3)/electron.RelPFIso_Rho(), weight, 100, 0., 1.);
 				FillHist(path+"/Barrel/dEtaSeed", fabs(electron.dEtaSeed()), weight, 1000, 0., 1.);
 				FillHist(path+"/Barrel/dPhiIn", fabs(electron.dPhiIn()), weight, 100, 0., 1.);
 				FillHist(path+"/Barrel/dr03TkSumPt", electron.dr03TkSumPt()/electron.Pt(), weight, 100, 0., 1.);
 		}
 		else {
-				FillHist(path+"/EndCap/Full5x5_sigmaIetaIeta", electron.Full5x5_sigmaIetaIeta(), weight, 1000, 0., 1.);
-        FillHist(path+"/EndCap/HoverE", electron.HoverE(), weight, 100, 0., 1.);
-        FillHist(path+"/EndCap/ecalPFClusterIso", electron.ecalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
-        FillHist(path+"/EndCap/hcalPFClusterIso", electron.hcalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
-				FillHist(path+"/EndCap/rho", electron.Rho(), weight, 100, 0., 1.);
-				FillHist(path+"/EndCap/ecalPFClusterIso_rho", (electron.ecalPFClusterIso()/electron.Pt()-0.5)/electron.Rho(), weight, 100, 0., 1.);
-				FillHist(path+"/EndCap/hcalPfClusterIso_rho", (electron.hcalPFClusterIso()/electron.Pt()-0.3)/electron.Rho(), weight, 100, 0., 1.);
-        FillHist(path+"/EndCap/dEtaSeed", fabs(electron.dEtaSeed()), weight, 1000, 0., 1.);
-        FillHist(path+"/EndCap/dPhiIn", fabs(electron.dPhiIn()), weight, 100, 0., 1.);
-        FillHist(path+"/EndCap/dr03TkSumPt", electron.dr03TkSumPt()/electron.Pt(), weight, 100, 0., 1.);
+				FillHist(path+"/Endcap/Full5x5_sigmaIetaIeta", electron.Full5x5_sigmaIetaIeta(), weight, 1000, 0., 1.);
+        FillHist(path+"/Endcap/HoverE", electron.HoverE(), weight, 100, 0., 1.);
+        FillHist(path+"/Endcap/ecalPFClusterIso", electron.ecalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
+        FillHist(path+"/Endcap/hcalPFClusterIso", electron.hcalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
+				FillHist(path+"/Endcap/rho", electron.Rho(), weight, 100, 0., 100.);
+				FillHist(path+"/Endcap/relPFIso_Rho", electron.RelPFIso_Rho(), weight, 100, 0., 50.);
+				FillHist(path+"/Endcap/ecalPFClusterIso_rho", (electron.ecalPFClusterIso()/electron.Pt()-0.5)/electron.RelPFIso_Rho(), weight, 100, 0., 1.);
+				FillHist(path+"/Endcap/hcalPFClusterIso_rho", (electron.hcalPFClusterIso()/electron.Pt()-0.3)/electron.RelPFIso_Rho(), weight, 100, 0., 1.);
+        FillHist(path+"/Endcap/dEtaSeed", fabs(electron.dEtaSeed()), weight, 1000, 0., 1.);
+        FillHist(path+"/Endcap/dPhiIn", fabs(electron.dPhiIn()), weight, 100, 0., 1.);
+        FillHist(path+"/Endcap/dr03TkSumPt", electron.dr03TkSumPt()/electron.Pt(), weight, 100, 0., 1.);
     }
 }
 		

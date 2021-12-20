@@ -13,7 +13,7 @@ public:
 		// initialization
 		void initializeAnalyzer();
 		vector<TString> Ele12Trigs, Ele23Trigs;
-		vector<TString> AllEMuTrigs;
+		 vector<TString> AllEMuTrigs;
 
 		// execution
 		void executeEvent();

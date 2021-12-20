@@ -593,9 +593,5 @@ bool Electron::PassPath(TString path) const{
   else if( path=="HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v" && j_pathbits&(ULong64_t(1)<<20) ) return true;
   else if( path=="HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v" && j_pathbits&(ULong64_t(1)<<21) ) return true;
   else if( path=="HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v" && j_pathbits&(ULong64_t(1)<<22) ) return true;
-  else{
-    cout<<"[Electron::PassPath] unknown path "<<path<<endl;
-    exit(ENODATA);
-  }
-  return false;
+  else return false;
 }

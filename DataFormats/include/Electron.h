@@ -136,6 +136,7 @@ public:
 	bool Pass_CaloIdL_TrackIdL_IsoVL18() const;
 
   void SetRelPFIso_Rho(double r);
+	inline double RelPFIso_Rho() const {return j_RelPFIso_Rho; }
   double EA();
 
   //==== ID
