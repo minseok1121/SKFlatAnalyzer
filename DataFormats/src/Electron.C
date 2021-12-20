@@ -353,8 +353,8 @@ bool Electron::Pass_CaloIdL_TrackIdL_IsoVL18() const {
     if (fabs(scEta()) <= 1.479) {
         if (! (Full5x5_sigmaIetaIeta() <= 0.013)) return false;
         if (! (HoverE() <= 0.13)) return false;
-        if (! (ecalPFClusterIso() <= (0.5+0.29*RelPFIso_Rho())*Pt())) return false;
-        if (! (hcalPFClusterIso() <= (0.3+0.2*RelPFIso_Rho())*Pt())) return false;
+        if (! (ecalPFClusterIso() <= (0.5+0.29*Rho())*Pt())) return false;
+        if (! (hcalPFClusterIso() <= (0.3+0.2*Rho())*Pt())) return false;
         if (! (fabs(dEtaSeed()) <= 0.01)) return false;
         if (! (fabs(dPhiIn()) <= 0.07)) return false;
         if (! (dr03TkSumPt() <= 0.2*Pt())) return false;
@@ -362,8 +362,8 @@ bool Electron::Pass_CaloIdL_TrackIdL_IsoVL18() const {
     else {
         if (! (Full5x5_sigmaIetaIeta() <= 0.035)) return false;
         if (! (HoverE() <= 0.13)) return false;
-        if (! (ecalPFClusterIso() <= (0.5+0.21*RelPFIso_Rho())*Pt())) return false;
-        if (! (hcalPFClusterIso() <= (0.3+0.25*RelPFIso_Rho())*Pt())) return false;
+        if (! (ecalPFClusterIso() <= (0.5+0.21*Rho())*Pt())) return false;
+        if (! (hcalPFClusterIso() <= (0.3+0.25*Rho())*Pt())) return false;
         //if (! (fabs(dEtaSeed()) <= 0.015)) return false;
         //if (! (fabs(dPhiIn()) <= 0.1)) return false;
         if (! (dr03TkSumPt() <= 0.2*Pt())) return false;

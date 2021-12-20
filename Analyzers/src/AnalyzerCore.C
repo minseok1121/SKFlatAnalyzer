@@ -2202,9 +2202,9 @@ void AnalyzerCore::FillElectron(const TString path, const Electron &electron, co
 				FillHist(path+"/Barrel/hcalPFClusterIso", electron.hcalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
 				// To check rho dependence
 				FillHist(path+"/Barrel/rho", electron.Rho(), weight, 100, 0., 100.);
-				FillHist(path+"/Barrel/relPFIso_Rho", electron.RelPFIso_Rho(), weight, 100, 0., 50.);
-				FillHist(path+"/Barrel/ecalPFClusterIso_rho", (electron.ecalPFClusterIso()/electron.Pt()-0.5)/electron.RelPFIso_Rho(), weight, 100, 0., 1.);
-				FillHist(path+"/Barrel/hcalPFClusterIso_rho", (electron.hcalPFClusterIso()/electron.Pt()-0.3)/electron.RelPFIso_Rho(), weight, 100, 0., 1.);
+				FillHist(path+"/Barrel/relPFIso_Rho", electron.RelPFIso_Rho(), weight, 100, 0., 10.);
+				FillHist(path+"/Barrel/ecalPFClusterIso_rho", (electron.ecalPFClusterIso()/electron.Pt()-0.5)/electron.Rho(), weight, 200, -1., 1.);
+				FillHist(path+"/Barrel/hcalPFClusterIso_rho", (electron.hcalPFClusterIso()/electron.Pt()-0.3)/electron.Rho(), weight, 200, -1., 1.);
 				FillHist(path+"/Barrel/dEtaSeed", fabs(electron.dEtaSeed()), weight, 1000, 0., 1.);
 				FillHist(path+"/Barrel/dPhiIn", fabs(electron.dPhiIn()), weight, 100, 0., 1.);
 				FillHist(path+"/Barrel/dr03TkSumPt", electron.dr03TkSumPt()/electron.Pt(), weight, 100, 0., 1.);
@@ -2215,9 +2215,9 @@ void AnalyzerCore::FillElectron(const TString path, const Electron &electron, co
         FillHist(path+"/Endcap/ecalPFClusterIso", electron.ecalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
         FillHist(path+"/Endcap/hcalPFClusterIso", electron.hcalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
 				FillHist(path+"/Endcap/rho", electron.Rho(), weight, 100, 0., 100.);
-				FillHist(path+"/Endcap/relPFIso_Rho", electron.RelPFIso_Rho(), weight, 100, 0., 50.);
-				FillHist(path+"/Endcap/ecalPFClusterIso_rho", (electron.ecalPFClusterIso()/electron.Pt()-0.5)/electron.RelPFIso_Rho(), weight, 100, 0., 1.);
-				FillHist(path+"/Endcap/hcalPFClusterIso_rho", (electron.hcalPFClusterIso()/electron.Pt()-0.3)/electron.RelPFIso_Rho(), weight, 100, 0., 1.);
+				FillHist(path+"/Endcap/relPFIso_Rho", electron.RelPFIso_Rho(), weight, 100, 0., 10.);
+				FillHist(path+"/Endcap/ecalPFClusterIso_rho", (electron.ecalPFClusterIso()/electron.Pt()-0.5)/electron.Rho(), weight, 200, -1., 1.);
+				FillHist(path+"/Endcap/hcalPFClusterIso_rho", (electron.hcalPFClusterIso()/electron.Pt()-0.3)/electron.Rho(), weight, 200, -1., 1.);
         FillHist(path+"/Endcap/dEtaSeed", fabs(electron.dEtaSeed()), weight, 1000, 0., 1.);
         FillHist(path+"/Endcap/dPhiIn", fabs(electron.dPhiIn()), weight, 100, 0., 1.);
         FillHist(path+"/Endcap/dr03TkSumPt", electron.dr03TkSumPt()/electron.Pt(), weight, 100, 0., 1.);
