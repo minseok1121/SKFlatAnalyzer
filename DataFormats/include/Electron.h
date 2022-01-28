@@ -83,6 +83,7 @@ public:
   inline double dr03TkSumPt() const { return j_dr03TkSumPt; }
   inline double ecalPFClusterIso() const { return j_ecalPFClusterIso; }
   inline double hcalPFClusterIso() const { return j_hcalPFClusterIso; }
+	inline double RelPFIso_Rho() const {return j_RelPFIso_Rho; }
   inline bool isEcalDriven() const { return j_isEcalDriven; }
 
   void SetIDBit(unsigned int idbit);
@@ -114,9 +115,10 @@ public:
   inline bool passTightID()  const {return PassSelector(POG_CB_TIGHT); }
   inline bool passMVAID_noIso_WP80() const {return PassSelector(POG_MVA_NOISO_WP80); }
   inline bool passMVAID_noIso_WP90() const {return PassSelector(POG_MVA_NOISO_WP90); }
+	inline bool passMVAID_noIso_WPLoose() const {return PassSelector(POG_MVA_NOISO_WPLOOSE); }
   inline bool passMVAID_iso_WP80() const {return PassSelector(POG_MVA_ISO_WP80); }
   inline bool passMVAID_iso_WP90() const {return PassSelector(POG_MVA_ISO_WP90); }
-  inline bool passHEEPID() const {return PassSelector(POG_HEEP); }
+	inline bool passHEEPID() const {return PassSelector(POG_HEEP); }
   bool passHEEP2018Prompt() const;
 
   bool Pass_SUSYMVAWP(TString wp) const;
@@ -134,6 +136,9 @@ public:
   bool Pass_CutBasedVetoNoIso() const;
   bool Pass_CutBasedLoose() const;
   bool Pass_CutBasedVeto() const;
+	bool Pass_HcToWATight() const;
+	bool Pass_HcToWALoose() const;
+	bool Pass_CaloIdL_TrackIdL_IsoVL17() const;
   void SetRho(double r);
   inline double Rho() const { return j_Rho; }
 

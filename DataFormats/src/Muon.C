@@ -105,6 +105,8 @@ bool Muon::PassID(TString ID) const {
   if(ID=="POGTightWithTightIso") return Pass_POGTightWithTightIso();
   if(ID=="POGHighPtWithLooseTrkIso") return Pass_POGHighPtWithLooseTrkIso();
   //==== Customized
+	if(ID=="HcToWALoose") return Pass_HcToWALoose();
+	if(ID=="HcToWATight") return Pass_HcToWATight();
   if(ID=="TEST") return Pass_TESTID();
 
   //==== No cut
@@ -128,6 +130,19 @@ bool Muon::Pass_POGHighPtWithLooseTrkIso() const {
 }
 
 //==== TEST ID
+bool Muon::Pass_HcToWALoose() const {
+		if (! isPOGMedium())																		return false;
+		if (! (MiniRelIso() < 0.4))															return false;
+		if (! (fabs(dZ()) < 0.1))																return false;
+		if (! (IP3Derr() !=0 && fabs(IP3D()/IP3Derr()) < 4.))		return false;
+		return true;
+}
+bool Muon::Pass_HcToWATight() const {
+		if (! Pass_HcToWALoose())				return false;
+		if (! (MiniRelIso() < 0.1))			return false;
+		return true;
+}
+
 
 bool Muon::Pass_TESTID() const {
   return true;
