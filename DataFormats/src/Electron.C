@@ -160,6 +160,8 @@ bool Electron::PassID(TString ID) const{
   if(ID=="passMVAID_iso_WP80") return passMVAID_iso_WP80();
   if(ID=="passMVAID_iso_WP90") return passMVAID_iso_WP90();
   //==== Customized
+	if(ID=="HcToWATight") return Pass_HcToWATight();
+	if(ID=="HcToWALoose") return Pass_HcToWALoose();
   if(ID=="SUSYTight") return Pass_SUSYTight();
   if(ID=="SUSYLoose") return Pass_SUSYLoose();
   if(ID=="NOCUT") return true;
@@ -399,6 +401,7 @@ bool Electron::Pass_HcToWATight() const {
 		if (! Pass_HcToWALoose())			return false;
 		if (! passMVAID_noIso_WP90())	return false;
 		if (! (MiniRelIso() < 0.1))		return false;
+		return true;
 }
 
 bool Electron::Pass_CaloIdL_TrackIdL_IsoVL17() const {

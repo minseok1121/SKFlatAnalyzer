@@ -19,6 +19,13 @@ public:
   void SetMultiplicities(double cM, double nM);
   void SetPileupJetId(double v);
 
+	inline double ChargedHadronEnergyFraction() const { return j_chargedHadronEnergyFraction; }
+	inline double NeutralHadronEnergyFraction() const { return j_neutralHadronEnergyFraction; }
+	inline double ChargedEmEnergyFraction() const { return j_chargedEmEnergyFraction; }
+	inline double NeutralEmEnergyFraction() const { return j_neutralEmEnergyFraction; }
+	inline double MuonEnergyFraction() const { return j_muonEnergyFraction; }
+	inline double ChargedMultiplicity() const { return j_chargedMultiplicity; }
+	inline double NeutralMultiplicity() const { return j_neutralMultiplicity; }
   void SetEnShift(double en_up, double en_down);
   inline double EnShift(int s) const {
     if(s==0) return 1.;
