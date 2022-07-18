@@ -2,7 +2,7 @@
 
 AnalyzerCore::AnalyzerCore(){
 
-  outfile = NULL;
+  outfile = nullptr;
   mcCorr = new MCCorrection();
   puppiCorr = new PuppiSoftdropMassCorr();
   fakeEst = new FakeBackgroundEstimator();
@@ -51,7 +51,7 @@ AnalyzerCore::~AnalyzerCore(){
 
 }
 
-//==== Attach the historams to ai different direcotry, not outfile
+//==== Attach the historams to a different direcotry, not outfile
 //==== We will write these histograms in WriteHist() to outfile
 void AnalyzerCore::SwitchToTempDir(){
 
@@ -2143,3 +2143,101 @@ void AnalyzerCore::FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatje
 
 }
 
+//==== private plotting tools
+void AnalyzerCore::FillMuon(TString path, Muon &muon, double &weight, bool isExtended) {
+  FillHist(path+"/pt", muon.Pt(), weight, 1000, 0., 1000.);
+  FillHist(path+"/eta", muon.Eta(), weight, 96, -2.4, 2.4);
+  FillHist(path+"/phi", muon.Phi(), weight, 128, -3.2, 3.2);
+
+  if (!isExtended) return;
+  // isolation
+  FillHist(path+"/relIso", muon.RelIso(), weight, 100, 0., 1.);
+  FillHist(path+"/trkIso", muon.TrkIso()/muon.Pt(), weight, 100, 0., 1.);
+  FillHist(path+"/miniIso", muon.MiniRelIso(), weight, 100, 0., 1.);
+  // Impact Parameters
+  FillHist(path+"/dXY", fabs(muon.dXY()), weight, 100, 0., 1.);
+  FillHist(path+"/dZ", fabs(muon.dZ()), weight, 100, 0., 1.);
+  FillHist(path+"/IP3D", fabs(muon.IP3D()), weight, 100, 0., 1.);
+  FillHist(path+"/IP3Derr", fabs(muon.IP3Derr()), weight, 100, 0., 1.);
+  if (muon.IP3Derr() != 0) 
+    FillHist(path+"/SIP3D", fabs(muon.IP3D()/muon.IP3Derr()), weight, 100, 0., 10.);
+}
+
+void AnalyzerCore::FillElectron(TString path, Electron &electron, double &weight, bool isExtended) {
+  FillHist(path+"/pt", electron.Pt(), weight, 1000, 0., 1000.);
+  FillHist(path+"/eta", electron.Eta(), weight, 100, -2.5, 2.5);
+  FillHist(path+"/phi", electron.Phi(), weight, 128, -3.2, 3.2);
+
+  // Note: If you want to see the distribution for
+  // inner/outer barrel and endcap,
+  // separate them in the Analyzer level.
+  // Just for reference:
+  // inner barrel: |eta| < 0.8
+  // outer barrel: 0.8 < |eta|, 1.479
+  // endcap: 1.479 < |eta| < 2.5
+  if (!isExtended) return;
+  // MVA
+  FillHist(path+"/MVAIso", electron.MVAIso(), weight, 200, -1., 1.);
+  FillHist(path+"/MVANoIso", electron.MVANoIso(), weight, 200, -1., 1.);
+  // isolation
+  FillHist(path+"/relIso", electron.RelIso(), weight, 100, 0., 1.);
+  FillHist(path+"/trkIso", electron.TrkIso()/electron.Pt(), weight, 100, 0., 1.);
+  FillHist(path+"/miniIso", electron.MiniRelIso(), weight, 100, 0., 1.);
+  // Impact parameters
+  FillHist(path+"/dXY", fabs(electron.dXY()), weight, 100, 0., 1.);
+  FillHist(path+"/dZ", fabs(electron.dZ()), weight, 100, 0., 1.);
+  FillHist(path+"/IP3D", fabs(electron.IP3D()), weight, 100, 0., 1.);
+  FillHist(path+"/IP3Derr", fabs(electron.IP3D()/electron.IP3Derr()), weight, 100, 0., 100.);
+  if (electron.IP3Derr() != 0)
+    FillHist(path+"/SIP3D", fabs(electron.IP3D()/electron.IP3Derr()), weight, 100, 0., 10.);
+  // Missing Hits & Conversion
+  FillHist(path+"/nMissingHits", electron.NMissingHits(), weight, 10, 0., 10.);
+  FillHist(path+"/passConversionVeto", electron.PassConversionVeto(), weight, 2, 0., 2.);  
+  // Trigger Emulation Cuts
+  FillHist(path+"/Full5x5_sigmaIetaIeta", electron.Full5x5_sigmaIetaIeta(), weight, 1000, 0., 1.);
+  FillHist(path+"/HoverE", electron.HoverE(), weight, 100, 0., 1.);
+  FillHist(path+"/ecalPFClusterIso", electron.ecalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
+  FillHist(path+"/hcalPFClusterIso", electron.hcalPFClusterIso()/electron.Pt(), weight, 100, 0., 1.);
+  FillHist(path+"/dEtaSeed", fabs(electron.dEtaSeed()), weight, 1000, 0., 1.);
+  FillHist(path+"/dPhiIn", fabs(electron.dPhiIn()), weight, 100, 0., 1.);
+  FillHist(path+"/dr03TkSumPt", electron.dr03TkSumPt()/electron.Pt(), weight, 100, 0., 1.);
+}
+
+void AnalyzerCore::FillMuons(TString path, vector<Muon> &muons, double &weight, bool isExtended) {
+  FillHist(path+"/size", muons.size(), weight, 10, 0., 10.);
+  for (unsigned int i=0; i < muons.size(); i++) {
+    TString obj_path = path + "/" + TString::Itoa(i+1, 10);
+    FillMuon(obj_path, muons.at(i), weight, isExtended);
+  }
+}
+
+void AnalyzerCore::FillElectrons(TString path, vector<Electron> &electrons, double &weight, bool isExtended) {
+  for (unsigned int i=0; i < electrons.size(); i++) {
+    TString obj_path = path + "/" + TString::Itoa(i+1, 10);
+    FillElectron(obj_path, electrons.at(i), weight, isExtended);
+  }
+	FillHist(path+"/size", electrons.size(), weight, 10, 0., 10.);
+}
+
+void AnalyzerCore::FillJets(TString path, vector<Jet> &jets, double &weight) {
+  double HT = 0.;
+  for (unsigned int i=0; i < jets.size(); i++) {
+    TString obj_path = path+"/"+TString::Itoa(i+1, 10);
+		const Jet &jet = jets.at(i);
+
+		// pt eta phi
+    FillHist(obj_path+"/pt", jet.Pt(), weight, 1000, 0., 1000.);
+    FillHist(obj_path+"/eta", jet.Eta(), weight, 200, -5., 5.);
+    FillHist(obj_path+"/phi", jet.Phi(), weight, 128, -3.2, 3.2);
+		HT += jet.Pt();
+  }
+	FillHist(path+"/size", jets.size(), weight, 20, 0., 20.);
+	FillHist(path+"/HT", HT, weight, 1000, 0., 1000.);
+}
+
+void AnalyzerCore::FillObject(TString path, Particle &particle, double &weight) {
+  FillHist(path+"/pt", particle.Pt(), weight, 1000, 0., 1000.);
+  FillHist(path+"/eta", particle.Eta(), weight, 200, -5., 5.);
+  FillHist(path+"/phi", particle.Phi(), weight, 128, -3.2, 3.2);
+	FillHist(path+"/mass", particle.M(), weight, 1000, 0., 1000.);
+}

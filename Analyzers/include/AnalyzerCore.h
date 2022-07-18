@@ -256,6 +256,13 @@ public:
   TFile *outfile=NULL;
   void SetOutfilePath(TString outname);
 
+  //==== private plottng tools
+  void FillMuon(TString path, Muon &muon, double &weight, bool isExtended);
+  void FillElectron(TString path, Electron &electron, double &weight, bool isExtended);
+  void FillMuons(TString path, vector<Muon> &muons, double &weight, bool isExtended);
+  void FillElectrons(TString path, vector<Electron> &electrons, double &weight, bool isExtended);
+  void FillJets(TString path, vector<Jet> &jets, double &weight);
+  void FillObject(TString path, Particle &particle, double &weight);
 };
 
 

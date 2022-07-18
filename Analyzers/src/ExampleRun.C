@@ -402,9 +402,9 @@ void ExampleRun::executeEventFromParameter(AnalyzerParameter param){
   //==== Now fill histograms
   //==========================
 
-  FillHist(param.Name+"/ZCand_Mass_"+param.Name, ZCand.M(), weight, 40, 70., 110.);
-
+  FillMuons(param.Name+"/muons", muons, weight, true);
+	//FillElectrons(param.Name+"/electrons", electrons, weight, true);
+	FillJets(param.Name+"/jets", jets, weight);
+	FillObject(param.Name+"/ZCand", ZCand, weight);
+  //FillHist(param.Name+"/ZCand_Mass_"+param.Name, ZCand.M(), weight, 40, 70., 110.)
 }
-
-
-
