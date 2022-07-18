@@ -10,6 +10,7 @@ class Lepton
 class Muon
 class Particle
 class Photon
+class Tau
 header Electron.h
 header Event.h
 header FatJet.h
@@ -20,3 +21,4 @@ header Lepton.h
 header Muon.h
 header Particle.h
 header Photon.h
+header Tau.h
