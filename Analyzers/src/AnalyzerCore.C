@@ -1641,11 +1641,14 @@ int AnalyzerCore::GetLeptonType_Public(int TruthIdx, const std::vector<Gen>& Tru
                            GrMStatus_last = TruthColl.at(GrMotherIdx).Status();
                          }
 
-  if     ( TruthIdx==-1 )                                       LeptonType= 0;
-  else if( fabs(MPID)==23 || fabs(MPID)==24 || fabs(MPID)==25 ) LeptonType= 1;
-  else if( IsSignalPID(MPID) )                                  LeptonType= 2;
-  else if( Status_orig>20 && Status_orig<30 )                   LeptonType= 1;//1)
-  else if( fabs(MPID)>50 )                                      LeptonType=-2;
+  if     ( TruthIdx==-1 ) { LeptonType= 0; }
+  else if( fabs(MPID)==23 || fabs(MPID)==24 || fabs(MPID)==25 ) { LeptonType= 1; }
+  else if( IsSignalPID(MPID) ) {
+			if ( fabs(MPID) == 37 ) LeptonType = 6;
+			else LeptonType= 2;
+  }
+  else if( Status_orig>20 && Status_orig<30 ) { LeptonType= 1; }
+  else if( fabs(MPID)>50 )                    { LeptonType=-2; }
   else if( fabs(MPID)==15 && MStatus_last==2 ){
            if     ( fabs(GrMPID)==23 || fabs(GrMPID)==24 || fabs(GrMPID)==25 ) LeptonType= 3;
            else if( IsSignalPID(GrMPID) )                                      LeptonType= 3;
@@ -1662,10 +1665,10 @@ int AnalyzerCore::GetLeptonType_Public(int TruthIdx, const std::vector<Gen>& Tru
            else if( fabs(GrMPID)==24 || fabs(GrMPID)==23 || fabs(GrMPID)==6  ) LeptonType= 4;//3-c)
            else if( fabs(GrMPID)==11 || fabs(GrMPID)==13 || fabs(GrMPID)==15 ) LeptonType= 4;//3-d)
            else                                                                LeptonType= 0;
-         }
-  else if( (fabs(MPID)==11 || fabs(MPID)==13 || fabs(MPID)==15) && MStatus_last!=2 && !HadronicOrigin ) LeptonType= 4;//4-a)
-  else if( ((fabs(MPID)>=1 && fabs(MPID)<=5) || fabs(MPID)==21) && MStatus_last!=2 )                    LeptonType=-4;//4-b)
-  else if( fabs(MPID)==6 ) LeptonType=4;//4-c)
+  }
+  else if( (fabs(MPID)==11 || fabs(MPID)==13 || fabs(MPID)==15) && MStatus_last!=2 && !HadronicOrigin ) { LeptonType= 4; }//4-a) 
+  else if( ((fabs(MPID)>=1 && fabs(MPID)<=5) || fabs(MPID)==21) && MStatus_last!=2 ) {  LeptonType=-4; } //4-b)
+  else if( fabs(MPID)==6 ) { LeptonType=4; }//4-c)
   else LeptonType=0;
 
 
@@ -1702,6 +1705,7 @@ int AnalyzerCore::GetLeptonType(const Lepton& lep, const std::vector<Gen>& gens)
   //====  3 : EWtau daughter
   //====  4 : Internal Conversion daughter from t/EWV/EWlep(Implicit,Explicit)
   //====  5 : Internal Conversion daughter from HardScatterPhoton
+	//====  6 : Charged Higgs Daughter - from offshell W
   //==== -1 : Unmatched & not EW Conversion candidate
   //==== -2 : Hadron daughter
   //==== -3 : Daughter of tau from hadron or parton

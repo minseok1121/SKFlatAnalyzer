@@ -58,6 +58,7 @@ public:
   inline bool PassSelector( unsigned int s ) const { return (j_IDBit & s)==s; }
   inline bool IsType( unsigned int t ) const { return (j_TypeBit & t); }
 
+	inline bool isTrackerMuon() const {return IsType(TrackerMuon);}
   inline bool isPOGTight() const {return PassSelector(CutBasedIdTight);}
   inline bool isPOGMedium() const {return PassSelector(CutBasedIdMedium);}
   inline bool isPOGLoose() const {return PassSelector(CutBasedIdLoose);}

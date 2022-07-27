@@ -102,6 +102,7 @@ void Muon::SetMVA(double MVA){
 }
 
 bool Muon::PassID(TString ID) const {
+  if(ID=="TrackerMuon") return isTrackerMuon();
   //==== POG
   if(ID=="POGTight") return isPOGTight();
   if(ID=="POGHighPt") return isPOGHighPt();

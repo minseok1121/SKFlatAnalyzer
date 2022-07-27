@@ -209,7 +209,7 @@ double diLepControlRegion::getWeight(Event &ev,
 		double weight = 1.;
 		const double w_prefire = GetPrefireWeight(0);
 		const double w_lumi = ev.GetTriggerLumi("Full");
-		const double w_gen = ev.MCweight()*weight_norm_1invpb;
+		const double w_gen = MCweight();
 		const double w_pileup = GetPileUpWeight(nPileUp, 0);
 
 		weight *= (w_prefire*w_gen*w_lumi*w_pileup);

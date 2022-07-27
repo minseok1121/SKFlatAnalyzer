@@ -18,5 +18,8 @@
 #pragma link C++ class MeasureJetTaggingEfficiency+;
 #pragma link C++ class SkimTree_Dilepton+;
 #pragma link C++ class diLepControlRegion+;
+#pragma link C++ class SampleValidation+;
+#pragma link C++ class MuonDYCounter+;
+#pragma link C++ class Selector+;
 
 #endif
