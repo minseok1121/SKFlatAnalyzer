@@ -982,6 +982,7 @@ bool AnalyzerCore::PassMETFilter(){
 void AnalyzerCore::initializeAnalyzerTools(){
 
   //==== MCCorrection
+	cout << "[AnalyzerCore::initializeAnalyzerTools] Era = " << GetEra() << endl;
   mcCorr->SetMCSample(MCSample);
   mcCorr->SetEra(GetEra());
   mcCorr->SetIsDATA(IsDATA);
@@ -1007,6 +1008,7 @@ void AnalyzerCore::initializeAnalyzerTools(){
 
 double AnalyzerCore::MCweight(bool usesign, bool norm_1invpb) const {
   if(IsDATA) return 1.;
+
   double weight=gen_weight;
   //MiNNLO sample has some events with unphysically large weight
   if(MCSample.Contains("DYJets")&&MCSample.Contains("MiNNLO")){

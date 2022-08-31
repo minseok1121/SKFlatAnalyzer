@@ -17,7 +17,6 @@ vector<TString> MCCorrection::Split(TString s,TString del){
   return out;
 }
 void MCCorrection::ReadHistograms(){
-
   TString datapath = getenv("DATA_DIR");
 
   TDirectory* origDir = gDirectory;
@@ -172,6 +171,34 @@ void MCCorrection::ReadHistograms(){
   file_DYPtReweightPath->Close();
   delete file_DYPtReweightPath;
   origDir->cd();
+
+	// == Get Private Efficiency maps
+	// TopHN Muon ID
+	TString MuonIDEffPath = datapath+"/"+GetEra()+"/ID/Muon/efficiency_TopHN_IDIso.root";
+	TFile *file_MuonTopHNID = new TFile(MuonIDEffPath);
+	histDir->cd();
+	hist_MuonTopHNIDSF = (TH2D*)file_MuonTopHNID->Get("SF_fabs(probe_eta)_probe_pt")->Clone("TopHNID_SF");
+	file_MuonTopHNID->Close(); delete file_MuonTopHNID;
+	origDir->cd();
+
+	// DoubleMuon Triggers
+	TString MuonTrigEffPath = ""; TFile *file_MuonTrigEff = nullptr;
+	
+	MuonTrigEffPath = datapath+"/"+GetEra()+"/ID/Muon/efficiency_Mu17Leg1_DoubleMuonTriggers.root";
+  file_MuonTrigEff = new TFile(MuonTrigEffPath);
+	histDir->cd();
+	hist_Mu17Leg1_Data_DblMuTrigEff = (TH2D*)file_MuonTrigEff->Get("muonEffi_data_fabs(probe_eta)_probe_pt")->Clone("Mu17Leg1_DataEff");
+	hist_Mu17Leg1_MC_DblMuTrigEff = (TH2D*)file_MuonTrigEff->Get("muonEffi_mc_fabs(probe_eta)_probe_pt")->Clone("Mu17LEg1_MCEff");
+	file_MuonTrigEff->Close(); delete file_MuonTrigEff;
+	origDir->cd();
+
+	MuonTrigEffPath = datapath+"/"+GetEra()+"/ID/Muon/efficiency_Mu8Leg2_DoubleMuonTriggers.root";
+	file_MuonTrigEff = new TFile(MuonTrigEffPath);
+	histDir->cd();
+	hist_Mu8Leg2_Data_DblMuTrigEff = (TH2D*)file_MuonTrigEff->Get("muonEffi_data_fabs(probe_eta)_probe_pt")->Clone("Mu8Leg2_DataEff");
+	hist_Mu8Leg2_MC_DblMuTrigEff = (TH2D*)file_MuonTrigEff->Get("muonEffi_mc_fabs(probe_eta)_probe_pt")->Clone("Mu8Leg2->MCEff");
+	file_MuonTrigEff->Close(); delete file_MuonTrigEff;
+	origDir->cd();
 }
 
 MCCorrection::~MCCorrection(){
@@ -344,6 +371,45 @@ double MCCorrection::MuonISO_SF(TString ID, double eta, double pt, int sys){
 
 }
 
+// added by Jin Choi
+double MCCorrection::GetMuonIDSF(TString ID, double eta, double pt, int sys) {
+		
+		if (ID == "Default")
+				return 1.;
+		
+		double value = 1., error = 0.;
+		
+		// boundaries
+		if (ID.Contains("TopHN") || ID.Contains("HcToWATight")) {
+				eta = fabs(eta);
+				if (pt < 10.) pt = 10.;
+				if (pt >= 200.) pt = 199.;
+				if (eta >= 2.4) eta = 2.39;
+		
+				int this_bin = hist_MuonTopHNIDSF->FindBin(eta, pt);
+				value = hist_MuonTopHNIDSF->GetBinContent(this_bin);
+				error = hist_MuonTopHNIDSF->GetBinError(this_bin);
+		}
+		else {
+				cerr << "[MCCorrection::GetMuonIDSF] Wrong ID " << ID << endl;
+				exit(EXIT_FAILURE);
+		}
+
+		return value+double(sys)*error;
+}
+
+double MCCorrection::GetMuonIDSF(TString ID, const std::vector<Muon> &muons, int sys) {
+		if (ID == "Default")
+				return 1.;
+
+		double value = 1.;
+		for (const auto &mu: muons)
+				value *= GetMuonIDSF(ID, mu.Eta(), mu.MiniAODPt(), sys);
+
+		return value;
+}
+
+
 double MCCorrection::MuonTrigger_Eff(TString ID, TString trig, int DataOrMC, double eta, double pt, int sys){
 
   //cout << "[MCCorrection::MuonTrigger_Eff] Called" << endl;
@@ -434,7 +500,7 @@ double MCCorrection::MuonTrigger_Eff(TString ID, TString trig, int DataOrMC, dou
     }
   }
 
-  int this_bin = this_hist->FindBin(pt,eta);
+  int this_bin = this_hist->FindBin(fabs(eta), pt);
 
   value = this_hist->GetBinContent(this_bin);
   error = this_hist->GetBinError(this_bin);
@@ -494,6 +560,104 @@ double MCCorrection::MuonTrigger_SF(TString ID, TString trig, const std::vector<
   return MuonTrigger_SF(ID, trig, muvec, sys);
 
 }
+
+
+// added by Jin
+double MCCorrection::GetDoubleMuonTriggerEff(TString ID, TString trig, const bool isData, double eta, double pt, int sys) {
+		
+		if (ID == "Default") return 1.;
+		if (trig == "Default") return 1.;
+
+		double value = 1., error = 0.;
+		if (ID.Contains("TopHN") || ID.Contains("HcToWATight")) {
+				// boundaries
+				eta = fabs(eta);
+				if (pt < 10.) pt = 10.;
+				if (pt > 200.) pt = 199.;
+				if (eta > 2.4) eta = 2.39;
+				
+				// get histogram
+				TH2D *this_hist = nullptr;
+				if (trig == "Mu17Leg1" && isData)				{ this_hist = hist_Mu17Leg1_Data_DblMuTrigEff; }
+				else if (trig == "Mu17Leg1" && !isData) { this_hist = hist_Mu17Leg1_MC_DblMuTrigEff; }
+				else if (trig == "Mu8Leg2" && isData)   { this_hist = hist_Mu8Leg2_Data_DblMuTrigEff; }
+				else if (trig == "Mu8Leg2" && !isData)  { this_hist = hist_Mu8Leg2_MC_DblMuTrigEff; }
+				else {
+						cerr << "[MCCorrection::GetDoubleMuonTriggerEff] Wrong ID and trig combination" << endl;
+						cerr << "[MCCorrection::GetDoubleMuonTriggerEff] ID = " << ID << endl;
+						cerr << "[MCCorrection::GetDoubleMuonTriggerEff] trig = " << trig << endl;
+						exit(EXIT_FAILURE);
+				}
+
+				int this_bin = this_hist->FindBin(eta, pt);
+				value = this_hist->GetBinContent(this_bin);
+				error = this_hist->GetBinError(this_bin);
+		}
+		else {
+				cerr << "[MCCorrection::GetDoubleMuonTriggerEff] ID does not contain TopHN or HcToWATight" << endl;
+				cerr << "[MCCorrection::GetDoubleMuonTriggerEff] ID = " << ID << endl;
+				exit(EXIT_FAILURE);
+		}
+
+		return value + double(sys)*error;
+}
+
+
+
+double MCCorrection::GetDoubleMuonTriggerEff(TString ID, const bool isData, const std::vector<Muon> &muons, int sys) {
+				
+		double value = 1.;
+		// DZ filter efficiency
+		double eff_dz = 1.;
+		if (DataEra == "2016postVFP") { eff_dz = isData ? 0.9798:0.9969; }
+		else if (DataEra == "2017") { eff_dz = 0.9958; }
+		else { eff_dz = 1.; }
+
+		if (muons.size() == 2) {
+				const Muon &mu1 = muons.at(0);
+				const Muon &mu2 = muons.at(1);
+				value *= GetDoubleMuonTriggerEff(ID, "Mu17Leg1", isData, mu1.Eta(), mu1.Pt(), sys);
+				value *= GetDoubleMuonTriggerEff(ID, "Mu8Leg2", isData, mu2.Eta(), mu2.Pt(), sys);
+				value *= eff_dz;
+		}
+		else if (muons.size() == 3) {
+				const Muon &mu1 = muons.at(0);
+				const Muon &mu2 = muons.at(1);
+				const Muon &mu3 = muons.at(2);
+				double eff1 = 1., eff2 = 1., eff3 = 1.;
+				// case 1, mu1 fire leg1 and mu2 fire leg2
+				eff1 *= GetDoubleMuonTriggerEff(ID, "Mu17Leg1", isData, mu1.Eta(), mu1.Pt(), sys);
+				eff1 *= GetDoubleMuonTriggerEff(ID, "Mu8Leg2", isData, mu2.Eta(), mu2.Pt(), sys);
+				eff1 *= eff_dz;
+				// case 2, mu1 fire leg1 and mu3 fire leg2
+				eff2 *= GetDoubleMuonTriggerEff(ID, "Mu17Leg1", isData, mu1.Eta(), mu1.Pt(), sys);
+				eff2 *= (1. - GetDoubleMuonTriggerEff(ID, "Mu8Leg2", isData, mu2.Eta(), mu2.Pt(), sys)*eff_dz);
+				eff2 *= GetDoubleMuonTriggerEff(ID, "Mu8Leg2", isData, mu3.Eta(), mu3.Pt(), sys);
+				eff2 *= eff_dz;
+				// case 3, mu2 fire leg1 and mu3 fire leg2
+				eff3 *= (1. - GetDoubleMuonTriggerEff(ID, "Mu17Leg1", isData, mu1.Eta(), mu1.Pt(), sys)*eff_dz);
+				eff3 *= GetDoubleMuonTriggerEff(ID, "Mu17Leg1", isData, mu2.Eta(), mu2.Pt(), sys);
+				eff3 *= GetDoubleMuonTriggerEff(ID, "Mu8Leg2", isData, mu3.Eta(), mu3.Pt(), sys);
+				eff3 *= eff_dz;
+				value = eff1+eff2+eff3;
+		}
+		else {
+				cerr << "[MCCorrection:: GetDoubleMuonTriggerEff] the number of muons should be 2 or 3, got " << muons.size() << endl;
+				exit(EXIT_FAILURE);
+		}
+		return value;
+}
+
+double MCCorrection::GetDoubleMuonTriggerSF(TString ID, const std::vector<Muon> &muons, int sys) {
+		
+		if (ID == "Default") return 1.;
+
+		const double trigEff_data = GetDoubleMuonTriggerEff(ID, true, muons, sys);
+		const double trigEff_mc = GetDoubleMuonTriggerEff(ID, false, muons, sys);
+
+		return trigEff_data / trigEff_mc;
+}
+
 
 double MCCorrection::ElectronID_SF(TString ID, double sceta, double pt, int sys){
 
@@ -785,7 +949,6 @@ double MCCorrection::GetPileUpWeightBySampleName(int N_pileup, int syst){
 }
 
 double MCCorrection::GetPileUpWeight(int N_pileup, int syst){
-
   TString this_histname = "MC_" + GetEra();
   if(syst == 0){
     this_histname += "_central_pileup";

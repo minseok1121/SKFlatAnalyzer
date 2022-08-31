@@ -90,7 +90,17 @@ public:
   double GetTopPtReweight(const std::vector<Gen>& gens);
 
   TH2D *hist_DYPtReweight_2D;
+	TH2D *hist_MuonTopHNIDSF;
+	TH2D *hist_Mu17Leg1_Data_DblMuTrigEff;
+	TH2D *hist_Mu17Leg1_MC_DblMuTrigEff;
+	TH2D *hist_Mu8Leg2_Data_DblMuTrigEff;
+	TH2D *hist_Mu8Leg2_MC_DblMuTrigEff;
   GenFinderForDY *genFinderDY;
+	double GetMuonIDSF(TString ID, double eta, double pt, int sys=0);
+	double GetMuonIDSF(TString ID, const std::vector<Muon> &muons, int sys=0);
+	double GetDoubleMuonTriggerEff(TString ID, TString trig, const bool isData, double eta, double pt, int sys=0);
+	double GetDoubleMuonTriggerEff(TString ID, const bool isData, const std::vector<Muon> &muons, int sys=0);
+	double GetDoubleMuonTriggerSF(TString ID, const std::vector<Muon> &muons, int sys=0);
   double GetOfficialDYReweight(const vector<Gen>& gens, int sys=0);
 
   //==== b tagging

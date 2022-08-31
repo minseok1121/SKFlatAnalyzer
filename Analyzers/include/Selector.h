@@ -14,6 +14,7 @@ private:
 		bool passDblMuTrigs, passEMuTrigs;
 		float trigLumi;
 		float genWeight;
+
 		float METv_pt, METv_phi;
 		// muons
 		unsigned int nMuons;

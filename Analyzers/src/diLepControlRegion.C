@@ -72,7 +72,17 @@ void diLepControlRegion::initializeAnalyzer(){
 		mcCorr->SetJetTaggingParameters(jtps);
 
 		// Systematics
-		Systematics = {"Central", "NoIDSF", "MuonIDSFUp", "MuonIDSFDown", "EleIDSFUp", "EleIDSFDown"};
+		Systematics = {// to see how the correction changes
+									 "Default",
+									 "MuonIDSFOnly", "MuonIDSFOnlyUp", "MuonIDSFOnlyDown",
+									 "Central",
+									 "PileUpCorrUp", "PileUpCorrDown",
+									 "MuonEnUp", "MuonEnDown",
+									 "MuonIDSFUp", "MuonIDSFDown", 
+									 "MuonTrigSFUp", "MuonTrigSFDown",
+									 //"EleIDSFUp", "EleIDSFDown",
+									 //"EleTrigSFUp", "EleTrigSFDown"
+		              };
 
 }
 
@@ -82,54 +92,47 @@ void diLepControlRegion::executeEvent(){
 
 		Event ev = GetEvent();
 		vector<Gen>	truth_coll = GetGens();
-		vector<Muon> muon_coll = GetAllMuons();
-		vector<Electron> ele_coll = GetAllElectrons();
-		vector<Jet>	jet_coll = GetAllJets();
+		vector<Muon> AllMuons = GetAllMuons();
+		vector<Electron> AllElectrons = GetAllElectrons();
+		vector<Jet>	AllJets = GetAllJets();
 		Particle METv = ev.GetMETVector();
 
-		// sort objects
-		sort(muon_coll.begin(), muon_coll.end(), PtComparing);
-		sort(ele_coll.begin(), ele_coll.end(), PtComparing);
-		sort(jet_coll.begin(), jet_coll.end(), PtComparing);
+		for (const auto &syst: Systematics) {
+				vector<Muon> muon_coll = AllMuons;
+				vector<Electron> ele_coll = AllElectrons;
+				vector<Jet> jet_coll = AllJets;
+				if (syst == "MuonEnUp") { muon_coll = ScaleMuons(muon_coll, +1); }
+				if (syst == "MuonEnDown") {muon_coll = ScaleMuons(muon_coll, -1); }
 
-		// select objects
-		vector<Muon> muonT_coll = SelectMuons(muon_coll, MuonIDs.at(0), 10., 2.4);
-		vector<Muon> muonL_coll = SelectMuons(muon_coll, MuonIDs.at(1), 10., 2.4);
-		vector<Muon> muonV_coll = SelectMuons(muon_coll, MuonIDs.at(2), 10., 2.4);
-		vector<Electron> eleT_coll = SelectElectrons(ele_coll, ElectronIDs.at(0), 10., 2.5);
-		vector<Electron> eleL_coll = SelectElectrons(ele_coll, ElectronIDs.at(1), 10., 2.5);
-		vector<Electron> eleV_coll = SelectElectrons(ele_coll, ElectronIDs.at(2), 10., 2.5);
-		vector<Jet> jetT_coll = SelectJets(jet_coll, "tight", 20., 2.4);
-		jetT_coll = JetsVetoLeptonInside(jetT_coll, eleV_coll, muonV_coll, 0.4);
-		vector<Jet> bjet_coll;
-		for (const auto &j: jetT_coll) {
-				const double score = j.GetTaggerResult(JetTagging::DeepJet);
-				if (score > mcCorr->GetJetTaggingCutValue(JetTagging::DeepJet, JetTagging::Medium))
-						bjet_coll.emplace_back(j);
-		}
+				// sort objects
+				sort(muon_coll.begin(), muon_coll.end(), PtComparing);
+				sort(ele_coll.begin(), ele_coll.end(), PtComparing);
+				sort(jet_coll.begin(), jet_coll.end(), PtComparing);
 
-		// event selection
-		channel_t channel = selectEvent(ev, muonT_coll, muonL_coll, muonV_coll,
-																		   eleT_coll, eleL_coll, eleV_coll,
-																			 jetT_coll, bjet_coll, METv);
-		if (channel == "") return;
-
-		// loop over systematics and make histograms
-		double weight = 1.;
-		if (IsDATA) {
-				FillMuons(channel+"/muons", muonT_coll, weight, false);
-				FillElectrons(channel+"/electrons", eleT_coll, weight, false);
-				FillJets(channel+"/jets", jetT_coll, weight);
-				FillJets(channel+"/bjets", bjet_coll, weight);
-				FillObject(channel+"/METv", METv, weight);
-				if (channel == "dimuon_drellyan_candidate") {
-						Particle diMuon = muonT_coll.at(0)+muonT_coll.at(1);
-						FillObject(channel+"/diMuon", diMuon, weight);
+				// select objects
+				vector<Muon> muonT_coll = SelectMuons(muon_coll, MuonIDs.at(0), 10., 2.4);
+				vector<Muon> muonL_coll = SelectMuons(muon_coll, MuonIDs.at(1), 10., 2.4);
+				vector<Muon> muonV_coll = SelectMuons(muon_coll, MuonIDs.at(2), 10., 2.4);
+				vector<Electron> eleT_coll = SelectElectrons(ele_coll, ElectronIDs.at(0), 10., 2.5);
+				vector<Electron> eleL_coll = SelectElectrons(ele_coll, ElectronIDs.at(1), 10., 2.5);
+				vector<Electron> eleV_coll = SelectElectrons(ele_coll, ElectronIDs.at(2), 10., 2.5);
+				vector<Jet> jetT_coll = SelectJets(jet_coll, "tight", 20., 2.4);
+				jetT_coll = JetsVetoLeptonInside(jetT_coll, eleV_coll, muonV_coll, 0.4);
+				vector<Jet> bjet_coll;
+				for (const auto &j: jetT_coll) {
+						const double score = j.GetTaggerResult(JetTagging::DeepJet);
+						if (score > mcCorr->GetJetTaggingCutValue(JetTagging::DeepJet, JetTagging::Medium))
+								bjet_coll.emplace_back(j);
 				}
-				return;
-		}
 
-		for (const auto& syst: Systematics) {
+				// event selection
+				channel_t channel = selectEvent(ev, muonT_coll, muonL_coll, muonV_coll,
+																				   eleT_coll, eleL_coll, eleV_coll,
+																					 jetT_coll, bjet_coll, METv);
+				if (channel == "" || channel == "emu_ttbar_candidate") return;
+
+				// loop over systematics and make histograms
+				double weight = 1.;
 				weight = getWeight(ev, muonT_coll, muonL_coll, muonV_coll,
 														   eleT_coll, eleL_coll, eleV_coll,
 														   jetT_coll, bjet_coll, METv,
@@ -142,7 +145,8 @@ void diLepControlRegion::executeEvent(){
 				if (channel == "dimuon_drellyan_candidate") {
 						Particle diMuon = muonT_coll.at(0)+muonT_coll.at(1);
 						FillObject(channel+"/"+syst+"/diMuon", diMuon, weight);
-		}																																        }
+				}																																        
+		}
 		return;
 }
 
@@ -207,38 +211,78 @@ double diLepControlRegion::getWeight(Event &ev,
 																		 diLepControlRegion::syst_t syst) {
 		if (IsDATA) return 1.;
 		double weight = 1.;
-		const double w_prefire = GetPrefireWeight(0);
-		const double w_lumi = ev.GetTriggerLumi("Full");
-		const double w_gen = MCweight();
-		const double w_pileup = GetPileUpWeight(nPileUp, 0);
+		double w_prefire = GetPrefireWeight(0);
+		double w_lumi = ev.GetTriggerLumi("Full");
+		double w_gen = MCweight();
+		double w_pileup = GetPileUpWeight(nPileUp, 0);
 
-		weight *= (w_prefire*w_gen*w_lumi*w_pileup);
+		double w_idsf = mcCorr->GetMuonIDSF(MuonIDs.at(0), muonT_coll, 0);
+		double w_trigsf = mcCorr->GetDoubleMuonTriggerSF(MuonIDs.at(0), muonT_coll, 0);
 
-		// Set ID scale factor
-		double w_idsf = 1.;
-		for (const auto &mu: muonT_coll) {
-				if (syst == "NoIDSF") continue;
-				else if (syst == "MuonIDSFUp") {
-						w_idsf *= mcCorr->MuonID_SF("NUM_TopHN_DEN_TrackerMuons", mu.Eta(), mu.MiniAODPt(), 1.);
-				}
-				else if (syst == "MuonIDSFDown") {
-						w_idsf *= mcCorr->MuonID_SF("NUM_TopHN_DEN_TrackerMuons", mu.Eta(), mu.MiniAODPt(), -1.);
-				}
-				else {
-						w_idsf *= mcCorr->MuonID_SF("NUM_TopHN_DEN_TrackerMuons", mu.Eta(), mu.MiniAODPt());
-				}
+		// Set ID / Trigger scale factor
+		if (syst == "Default") {
+				w_idsf = 1.;
+				w_trigsf = 1.;
+		}
+		else if (syst == "MuonIDSFOnly") {
+				w_idsf = mcCorr->GetMuonIDSF(MuonIDs.at(0), muonT_coll, 0);
+		}
+		else if (syst == "MuonIDSFOnlyUp") {
+				w_idsf = mcCorr->GetMuonIDSF(MuonIDs.at(0), muonT_coll, 1);
+				w_trigsf = 1.;
+		}
+		else if (syst == "MuonIDSFOnlyDown") {
+				w_idsf = mcCorr->GetMuonIDSF(MuonIDs.at(0), muonT_coll, -1);
+				w_trigsf = -1.;
+		}
+		else if (syst == "Central" || syst == "MuonEnUp" || syst == "MuonEnDown") {
+		}
+		else if (syst == "PileUpCorrUp") {
+				w_pileup = GetPileUpWeight(nPileUp, 1);
+		}
+		else if (syst == "PileUpCorrDown") {
+				w_pileup = GetPileUpWeight(nPileUp, -1);
+		}
+		else if (syst == "MuonIDSFUp") {
+				w_idsf = mcCorr->GetMuonIDSF(MuonIDs.at(0), muonT_coll, 1);
+		}
+		else if (syst == "MuonIDSFDown") {
+				w_idsf = mcCorr->GetMuonIDSF(MuonIDs.at(0), muonT_coll, -1);
+		}
+		else if (syst == "MuonTrigSFUp") {
+				w_trigsf = mcCorr->GetDoubleMuonTriggerSF(MuonIDs.at(0), muonT_coll, 1);
+		}
+		else if (syst == "MuonTrigSFDown") {
+				w_trigsf = mcCorr->GetDoubleMuonTriggerSF(MuonIDs.at(0), muonT_coll, -1);
+		}
+		else {
+				cerr << "[diLepControlRegion::getWeight] Wrong systematic " << syst << endl;
+				exit(EXIT_FAILURE);
 		}
 		// electrons... not yet
-		weight *= w_idsf;
+		//
+		weight *= (w_prefire*w_gen*w_lumi*w_pileup);
+		weight *= (w_idsf*w_trigsf);
+
+		// b-tagging weight
+		JetTagging::Parameters jtp_DeepJet_Medium 
+						= JetTagging::Parameters(JetTagging::DeepJet,
+																		  JetTagging::Medium,
+																			JetTagging::incl,
+																			JetTagging::mujets);
+		const double w_btag = mcCorr->GetBTaggingReweight_1a(jetT_coll, jtp_DeepJet_Medium);
+		weight *= w_btag;
 		
+		//cout << "syst: " << syst << endl;
 		//cout << "w_prefire: " << w_prefire << endl;
 		//cout << "w_lumi: " << w_lumi << endl;
 		//cout << "w_gen: " << w_gen << endl;
 		//cout << "w_pileup: " << w_pileup << endl;
 		//cout << "w_idsf: " << w_idsf << endl;
-
-		// b-tagging weight?
-
+		//cout << "w_trigsf: " << w_trigsf << endl;
+		//cout << "w_btag: " << w_btag << endl;
+		//cout << "weight: " << weight << endl;
+		
 		return weight;
 }
 
