@@ -11,25 +11,61 @@ private:
 		TTree* Events;
 
 		// events
-		bool passDblMuTrigs, passEMuTrigs;
-		float trigLumi;
-		float genWeight;
+		bool PassDblMuTrigs, PassEMuTrigs;
+		float TrigLumi;
+		float GenWeight;
+		float L1PrefireWeight, L1PrefireWeightUp, L1PrefireWeightDown;
 
-		float METv_pt, METv_phi;
+		// METVector
+		float METvPt, METvPhi;
+
 		// muons
 		unsigned int nMuons;
-		float muons_pt[3], muons_eta[3], muons_phi[3], muons_mass[3], muons_relIso[3], muons_miniIso[3];
-		int muons_charge[3], muons_lepType[3];
-		bool muons_passTight[3], muons_passLoose[3];
+		float MuonPtColl[3];
+		float MuonPtColl_MomentumShiftUp[3];
+		float MuonPtColl_MomentumShiftDown[3];
+		float MuonEtaColl[3];
+		float MuonPhiColl[3];
+		float MuonMassColl[3];
+		float MuonRelIsoColl[3];
+		float MuonMiniRelIsoColl[3];
+		int   MuonChargeColl[3];
+		int   MuonLepTypeColl[3];
+		bool  MuonPassTightColl[3];
+		bool  MuonPassLooseColl[3];
+
 		// electrons
 		unsigned int nElectrons;
-		float electrons_pt[1], electrons_eta[1], electrons_phi[1], electrons_mass[1], electrons_relIso[3], electrons_miniIso[3];
-		int electrons_charge[1], electrons_lepType[1];
-		bool electrons_passTight[1], electrons_passLoose[1];
+		float ElectronPtColl[1];
+		float ElectronPtColl_EnShiftUp[1];
+		float ElectronPtColl_EnShiftDown[1];
+		float ElectronPtColl_ResShiftUp[1];
+		float ElectronPtColl_ResShiftDown[1];
+		float ElectronEtaColl[1];
+		float ElectronPhiColl[1];
+		float ElectronMassColl[1];
+		float ElectronRelIsoColl[1];
+		float ElectronMiniRelIsoColl[1];
+		int   ElectronChargeColl[1];
+		int   ElectronLepTypeColl[1];
+		bool  ElectronPassTightColl[1];
+		bool  ElectronPassLooseColl[1];
+
 		// jets
 		unsigned int nJets;
-		float jets_pt[30], jets_eta[30], jets_phi[30], jets_mass[30], jets_btagScore[30];
-		bool jets_isBtagged[30];
+		float JetPtColl[20];
+		float JetPtColl_EnShiftUp[20];
+		float JetPtColl_EnShiftDown[20];
+		float JetPtColl_ResShiftUp[20];
+		float JetPtColl_ResShiftDown[20];
+		float JetEtaColl[20];
+		float JetPhiColl[20];
+		float JetMassColl[20];
+		int   JetChargeColl[20];
+		int   JetPartonFlavourColl[20];
+		int   JetHadronFlavourColl[20];
+		float JetBtagScoreColl[20];
+		bool  JetIsBtaggedColl[20];
 
 public:
 		Selector();

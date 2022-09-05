@@ -9,44 +9,68 @@ Selector::Selector() {
     Events->Branch("run", &run); 
 		Events->Branch("event", &event); 
 		Events->Branch("lumi", &lumi);
-    Events->Branch("nPV", &nPV); Events->Branch("nPileUp", &nPileUp);
-    Events->Branch("passDblMuTrigs", &passDblMuTrigs); 
-		Events->Branch("passEMuTrigs", &passEMuTrigs);
-    Events->Branch("trigLumi", &trigLumi);
-    Events->Branch("METv_pt", &METv_pt);
-    Events->Branch("METv_phi", &METv_phi);
-    Events->Branch("genWeight", &genWeight);
-    // muons
+		Events->Branch("TrigLumi", &TrigLumi);
+		Events->Branch("GenWeight", &GenWeight);
+		Events->Branch("L1PrefireWeight", &L1PrefireWeight);
+		Events->Branch("L1PrefireWeightUp", &L1PrefireWeightUp);
+		Events->Branch("L1PrefireWeightDown", &L1PrefireWeightDown);
+    Events->Branch("nPV", &nPV); 
+		Events->Branch("nPileUp", &nPileUp);
+    Events->Branch("PassDblMuTrigs", &PassDblMuTrigs); 
+		Events->Branch("PassEMuTrigs", &PassEMuTrigs);
+    Events->Branch("METvPt", &METvPt);
+    Events->Branch("METvPhi", &METvPhi);
+    
+		// muons
     Events->Branch("nMuons", &nMuons);
-    Events->Branch("muons_pt", muons_pt, "muons_pt[nMuons]/F");
-    Events->Branch("muons_eta", muons_eta, "muons_eta[nMuons]/F");
-    Events->Branch("muons_phi", muons_phi, "muons_phi[nMuons]/F");
-    Events->Branch("muons_mass", muons_mass, "muons_mass[nMuons]/F");
-    Events->Branch("muons_miniIso", muons_miniIso, "muons_miniIso[nMuons]/F");
-    Events->Branch("muons_charge", muons_charge, "muons_charge[nMuons]/I");
-    Events->Branch("muons_lepType", muons_lepType, "muons_lepType[nMuons]/I");
-    Events->Branch("muons_passTight", muons_passTight, "muons_passTight[nMuons]/O");
-		Events->Branch("muons_passLoose", muons_passLoose, "muons_passLoose[nMuons]/O");
+		Events->Branch("MuonPtColl", MuonPtColl, "MuonPtColl[nMuons]/F");
+		Events->Branch("MuonPtColl_MomentumShiftUp", MuonPtColl_MomentumShiftUp, "MuonPtColl_MomentumShiftUp[nMuons]/F");
+		Events->Branch("MuonPtColl_MomentumShiftDown", MuonPtColl_MomentumShiftDown, "MuonPtColl_MomentumShiftDown[nMuons]/F");
+		Events->Branch("MuonEtaColl", MuonEtaColl, "MuonEtaColl[nMuons]/F");
+    Events->Branch("MuonPhiColl", MuonPhiColl, "MuonPhiColl[nMuons]/F");
+    Events->Branch("MuonMassColl", MuonMassColl, "MuonMassColl[nMuons]/F");
+		Events->Branch("MuonRelIsoColl", MuonRelIsoColl, "MuonRelIsoColl[nMuons]/F");
+    Events->Branch("MuonMiniRelIsoColl", MuonMiniRelIsoColl, "MuonMiniRelIsoColl[nMuons]/F");
+    Events->Branch("MuonChargeColl", MuonChargeColl, "MuonChargeColl[nMuons]/I");
+    Events->Branch("MuonLepTypeColl", MuonLepTypeColl, "MuonLepTypeColl[nMuons]/I");
+    Events->Branch("MuonPassTightColl", MuonPassTightColl, "MuonPassTightColl[nMuons]/O");
+		Events->Branch("MuonPassLooseColl", MuonPassLooseColl, "MuonPassLooseColl[nMuons]/O");
+
     // electrons
-    Events->Branch("nElectrons", &nElectrons);
-    Events->Branch("electrons_pt", electrons_pt, "electrons_pt[nElectrons]/F");
-    Events->Branch("electrons_eta", electrons_eta, "electrons_eta[nElectrons]/F");
-    Events->Branch("electrons_phi", electrons_phi, "electrons_phi[nElectrons]/F");
-    Events->Branch("electrons_mass", electrons_mass, "electrons_mass[nElectrons]/F");
-    Events->Branch("electrons_miniIso", electrons_miniIso, "electrons_miniIso[nElectrons]/F");
-    Events->Branch("electrons_charge", electrons_charge, "electrons_charge[nElectrons]/I");
-    Events->Branch("electrons_lepType", electrons_lepType, "electrons_lepType[nElectrons]/I");
-    Events->Branch("electrons_passTight", electrons_passTight, "electrons_passTight[nElectrons]/O");
-		Events->Branch("electrons_passLoose", electrons_passLoose, "electrons_passLoose[nElectrons]/O");
-    // jets
-    Events->Branch("nJets", &nJets);
-    Events->Branch("jets_pt", jets_pt, "jets_pt[nJets]/F");
-    Events->Branch("jets_eta", jets_eta, "jets_eta[nJets]/F");
-    Events->Branch("jets_phi", jets_phi, "jets_phi[nJets]/F");
-    Events->Branch("jets_mass", jets_mass, "jets_mass[nJets]/F");
-    Events->Branch("jets_btagScore", jets_btagScore, "jets_btagScore[nJets]/F");
-    Events->Branch("jets_isBtagged", jets_isBtagged, "jets_isBtagged[nJets]/O");
+		Events->Branch("nElectrons", &nElectrons);
+    Events->Branch("ElectronPtColl", ElectronPtColl, "ElectronPtColl[nElectrons]/F");
+    Events->Branch("ElectronPtColl_EnShiftUp", ElectronPtColl_EnShiftUp, "ElectronPtColl_EnShiftUp[nElectrons]/F");
+		Events->Branch("ElectronPtColl_EnShiftDown", ElectronPtColl_EnShiftDown, "ElectronPtColl_EnShiftDown[nElectrons]/F");
+		Events->Branch("ElectronPtColl_ResShiftUp", ElectronPtColl_ResShiftUp, "ElectronPtColl_ResShiftUp[nElectrons]/F");
+		Events->Branch("ElectronPtColl_ResShiftDown", ElectronPtColl_ResShiftDown, "ElectronPtColl_ResShiftDown[nElectrons]/F");
+		Events->Branch("ElectronEtaColl", ElectronEtaColl, "ElectronEtaColl[nElectrons]/F");
+    Events->Branch("ElectronPhiColl", ElectronPhiColl, "ElectronPhiColl[nElectrons]/F");
+    Events->Branch("ElectronMassColl", ElectronMassColl, "ElectronMassColl[nElectrons]/F");
+    Events->Branch("ElectronRelIsoColl", ElectronRelIsoColl, "ElectronRelIsoColl[nElectrons]/F");
+    Events->Branch("ElectronMiniRelIsoColl", ElectronMiniRelIsoColl, "ElectronMiniRelIsoColl[nElectrons]/F");
+    Events->Branch("ElectronChargeColl", ElectronChargeColl, "ElectronChargeColl[nElectrons]/I");
+    Events->Branch("ElectronLepTypeColl", ElectronLepTypeColl, "ElectronLepTypeColl[nElectrons]/I");
+    Events->Branch("ElectronPassTightColl", ElectronPassTightColl, "ElectronPassTightColl[nElectrons]/O");
+    Events->Branch("ElectronPassLooseColl", ElectronPassLooseColl, "ElectronPassLooseColl[nElectrons]/O");
+    
+		// jets
+		Events->Branch("nJets", &nJets);
+    Events->Branch("JetPtColl", JetPtColl, "JetPtColl[nJets]/F");
+    Events->Branch("JetPtColl_EnShiftUp", JetPtColl_EnShiftUp, "JetPtColl_EnShiftUp[nJets]/F");
+    Events->Branch("JetPtColl_EnShiftDown", JetPtColl_EnShiftDown, "JetPtColl_EnShiftDown[nJets]/F");
+    Events->Branch("JetPtColl_ResShiftUp", JetPtColl_ResShiftUp, "JetPtColl_ResShiftUp[nJets]/F");
+    Events->Branch("JetPtColl_ResShiftDown", JetPtColl_ResShiftDown, "JetPtColl_ResShiftDown[nJets]/F");
+    Events->Branch("JetEtaColl", JetEtaColl, "JetEtaColl[nJets]/F");
+    Events->Branch("JetPhiColl", JetPhiColl, "JetPhiColl[nJets]/F");
+    Events->Branch("JetMassColl", JetMassColl, "JetMassColl[nJets]/F");
+		Events->Branch("JetChargeColl", JetChargeColl, "JetChargeColl[nJets]/I");
+		Events->Branch("JetPartonFlavourColl", JetPartonFlavourColl, "JetPartonFlavourColl[nJets]/I");
+		Events->Branch("JetHadronFlavourColl", JetHadronFlavourColl, "JetHadronFlavourColl[nJets]/I");
+		Events->Branch("JetBtagScoreColl", JetBtagScoreColl, "JetBtagScoreColl[nJets]/F");
+		Events->Branch("JetIsBtaggedColl", JetIsBtaggedColl, "JetIsBtaggedColl[nJets]/O");
+
 }
+
 Selector::~Selector() {
 		outfile->cd();
 		Events->Write();
@@ -161,55 +185,74 @@ void Selector::executeEvent(){
 		
 		// Initialize contents
 		// events
-		passDblMuTrigs = ev.PassTrigger(DblMuTriggers);
-		passEMuTrigs = ev.PassTrigger(EMuTriggers);
-		METv_pt = METv.Pt(); METv_phi = METv.Phi();
-		genWeight = 1.; trigLumi = -1.;
+		PassDblMuTrigs = ev.PassTrigger(DblMuTriggers);
+		PassEMuTrigs = ev.PassTrigger(EMuTriggers);
+		METvPt = METv.Pt(); METvPhi = METv.Phi();
+		GenWeight = 1.; TrigLumi = 1.;
 		if (!IsDATA) {
-				genWeight = MCweight();
-				trigLumi = ev.GetTriggerLumi("Full");
+				GenWeight = MCweight();
+				TrigLumi = ev.GetTriggerLumi("Full");
 		}
+		L1PrefireWeight = GetPrefireWeight(0);
+		L1PrefireWeightUp = GetPrefireWeight(1);
+		L1PrefireWeightDown = GetPrefireWeight(-1);
 
 		// muons
 		nMuons = muonV_coll.size();
 		for (unsigned int i = 0; i < nMuons; i++) {
 				const Muon &mu = muonV_coll.at(i);
-				muons_pt[i] = mu.Pt(); 
-				muons_eta[i] = mu.Eta(); 
-				muons_phi[i] = mu.Phi();
-				muons_mass[i] = mu.M();
-				muons_miniIso[i] = mu.MiniRelIso();
-				muons_charge[i] = mu.Charge();
-				muons_lepType[i] = GetLeptonType(mu, truth_coll);
-				muons_passTight[i] = mu.PassID(MuonIDs.at(0));
-				muons_passLoose[i] = mu.PassID(MuonIDs.at(1));
+				MuonPtColl[i] = mu.Pt(); 
+				MuonPtColl_MomentumShiftUp[i] = mu.MomentumShift(1);
+				MuonPtColl_MomentumShiftDown[i] = mu.MomentumShift(-1);
+				MuonEtaColl[i] = mu.Eta(); 
+				MuonPhiColl[i] = mu.Phi();
+				MuonMassColl[i] = mu.M();
+				MuonRelIsoColl[i] = mu.RelIso();
+				MuonMiniRelIsoColl[i] = mu.MiniRelIso();
+				MuonChargeColl[i] = mu.Charge();
+				MuonLepTypeColl[i] = GetLeptonType(mu, truth_coll);
+				MuonPassTightColl[i] = mu.PassID(MuonIDs.at(0));
+				MuonPassLooseColl[i] = mu.PassID(MuonIDs.at(1));
 		}
 		// electrons
 		nElectrons = eleV_coll.size();
 		for (unsigned int i = 0; i < nElectrons; i++) {
         const Electron &ele = eleV_coll.at(i);
-        electrons_pt[i] = ele.Pt();
-        electrons_eta[i] = ele.Eta();
-        electrons_phi[i] = ele.Phi();
-        electrons_mass[i] = ele.M();
-        electrons_miniIso[i] = ele.MiniRelIso();
-        electrons_charge[i] = ele.Charge();
-        electrons_lepType[i] = GetLeptonType(ele, truth_coll);
-        electrons_passTight[i] = ele.PassID(ElectronIDs.at(0));
-				electrons_passLoose[i] = ele.PassID(ElectronIDs.at(1));
+        ElectronPtColl[i] = ele.Pt();
+				ElectronPtColl_EnShiftUp[i] = ele.Pt() * ele.EnShift(1);
+				ElectronPtColl_EnShiftDown[i] = ele.Pt() * ele.EnShift(-1);
+				ElectronPtColl_ResShiftUp[i] = ele.Pt() * ele.ResShift(1);
+				ElectronPtColl_ResShiftDown[i] = ele.Pt() * ele.ResShift(-1);
+        ElectronEtaColl[i] = ele.Eta();
+        ElectronPhiColl[i] = ele.Phi();
+        ElectronMassColl[i] = ele.M();
+				ElectronRelIsoColl[i] = ele.RelIso();
+        ElectronMiniRelIsoColl[i] = ele.MiniRelIso();
+				ElectronChargeColl[i] = ele.Charge();
+        ElectronLepTypeColl[i] = GetLeptonType(ele, truth_coll);
+        ElectronPassTightColl[i] = ele.PassID(ElectronIDs.at(0));
+				ElectronPassLooseColl[i] = ele.PassID(ElectronIDs.at(1));
     }
 		// jets
 		nJets = jetT_coll.size();
 		const float bcut = mcCorr->GetJetTaggingCutValue(JetTagging::DeepJet, JetTagging::Medium);
 		for (unsigned int i = 0; i < nJets; i++) {
         const Jet& j = jetT_coll.at(i);
-        jets_pt[i] = j.Pt();
-        jets_eta[i] = j.Eta();
-        jets_phi[i] = j.Phi();
-        jets_mass[i] = j.M();
-        jets_btagScore[i] = j.GetTaggerResult(JetTagging::DeepJet);
-        jets_isBtagged[i] = j.GetTaggerResult(JetTagging::DeepJet) > bcut;
+        JetPtColl[i] = j.Pt();
+				JetPtColl_EnShiftUp[i] = j.Pt() * j.EnShift(1);
+				JetPtColl_EnShiftDown[i] = j.Pt() * j.EnShift(-1);
+				JetPtColl_ResShiftUp[i] = j.Pt() * j.ResShift(1);
+				JetPtColl_ResShiftDown[i] = j.Pt() * j.ResShift(-1);
+        JetEtaColl[i] = j.Eta();
+        JetPhiColl[i] = j.Phi();
+        JetMassColl[i] = j.M();
+				JetChargeColl[i] = j.Charge();
+				JetPartonFlavourColl[i] = j.partonFlavour();
+				JetHadronFlavourColl[i] = j.hadronFlavour();
+        JetBtagScoreColl[i] = j.GetTaggerResult(JetTagging::DeepJet);
+        JetIsBtaggedColl[i] = j.GetTaggerResult(JetTagging::DeepJet) > bcut;
     }
+
     Events->Fill();
 }
 

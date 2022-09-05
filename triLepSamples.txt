@@ -1,9 +1,8 @@
 # VV
 WZTo3LNu_amcatnlo
-WZTo3LNu_mll0p1_powheg
 WZTo3LNu_mllmin4p0_powheg
-ZZTo4L_m_1toInf_powheg
-ZGToLLG_01J
+ZZTo4L_powheg
+ZGToLLG
 # tt+X
 ttWToLNu
 ttZToLLNuNu
@@ -15,7 +14,8 @@ WWW
 WWZ
 WZZ
 ZZZ
+WWG
 TTG
 TTTT
-# VBF_HToZZTo4L
-# ggHToZZTo4L 
+VBF_HToZZTo4L
+GluGluHToZZTo4L

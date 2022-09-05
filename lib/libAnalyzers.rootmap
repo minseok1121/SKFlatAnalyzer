@@ -14,7 +14,7 @@ class SkimTree_HNFake
 class SkimTree_HighPt1LJets
 class SkimTree_LRSMHighPt
 class SkimTree_SS2lOR3l
-class diLepControlRegion
+class diLepRegion
 class triLepControlRegion
 header AnalyzerCore.h
 header ExampleRun.h
@@ -30,5 +30,5 @@ header SkimTree_HNFake.h
 header SkimTree_HighPt1LJets.h
 header SkimTree_LRSMHighPt.h
 header SkimTree_SS2lOR3l.h
-header diLepControlRegion.h
+header diLepRegion.h
 header triLepControlRegion.h
