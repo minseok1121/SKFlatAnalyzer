@@ -124,7 +124,6 @@ void ExampleRun::executeEvent(){
   //==== If MC && DataYear <= 2017, we have to reweight the event with this value
   //==== I defined "double weight_Prefire;" in Analyzers/include/ExampleRun.h
   weight_Prefire = GetPrefireWeight(0);
-
   //==== Declare AnalyzerParameter
 
   AnalyzerParameter param;
