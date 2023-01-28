@@ -12,9 +12,11 @@ TAMSA 1/2 : /data9/Users/$USER/
 #### When first time gie clone, use the option "--recursive" to initiate the submodules
 git clone --recursive git@github.com:CMSSNU/SKFlatAnalyzer.git
 cd SKFlatAnalyzer
+git checkout EGammaCorrection
+
 #### add your remote repo
-git remote add <nickname> git@github.com:<gitaccount>/SKFlatAnalyzer.git
-git checkout <your working branch>
+git remote add origin git@github.com:<gitaccount>/SKFlatAnalyzer.git
+git remote add upstream git@github.com:choij1589/SKFlatAnalyzer.git
 
 #### First time setup script
 source bin/FirstTimeSetup.sh 
@@ -47,7 +49,7 @@ exit
 
 ## Test job
 ```bash
-SKFlat.py -a ExampleRun -i DYJets -n 50 -y 2016 &
+SKFlat.py -a ExampleRun -i DYJets -n 10 -e 2016 --reduction 10&
 ```
 
 ## Making a new Ananlyzer
@@ -63,6 +65,8 @@ It will print below lines (execute the lines) :
 mv NewAnalyzer.h $SKFlat_WD/Analyzers/include/
 mv NewAnalyzer.C $SKFlat_WD/Analyzers/src/
 ```
+> The script does not compatible with python3. Try to use python2 environment instead.
+> For example, use the default shell without source setup.sh. However, the $SKFlat_WD variable should be set by yourself.
 
 Then, add
 ```cpp
