@@ -5,14 +5,10 @@
 https://jskim.web.cern.ch/jskim/SKFlat/Manual/Manual_SKFlat.pdf
 
 ## Where to put the analyzer
-TAMSA 1/2 : /data6/Users/$USER/
-
-KISTI : ~/ # home directory
-
-KNU :  ~/scartch/
+TAMSA 1/2 : /data9/Users/$USER/
 
 ## First time setup
-```
+```bash
 #### When first time gie clone, use the option "--recursive" to initiate the submodules
 git clone --recursive git@github.com:CMSSNU/SKFlatAnalyzer.git
 cd SKFlatAnalyzer
@@ -33,10 +29,19 @@ cp $SKFlat_WD/python/UserInfo_template.py $SKFlat_WD/python/UserInfo_${USER}.py
 #### This should be done for every new shell
 source setup.sh
 ```
-Compile
-```
+
+
+## Compile
+Note that devPython, devParticleNet and EGammaCorrection branches use a singularity image 
+for condor jobs. Use a singularity image for compilation:
+```bash
+#### All environment variables should be clean, i.e. enter the signularity image without setup.sh
+singularity shell /data6/Users/choij/Singularity/SKFlat
+source setup.sh
+
 make clean
 make
+exit
 ```
 
 ## Test job
@@ -59,7 +64,7 @@ mv NewAnalyzer.C $SKFlat_WD/Analyzers/src/
 ```
 
 Then, add
-```bash
+```cpp
 #pragma link C++ class NewAnalyzer+;
 ```
 in Analyzers/include/Analyzers_LinkDef.h
