@@ -112,6 +112,9 @@ bool Muon::PassID(TString ID) const {
   if(ID=="POGTightWithTightIso") return Pass_POGTightWithTightIso();
   if(ID=="POGHighPtWithLooseTrkIso") return Pass_POGHighPtWithLooseTrkIso();
   //==== Customized
+  if(ID=="HcToWATight") return Pass_HcToWATight();
+  if(ID=="HcToWALoose") return Pass_HcToWALoose();
+  if(ID=="HcToWAVeto") return Pass_HcToWAVeto();
   if(ID=="TEST") return Pass_TESTID();
 
   //==== No cut

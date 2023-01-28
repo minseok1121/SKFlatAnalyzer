@@ -163,6 +163,18 @@ bool Electron::PassID(TString ID) const{
   if(ID=="SUSYLoose") return Pass_SUSYLoose();
   if(ID=="NOCUT") return true;
   if(ID=="TEST") return Pass_TESTID();
+  if(ID=="HcToWATight16a") return Pass_HcToWATight16a();
+  if(ID=="HcToWALoose16a") return Pass_HcToWALoose16a();
+  if(ID=="HcToWAVeto16a") return Pass_HcToWAVeto16a();
+  if(ID=="HcToWATight16b") return Pass_HcToWATight16b();
+  if(ID=="HcToWALoose16b") return Pass_HcToWALoose16b();
+  if(ID=="HcToWAVeto16b") return Pass_HcToWAVeto16b();
+  if(ID=="HcToWATight17") return Pass_HcToWATight17();
+  if(ID=="HcToWALoose17") return Pass_HcToWALoose17();
+  if(ID=="HcToWAVeto17") return Pass_HcToWAVeto17();
+  if(ID=="HcToWATight18") return Pass_HcToWATight18();
+  if(ID=="HcToWALoose18") return Pass_HcToWALoose18();
+  if(ID=="HcToWAVeto18") return Pass_HcToWAVeto18();
 
   if(ID=="HNLoosest") return Pass_HNLoosest(); // OR of VETO IDs
 
