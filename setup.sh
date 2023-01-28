@@ -1,9 +1,9 @@
 RELEASE="`cat /etc/redhat-release`"
 if [[ $HOSTNAME == *"tamsa"* ]]; then
   echo "@@@@ Working in tamsa"
-  export SKFlat_WD="/data6/Users/$USER/SKFlatAnalyzer"
-  export SKFlatRunlogDir="/data6/Users/$USER/SKFlatRunlog"
-  export SKFlatOutputDir="/data6/Users/$USER/SKFlatOutput"
+  export SKFlat_WD="/data9/Users/$USER/SKFlatAnalyzer"
+  export SKFlatRunlogDir="/data9/Users/$USER/SKFlatRunlog"
+  export SKFlatOutputDir="/data9/Users/$USER/SKFlatOutput"
 
   # root configuration
   # Singlarity image

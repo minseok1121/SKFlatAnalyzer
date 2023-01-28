@@ -35,7 +35,8 @@ source setup.sh
 Note that devPython, devParticleNet and EGammaCorrection branches use a singularity image 
 for condor jobs. Use a singularity image for compilation:
 ```bash
-#### All environment variables should be clean, i.e. enter the signularity image without setup.sh
+#### All environment variables should be clean
+#### i.e. enter the signularity image without setup.sh
 singularity shell /data6/Users/choij/Singularity/SKFlat
 source setup.sh
 
