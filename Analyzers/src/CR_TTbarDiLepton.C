@@ -108,9 +108,9 @@ void CR_TTbarDiLepton::executeEvent(){
     // Events Selection
     TString channel = "";
     if (tightMuons.size() == 2 && vetoMuons.size() == 2 && tightElectrons.size() == 0 && vetoElectrons.size() == 0)
-        channel == "TTDiMu";
+        channel = "TTDiMu";
     else if (tightMuons.size() == 1 && vetoMuons.size() == 1 && tightElectrons.size() == 1 && vetoElectrons.size() == 1)
-        channel == "TTEMu";
+        channel = "TTEMu";
     else
         return;
     
@@ -145,35 +145,18 @@ void CR_TTbarDiLepton::executeEvent(){
         FillHist(channel+"/electron/eta", ele.Eta(), weight, 50, -2.5, 2.5);
         FillHist(channel+"/electron/phi", ele.Phi(), weight, 64, -3.2, 3.2);
         FillHist(channel+"/jets/size", jets.size(), weight, 20, 0., 20.);
-        FillHist(channel+"/jets/1/pt", jets.at(0).Pt(), weight, 300, 0., 300.);
-        FillHist(channel+"/jets/1/eta", jets.at(0).Eta(), weight, 48, -2.4, 2.4);
-        FillHist(channel+"/jets/1/phi", jets.at(0).Phi(), weight, 64, -3.2, 3.2);
-        FillHist(channel+"/jets/1/mass", jets.at(0).M(), weight, 100, 0., 10.);
-        FillHist(channel+"/jets/2/pt", jets.at(1).Pt(), weight, 300, 0., 300.);
-        FillHist(channel+"/jets/2/eta", jets.at(1).Eta(), weight, 48, -2.4, 2.4);
-        FillHist(channel+"/jets/2/phi", jets.at(1).Phi(), weight, 64, -3.2, 3.2);
-        FillHist(channel+"/jets/2/mass", jets.at(1).M(), weight, 100, 0., 10.);
-        if (jets.size() >= 3) {
-            FillHist(channel+"/jets/3/pt", jets.at(2).Pt(), weight, 300, 0., 300.);
-            FillHist(channel+"/jets/3/eta", jets.at(2).Eta(), weight, 48, -2.4, 2.4);
-            FillHist(channel+"/jets/3/phi", jets.at(2).Phi(), weight, 64, -3.2, 3.2);
-            FillHist(channel+"/jets/3/mass", jets.at(2).M(), weight, 100, 0., 10.);
+        for (unsigned int i = 0; i < jets.size(); i++) {
+            TString histkey = channel+"/jets/"+TString::Itoa(i+1, 10);
+            FillHist(histkey+"/pt", jets.at(i).Pt(), weight, 300, 0., 300.);
+            FillHist(histkey+"/eta", jets.at(i).Eta(), weight, 48, -2.4, 2.4);
+            FillHist(histkey="/phi", jets.at(i).Phi(), weight, 64, -3.2, 3.2);
         }
-        FillHist(channel+"/bjets/size", bjets.size(), weight, 20, 0., 20.);
-        FillHist(channel+"/bjets/1/pt", bjets.at(0).Pt(), weight, 300, 0., 300.);
-        FillHist(channel+"/bjets/1/eta", bjets.at(0).Eta(), weight, 48, -2.4, 2.4);
-        FillHist(channel+"/bjets/1/phi", bjets.at(0).Phi(), weight, 64, -3.2, 3.2);
-        FillHist(channel+"/bjets/1/mass", bjets.at(0).M(), weight, 100, 0., 10.);
-        FillHist(channel+"/bjets/2/pt", bjets.at(1).Pt(), weight, 300, 0., 300.);
-        FillHist(channel+"/bjets/2/eta", bjets.at(1).Eta(), weight, 48, -2.4, 2.4);
-        FillHist(channel+"/bjets/2/phi", bjets.at(1).Phi(), weight, 64, -3.2, 3.2);
-        FillHist(channel+"/bjets/2/mass", bjets.at(1).M(), weight, 100, 0., 10.);
-        if (bjets.size() >= 3) {
-            FillHist(channel+"/bjets/3/pt", bjets.at(2).Pt(), weight, 300, 0., 300.);
-            FillHist(channel+"/bjets/3/eta", bjets.at(2).Eta(), weight, 48, -2.4, 2.4);
-            FillHist(channel+"/bjets/3/phi", bjets.at(2).Phi(), weight, 64, -3.2, 3.2);
-            FillHist(channel+"/bjets/3/mass", bjets.at(2).M(), weight, 100, 0., 10.);
-        }
+        for (unsigned int i = 0; i < bjets.size(); i++) {
+            TString histkey = channel+"/bjets/"+TString::Itoa(i+1, 10);
+            FillHist(histkey+"/pt", bjets.at(i).Pt(), weight, 300, 0., 300.);
+            FillHist(histkey+"/eta", bjets.at(i).Eta(), weight, 48, -2.4, 2.4);
+            FillHist(histkey="/phi", bjets.at(i).Phi(), weight, 64, -3.2, 3.2);
+        } 
         FillHist(channel+"/METv/pt", METv.Pt(), weight, 300, 0., 300.);
         FillHist(channel+"/METv/phi", METv.Phi(), weight, 64, -3.2, 3.2);
     }
@@ -214,35 +197,17 @@ void CR_TTbarDiLepton::executeEvent(){
         FillHist(channel+"/pair/eta", pair.Eta(), weight, 100, -5., 5.);
         FillHist(channel+"/pair/phi", pair.Phi(), weight, 64, -3.2, 3.2);
         FillHist(channel+"/pair/mass", pair.M(), weight, 300, 0., 300.);
-        FillHist(channel+"/jets/size", jets.size(), weight, 20, 0., 20.);
-        FillHist(channel+"/jets/1/pt", jets.at(0).Pt(), weight, 300, 0., 300.);
-        FillHist(channel+"/jets/1/eta", jets.at(0).Eta(), weight, 48, -2.4, 2.4);
-        FillHist(channel+"/jets/1/phi", jets.at(0).Phi(), weight, 64, -3.2, 3.2);
-        FillHist(channel+"/jets/1/mass", jets.at(0).M(), weight, 100, 0., 10.);
-        FillHist(channel+"/jets/2/pt", jets.at(1).Pt(), weight, 300, 0., 300.);
-        FillHist(channel+"/jets/2/eta", jets.at(1).Eta(), weight, 48, -2.4, 2.4);
-        FillHist(channel+"/jets/2/phi", jets.at(1).Phi(), weight, 64, -3.2, 3.2);
-        FillHist(channel+"/jets/2/mass", jets.at(1).M(), weight, 100, 0., 10.);
-        if (jets.size() >= 3) {
-            FillHist(channel+"/jets/3/pt", jets.at(2).Pt(), weight, 300, 0., 300.);
-            FillHist(channel+"/jets/3/eta", jets.at(2).Eta(), weight, 48, -2.4, 2.4);
-            FillHist(channel+"/jets/3/phi", jets.at(2).Phi(), weight, 64, -3.2, 3.2);
-            FillHist(channel+"/jets/3/mass", jets.at(2).M(), weight, 100, 0., 10.);
+        for (unsigned int i = 0; i < jets.size(); i++) {
+            TString histkey = channel+"/jets/"+TString::Itoa(i+1, 10);
+            FillHist(histkey+"/pt", jets.at(i).Pt(), weight, 300, 0., 300.);
+            FillHist(histkey+"/eta", jets.at(i).Eta(), weight, 48, -2.4, 2.4);
+            FillHist(histkey="/phi", jets.at(i).Phi(), weight, 64, -3.2, 3.2);
         }
-        FillHist(channel+"/bjets/size", bjets.size(), weight, 20, 0., 20.);
-        FillHist(channel+"/bjets/1/pt", bjets.at(0).Pt(), weight, 300, 0., 300.);
-        FillHist(channel+"/bjets/1/eta", bjets.at(0).Eta(), weight, 48, -2.4, 2.4);
-        FillHist(channel+"/bjets/1/phi", bjets.at(0).Phi(), weight, 64, -3.2, 3.2);
-        FillHist(channel+"/bjets/1/mass", bjets.at(0).M(), weight, 100, 0., 10.);
-        FillHist(channel+"/bjets/2/pt", bjets.at(1).Pt(), weight, 300, 0., 300.);
-        FillHist(channel+"/bjets/2/eta", bjets.at(1).Eta(), weight, 48, -2.4, 2.4);
-        FillHist(channel+"/bjets/2/phi", bjets.at(1).Phi(), weight, 64, -3.2, 3.2);
-        FillHist(channel+"/bjets/2/mass", bjets.at(1).M(), weight, 100, 0., 10.);
-        if (bjets.size() >= 3) {
-            FillHist(channel+"/bjets/3/pt", bjets.at(2).Pt(), weight, 300, 0., 300.);
-            FillHist(channel+"/bjets/3/eta", bjets.at(2).Eta(), weight, 48, -2.4, 2.4);
-            FillHist(channel+"/bjets/3/phi", bjets.at(2).Phi(), weight, 64, -3.2, 3.2);
-            FillHist(channel+"/bjets/3/mass", bjets.at(2).M(), weight, 100, 0., 10.);
+        for (unsigned int i = 0; i < bjets.size(); i++) {
+            TString histkey = channel+"/bjets/"+TString::Itoa(i+1, 10);
+            FillHist(histkey+"/pt", bjets.at(i).Pt(), weight, 300, 0., 300.);
+            FillHist(histkey+"/eta", bjets.at(i).Eta(), weight, 48, -2.4, 2.4);
+            FillHist(histkey="/phi", bjets.at(i).Phi(), weight, 64, -3.2, 3.2);
         }
         FillHist(channel+"/METv/pt", METv.Pt(), weight, 300, 0., 300.);
         FillHist(channel+"/METv/phi", METv.Phi(), weight, 64, -3.2, 3.2);       
