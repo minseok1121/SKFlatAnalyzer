@@ -76,6 +76,9 @@ void CR_TTbarDiLepton::initializeAnalyzer(){
 
 void CR_TTbarDiLepton::executeEvent(){
     
+    cout << "TTDiMu =" << TTDiMu << endl;
+    cout << "TTEMu =" << TTEMu << endl;
+
     FillHist("cutflow", 0., 1., 10, 0., 10.);
     if (! PassMETFilter()) return;
     FillHist("cutflow", 1., 1., 10, 0., 10.);
@@ -108,11 +111,18 @@ void CR_TTbarDiLepton::executeEvent(){
     // Events Selection
     TString channel = "";
     if (tightMuons.size() == 2 && vetoMuons.size() == 2 && tightElectrons.size() == 0 && vetoElectrons.size() == 0)
-        channel == "TTDiMu";
+        channel = "TTDiMu";
     else if (tightMuons.size() == 1 && vetoMuons.size() == 1 && tightElectrons.size() == 1 && vetoElectrons.size() == 1)
-        channel == "TTEMu";
+        channel = "TTEMu";
     else
         return;
+
+
+    cout << "channel :" << channel << endl;
+    cout << "tightMuons :" << tightMuons.size() << endl;
+    cout << "tightElectrons :" << tightElectrons.size() << endl;
+    cout << "vetoMuons :" << vetoMuons.size() << endl;
+    cout << "vetoElectrons :" << vetoElectrons.size() << endl;
     
     if (TTEMu && (channel == "TTEMu")) {
         Electron &ele = tightElectrons.at(0);
