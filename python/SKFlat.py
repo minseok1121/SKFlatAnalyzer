@@ -282,6 +282,7 @@ for inputSample in inputSampleList:
     runCommands.write('export MYBIN="$SKFlat_WD/bin"\n')
     runCommands.write('export PYTHONDIR="$SKFlat_WD/python"\n')
     runCommands.write("export PATH=${MYBIN}:${PYTHONDIR}:${PATH}\n")
+    runCommands.write('export PYTHONPATH="${PYTHONPATH}:${PYTHONDIR}"\n')
     runCommands.write("export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$SKFlat_WD/DataFormats/include/:$SKFlat_WD/AnalyzerTools/include/:$SKFlat_WD/Analyzers/include/\n")
     runCommands.write("export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SKFlat_LIB_PATH\n")
     runCommands.write("\n")
@@ -385,10 +386,8 @@ for inputSample in inputSampleList:
                     out.write(f"    m.IsFastSim = False\n")
             out.write(f'    m.SetEra("{args.Era}")\n')
             if Userflags:
-                out.write(f'    m.Userflags = [\n')
-                for flag in Userflags:
-                    out.write(f'    "{flag}",\n')
-                out.write("    ]\n")
+                out.write(f'    m.Userflags = std.vector[TString]()\n')
+                for flag in Userflags: out.write(f'    m.Userflags.emplace_back("{flag}")\n')
             for it_file in fileRanges[it_job]:
                 thisFileName = totalFiles[it_file].strip("\n")
                 out.write(f'    if not m.AddFile("{thisFileName}"): exit(1)\n')
@@ -412,7 +411,7 @@ for inputSample in inputSampleList:
             if args.Reduction > 1:
                 out.write(f"    m.MaxEvent = int(m.fChain.GetEntries()/{args.Reduction})\n")
             out.write(f"    m.Init()\n")
-            out.write(f"    m.initializeAnalyzer()\n")
+            out.write(f"    m.initializePyAnalyzer()\n")
             out.write(f"    m.initializeAnalyzerTools()\n")
             out.write(f"    m.SwitchToTempDir()\n")
             out.write(f"    m.Loop()\n")
@@ -439,10 +438,7 @@ for inputSample in inputSampleList:
                     out.write(f"    m.IsFastSim = false;\n")
             out.write(f'    m.SetEra("{args.Era}");\n')
             if Userflags:
-                out.write("    m.Userflags = {\n")
-                for flag in Userflags:
-                    out.write(f'    "{flag}",\n')
-                out.write("    };\n")
+                for flag in Userflags: out.write(f'    m.Userflags.emplace_back("{flag}")\n')
             for it_file in fileRanges[it_job]:
                 thisFileName = totalFiles[it_file].strip("\n")
                 out.write(f'    if(!m.AddFile("{thisFileName}")) exit(EIO);\n')
@@ -496,10 +492,10 @@ if not args.Outputdir:
     for flag in Userflags:
         finalOutputPath += f"{flag}__"
     if isDATA:
-        finalOutputPath += "/DATA/"
+        finalOutputPath += "/DATA"
     if isSkimTree:
         finalOutputPath = f"/gv0/DATA/SKFlat/{SKFlatV}/{args.Era}"
-if not os.path.exists(os.path.dirname(finalOutputPath)):
+if not os.path.exists(finalOutputPath):
     os.makedirs(finalOutputPath)
 
 print(f"#################################################")

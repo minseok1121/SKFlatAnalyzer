@@ -113,7 +113,7 @@ void CR_TTbarDiLepton::executeEvent(){
         channel == "TTEMu";
     else
         return;
-
+    
     if (TTEMu && (channel == "TTEMu")) {
         Electron &ele = tightElectrons.at(0);
         Muon &mu = tightMuons.at(0);
