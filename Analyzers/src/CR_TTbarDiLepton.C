@@ -76,6 +76,7 @@ void CR_TTbarDiLepton::initializeAnalyzer(){
 
 void CR_TTbarDiLepton::executeEvent(){
     
+
     FillHist("cutflow", 0., 1., 10, 0., 10.);
     if (! PassMETFilter()) return;
     FillHist("cutflow", 1., 1., 10, 0., 10.);
@@ -113,6 +114,8 @@ void CR_TTbarDiLepton::executeEvent(){
         channel = "TTEMu";
     else
         return;
+
+
     
     if (TTEMu && (channel == "TTEMu")) {
         Electron &ele = tightElectrons.at(0);
@@ -120,7 +123,7 @@ void CR_TTbarDiLepton::executeEvent(){
         if (! ev.PassTrigger(EMuTriggers)) return;         // pass trigger
         FillHist("cutflow", 2, 1., 10, 0., 10.);
         const bool passSafeCut = ((mu.Pt() > 25. && ele.Pt() > 15.) || (mu.Pt() > 10. && ele.Pt() > 25.));
-        if (! passSafeCut) return;                          // pass safe cut
+        if (! passSafeCut) return;                                 // pass safe cut
         FillHist("cutflow", 3, 1., 10, 0., 10.); 
         if (! (ele.Charge() + mu.Charge() == 0)) return;    // OS charge condition
         FillHist("cutflow", 4, 1., 10, 0., 10.);
@@ -179,6 +182,9 @@ void CR_TTbarDiLepton::executeEvent(){
         FillHist("cutflow", 6, 1., 10, 0., 10.);
         if (! (bjets.size() >= 1)) return;
         FillHist("cutflow", 7, 1., 10, 0., 10.);
+        if (! (pair.M() > 12.)) return;
+        FillHist("cutflow", 8, 1., 10, 0., 10.);
+        
 
         double weight = 1.;
         if (! IsDATA) {
