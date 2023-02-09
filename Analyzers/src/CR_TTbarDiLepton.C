@@ -76,8 +76,6 @@ void CR_TTbarDiLepton::initializeAnalyzer(){
 
 void CR_TTbarDiLepton::executeEvent(){
     
-    cout << "TTDiMu =" << TTDiMu << endl;
-    cout << "TTEMu =" << TTEMu << endl;
 
     FillHist("cutflow", 0., 1., 10, 0., 10.);
     if (! PassMETFilter()) return;
@@ -118,11 +116,6 @@ void CR_TTbarDiLepton::executeEvent(){
         return;
 
 
-    cout << "channel :" << channel << endl;
-    cout << "tightMuons :" << tightMuons.size() << endl;
-    cout << "tightElectrons :" << tightElectrons.size() << endl;
-    cout << "vetoMuons :" << vetoMuons.size() << endl;
-    cout << "vetoElectrons :" << vetoElectrons.size() << endl;
     
     if (TTEMu && (channel == "TTEMu")) {
         Electron &ele = tightElectrons.at(0);
@@ -130,7 +123,7 @@ void CR_TTbarDiLepton::executeEvent(){
         if (! ev.PassTrigger(EMuTriggers)) return;         // pass trigger
         FillHist("cutflow", 2, 1., 10, 0., 10.);
         const bool passSafeCut = ((mu.Pt() > 25. && ele.Pt() > 15.) || (mu.Pt() > 10. && ele.Pt() > 25.));
-        if (! passSafeCut) return;                          // pass safe cut
+        if (! passSafeCut) return;                                 // pass safe cut
         FillHist("cutflow", 3, 1., 10, 0., 10.); 
         if (! (ele.Charge() + mu.Charge() == 0)) return;    // OS charge condition
         FillHist("cutflow", 4, 1., 10, 0., 10.);
@@ -169,15 +162,18 @@ void CR_TTbarDiLepton::executeEvent(){
             FillHist(channel+"/jets/3/phi", jets.at(2).Phi(), weight, 64, -3.2, 3.2);
             FillHist(channel+"/jets/3/mass", jets.at(2).M(), weight, 100, 0., 10.);
         }
+
         FillHist(channel+"/bjets/size", bjets.size(), weight, 20, 0., 20.);
         FillHist(channel+"/bjets/1/pt", bjets.at(0).Pt(), weight, 300, 0., 300.);
         FillHist(channel+"/bjets/1/eta", bjets.at(0).Eta(), weight, 48, -2.4, 2.4);
         FillHist(channel+"/bjets/1/phi", bjets.at(0).Phi(), weight, 64, -3.2, 3.2);
         FillHist(channel+"/bjets/1/mass", bjets.at(0).M(), weight, 100, 0., 10.);
-        FillHist(channel+"/bjets/2/pt", bjets.at(1).Pt(), weight, 300, 0., 300.);
-        FillHist(channel+"/bjets/2/eta", bjets.at(1).Eta(), weight, 48, -2.4, 2.4);
-        FillHist(channel+"/bjets/2/phi", bjets.at(1).Phi(), weight, 64, -3.2, 3.2);
-        FillHist(channel+"/bjets/2/mass", bjets.at(1).M(), weight, 100, 0., 10.);
+        if (bjets.size() >= 2) {
+            FillHist(channel+"/bjets/2/pt", bjets.at(1).Pt(), weight, 300, 0., 300.);
+            FillHist(channel+"/bjets/2/eta", bjets.at(1).Eta(), weight, 48, -2.4, 2.4);
+            FillHist(channel+"/bjets/2/phi", bjets.at(1).Phi(), weight, 64, -3.2, 3.2);
+            FillHist(channel+"/bjets/2/mass", bjets.at(1).M(), weight, 100, 0., 10.);
+        }
         if (bjets.size() >= 3) {
             FillHist(channel+"/bjets/3/pt", bjets.at(2).Pt(), weight, 300, 0., 300.);
             FillHist(channel+"/bjets/3/eta", bjets.at(2).Eta(), weight, 48, -2.4, 2.4);
@@ -204,6 +200,9 @@ void CR_TTbarDiLepton::executeEvent(){
         FillHist("cutflow", 6, 1., 10, 0., 10.);
         if (! (bjets.size() >= 1)) return;
         FillHist("cutflow", 7, 1., 10, 0., 10.);
+        if (! (pair.M() > 12.)) return;
+        FillHist("cutflow", 8, 1., 10, 0., 10.);
+        
 
         double weight = 1.;
         if (! IsDATA) {
@@ -244,10 +243,12 @@ void CR_TTbarDiLepton::executeEvent(){
         FillHist(channel+"/bjets/1/eta", bjets.at(0).Eta(), weight, 48, -2.4, 2.4);
         FillHist(channel+"/bjets/1/phi", bjets.at(0).Phi(), weight, 64, -3.2, 3.2);
         FillHist(channel+"/bjets/1/mass", bjets.at(0).M(), weight, 100, 0., 10.);
-        FillHist(channel+"/bjets/2/pt", bjets.at(1).Pt(), weight, 300, 0., 300.);
-        FillHist(channel+"/bjets/2/eta", bjets.at(1).Eta(), weight, 48, -2.4, 2.4);
-        FillHist(channel+"/bjets/2/phi", bjets.at(1).Phi(), weight, 64, -3.2, 3.2);
-        FillHist(channel+"/bjets/2/mass", bjets.at(1).M(), weight, 100, 0., 10.);
+        if (bjets.size() >= 2) {
+            FillHist(channel+"/bjets/2/pt", bjets.at(1).Pt(), weight, 300, 0., 300.);
+            FillHist(channel+"/bjets/2/eta", bjets.at(1).Eta(), weight, 48, -2.4, 2.4);
+            FillHist(channel+"/bjets/2/phi", bjets.at(1).Phi(), weight, 64, -3.2, 3.2);
+            FillHist(channel+"/bjets/2/mass", bjets.at(1).M(), weight, 100, 0., 10.);
+        }
         if (bjets.size() >= 3) {
             FillHist(channel+"/bjets/3/pt", bjets.at(2).Pt(), weight, 300, 0., 300.);
             FillHist(channel+"/bjets/3/eta", bjets.at(2).Eta(), weight, 48, -2.4, 2.4);
