@@ -136,6 +136,8 @@ void CR_TTbarDiLepton::executeEvent(){
             weight *= GetPrefireWeight(0);
             weight *= GetPileUpWeight(nPileUp, 0);
             weight *= mcCorr->GetBTaggingReweight_1a(jets, jtps.at(0));
+
+            // Lepton ID efficiency correction / Trigger eff. correction
         }
 
         FillHist(channel+"/muon/pt", mu.Pt(), weight, 300, 0., 300.);
