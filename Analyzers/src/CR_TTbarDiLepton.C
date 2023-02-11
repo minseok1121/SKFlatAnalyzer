@@ -185,6 +185,7 @@ void CR_TTbarDiLepton::executeEvent(){
         if (! (pair.M() > 12.)) return;
         FillHist("cutflow", 8, 1., 10, 0., 10.);
         
+        AnalyzerParameter param;
 
         double weight = 1.;
         if (! IsDATA) {
@@ -193,6 +194,11 @@ void CR_TTbarDiLepton::executeEvent(){
             weight *= GetPrefireWeight(0);
             weight *= GetPileUpWeight(nPileUp, 0);
             weight *= mcCorr->GetBTaggingReweight_1a(jets, jtps.at(0));
+            for(unsigned int i=0; i<tightMuons.size(); i++){
+                //double this_idsf = 1.;
+                double this_idsf = mcCorr->MuonID_SF (param.Muon_ID_SF_Key, tightMuons.at(i).Eta(), tightMuons.at(i).MiniAODPt());
+                weight *= this_idsf;
+            }
         }
 
         FillHist(channel+"/muon/1/pt", mu1.Pt(), weight, 300, 0., 300.);
@@ -209,13 +215,13 @@ void CR_TTbarDiLepton::executeEvent(){
             TString histkey = channel+"/jets/"+TString::Itoa(i+1, 10);
             FillHist(histkey+"/pt", jets.at(i).Pt(), weight, 300, 0., 300.);
             FillHist(histkey+"/eta", jets.at(i).Eta(), weight, 48, -2.4, 2.4);
-            FillHist(histkey="/phi", jets.at(i).Phi(), weight, 64, -3.2, 3.2);
+            FillHist(histkey+"/phi", jets.at(i).Phi(), weight, 64, -3.2, 3.2);
         }
         for (unsigned int i = 0; i < bjets.size(); i++) {
             TString histkey = channel+"/bjets/"+TString::Itoa(i+1, 10);
             FillHist(histkey+"/pt", bjets.at(i).Pt(), weight, 300, 0., 300.);
             FillHist(histkey+"/eta", bjets.at(i).Eta(), weight, 48, -2.4, 2.4);
-            FillHist(histkey="/phi", bjets.at(i).Phi(), weight, 64, -3.2, 3.2);
+            FillHist(histkey+"/phi", bjets.at(i).Phi(), weight, 64, -3.2, 3.2);
         }
         FillHist(channel+"/METv/pt", METv.Pt(), weight, 300, 0., 300.);
         FillHist(channel+"/METv/phi", METv.Phi(), weight, 64, -3.2, 3.2);       
