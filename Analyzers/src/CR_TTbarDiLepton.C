@@ -7,6 +7,7 @@ void CR_TTbarDiLepton::initializeAnalyzer(){
     // flags
     TTDiMu = HasFlag("TTDiMu");
     TTEMu  = HasFlag("TTEMu");
+    DYDiMu = HasFlag("DYDiMu");
 
     // triggers & ID settings
     if (DataEra == "2016preVFP") {
@@ -184,7 +185,21 @@ void CR_TTbarDiLepton::executeEvent(){
         FillHist("cutflow", 7, 1., 10, 0., 10.);
         if (! (pair.M() > 12.)) return;
         FillHist("cutflow", 8, 1., 10, 0., 10.);
-        
+        if (! (METv.Pt() > 40.)) return;
+        FillHist("cutflow", 9, 1., 10, 0., 10.);
+
+        /*
+        AnalyzerParameter param;
+        TString MuonIDSFKey = "NUM_MediumID_DEN_TrackerMuons";
+        param.Clear();
+        //param.syst_ = AnalyzerParameter::Central;
+        //param.Name = MuonIDs+"_"+"Central";
+        //param.Muon_Tight_ID = MuonID;
+        param.Muon_ID_SF_Key = MuonIDSFKey;
+        //param.Jet_ID = "tight";
+        //executeEventFromParameter(param);
+        */
+
 
         double weight = 1.;
         if (! IsDATA) {
@@ -193,6 +208,13 @@ void CR_TTbarDiLepton::executeEvent(){
             weight *= GetPrefireWeight(0);
             weight *= GetPileUpWeight(nPileUp, 0);
             weight *= mcCorr->GetBTaggingReweight_1a(jets, jtps.at(0));
+            /*
+            for(unsigned int i=0; i<tightMuons.size(); i++){
+                //double this_idsf = 1.;
+                double this_idsf = mcCorr->MuonID_SF_MS ("TightID", tightMuons.at(i).Eta(), tightMuons.at(i).MiniAODPt());
+                weight *= this_idsf;
+            }
+            */
         }
 
         FillHist(channel+"/muon/1/pt", mu1.Pt(), weight, 300, 0., 300.);
@@ -205,17 +227,91 @@ void CR_TTbarDiLepton::executeEvent(){
         FillHist(channel+"/pair/eta", pair.Eta(), weight, 100, -5., 5.);
         FillHist(channel+"/pair/phi", pair.Phi(), weight, 64, -3.2, 3.2);
         FillHist(channel+"/pair/mass", pair.M(), weight, 300, 0., 300.);
+        FillHist(channel+"/jets/size", jets.size(), weight, 30, 0., 30.);
+        FillHist(channel+"/bjets/size", bjets.size(), weight, 30, 0., 30.);
         for (unsigned int i = 0; i < jets.size(); i++) {
             TString histkey = channel+"/jets/"+TString::Itoa(i+1, 10);
             FillHist(histkey+"/pt", jets.at(i).Pt(), weight, 300, 0., 300.);
             FillHist(histkey+"/eta", jets.at(i).Eta(), weight, 48, -2.4, 2.4);
-            FillHist(histkey="/phi", jets.at(i).Phi(), weight, 64, -3.2, 3.2);
+            FillHist(histkey+"/phi", jets.at(i).Phi(), weight, 64, -3.2, 3.2);
         }
         for (unsigned int i = 0; i < bjets.size(); i++) {
             TString histkey = channel+"/bjets/"+TString::Itoa(i+1, 10);
             FillHist(histkey+"/pt", bjets.at(i).Pt(), weight, 300, 0., 300.);
             FillHist(histkey+"/eta", bjets.at(i).Eta(), weight, 48, -2.4, 2.4);
-            FillHist(histkey="/phi", bjets.at(i).Phi(), weight, 64, -3.2, 3.2);
+            FillHist(histkey+"/phi", bjets.at(i).Phi(), weight, 64, -3.2, 3.2);
+        }
+        FillHist(channel+"/METv/pt", METv.Pt(), weight, 300, 0., 300.);
+        FillHist(channel+"/METv/phi", METv.Phi(), weight, 64, -3.2, 3.2);       
+    }
+    else if (DYDiMu && (channel == "TTDiMu")) {
+        Muon &mu1 = tightMuons.at(0);
+        Muon &mu2 = tightMuons.at(1);
+        Particle pair = mu1+mu2;
+        if (! ev.PassTrigger(DblMuTriggers)) return;
+        FillHist("cutflow", 2, 1., 10, 0., 10.);
+        const bool passSafeCut = (mu1.Pt() > 20. && mu2.Pt() > 10.);
+        if (! passSafeCut) return;
+        FillHist("cutflow", 3, 1., 10, 0., 10.);
+        if (! (mu1.Charge() + mu2.Charge() == 0)) return;
+        FillHist("cutflow", 4, 1., 10, 0., 10);
+        if (! (fabs(pair.M() - 91.2) < 15.)) return;
+        FillHist("cutflow", 5, 1., 10, 0., 10.);
+        if ( (bjets.size() >= 1)) return;
+        FillHist("cutflow", 6, 1., 10, 0., 10.);
+        
+        /*
+        AnalyzerParameter param;
+        TString MuonIDSFKey = "NUM_MediumID_DEN_TrackerMuons";
+        param.Clear();
+        //param.syst_ = AnalyzerParameter::Central;
+        //param.Name = MuonIDs+"_"+"Central";
+        //param.Muon_Tight_ID = MuonID;
+        param.Muon_ID_SF_Key = MuonIDSFKey;
+        //param.Jet_ID = "tight";
+        //executeEventFromParameter(param);
+        */
+
+
+        double weight = 1.;
+        if (! IsDATA) {
+            weight *= MCweight();
+            weight *= ev.GetTriggerLumi("Full");
+            weight *= GetPrefireWeight(0);
+            weight *= GetPileUpWeight(nPileUp, 0);
+            weight *= mcCorr->GetBTaggingReweight_1a(jets, jtps.at(0));
+            /*
+            for(unsigned int i=0; i<tightMuons.size(); i++){
+                //double this_idsf = 1.;
+                double this_idsf = mcCorr->MuonID_SF_MS ("TightID", tightMuons.at(i).Eta(), tightMuons.at(i).MiniAODPt());
+                weight *= this_idsf;
+            }
+            */
+        }
+
+        FillHist(channel+"/muon/1/pt", mu1.Pt(), weight, 300, 0., 300.);
+        FillHist(channel+"/muon/1/eta", mu1.Eta(), weight, 48, -2.4, 2.4);
+        FillHist(channel+"/muon/1/phi", mu1.Phi(), weight, 64, -3.2, 3.2);
+        FillHist(channel+"/muon/2/pt", mu2.Pt(), weight, 300, 0., 300.);
+        FillHist(channel+"/muon/2/eta", mu2.Eta(), weight, 50, -2.5, 2.5);
+        FillHist(channel+"/muon/2/phi", mu2.Phi(), weight, 64, -3.2, 3.2);
+        FillHist(channel+"/pair/pt", pair.Pt(), weight, 300, 0., 300.);
+        FillHist(channel+"/pair/eta", pair.Eta(), weight, 100, -5., 5.);
+        FillHist(channel+"/pair/phi", pair.Phi(), weight, 64, -3.2, 3.2);
+        FillHist(channel+"/pair/mass", pair.M(), weight, 300, 0., 300.);
+        FillHist(channel+"/jets/size", jets.size(), weight, 30, 0., 30.);
+        FillHist(channel+"/bjets/size", bjets.size(), weight, 30, 0., 30.);
+        for (unsigned int i = 0; i < jets.size(); i++) {
+            TString histkey = channel+"/jets/"+TString::Itoa(i+1, 10);
+            FillHist(histkey+"/pt", jets.at(i).Pt(), weight, 300, 0., 300.);
+            FillHist(histkey+"/eta", jets.at(i).Eta(), weight, 48, -2.4, 2.4);
+            FillHist(histkey+"/phi", jets.at(i).Phi(), weight, 64, -3.2, 3.2);
+        }
+        for (unsigned int i = 0; i < bjets.size(); i++) {
+            TString histkey = channel+"/bjets/"+TString::Itoa(i+1, 10);
+            FillHist(histkey+"/pt", bjets.at(i).Pt(), weight, 300, 0., 300.);
+            FillHist(histkey+"/eta", bjets.at(i).Eta(), weight, 48, -2.4, 2.4);
+            FillHist(histkey+"/phi", bjets.at(i).Phi(), weight, 64, -3.2, 3.2);
         }
         FillHist(channel+"/METv/pt", METv.Pt(), weight, 300, 0., 300.);
         FillHist(channel+"/METv/phi", METv.Phi(), weight, 64, -3.2, 3.2);       
