@@ -6,7 +6,7 @@
 class CR_TTbarDiLepton : public AnalyzerCore {
 
 public:
-    bool TTDiMu, TTEMu;     // flags
+    bool TTDiMu, TTEMu, DYDiMu;     // flags
     vector<TString> ElectronIDs, MuonIDs;
     vector<TString> DblMuTriggers, EMuTriggers;
     vector<JetTagging::Parameters> jtps;

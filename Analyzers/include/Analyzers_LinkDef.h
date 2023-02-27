@@ -20,5 +20,6 @@
 #pragma link C++ class SkimTree_Dilepton+;
 #pragma link C++ class TutorialBase+;
 #pragma link C++ class CR_TTbarDiLepton+;
+#pragma link C++ class CR_DY+;
 
 #endif

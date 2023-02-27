@@ -281,6 +281,51 @@ double MCCorrection::MuonID_SF(TString ID, double eta, double pt, int sys){
 
 }
 
+double MCCorrection::MuonID_SF_MS(TString ID, double eta, double pt, int sys){
+
+  if(ID=="Default") return 1.;
+
+  //cout << "[MCCorrection::MuonID_SF] ID = " << ID << endl;
+  //cout << "[MCCorrection::MuonID_SF] eta = " << eta << ", pt = " << pt << endl;
+
+  double value = 1.;
+  double error = 0.;
+
+  eta = fabs(eta);
+
+  if(ID=="NUM_TightID_DEN_TrackerMuons" || ID=="NUM_MediumID_DEN_TrackerMuons" || ID=="NUM_HighPtID_DEN_TrackerMuons"){
+    //==== boundaries
+    if(pt<15.) pt = 15.1;
+    if(pt>=120.) pt = 119.9;
+    if(eta>=2.4) eta = 2.39;
+  }
+  TFile *file = new TFile("/data9/Users/snuintern1/SKFlatAnalyzer/data/Run2UltraLegacy_v3/2018/ID/Muon/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root");
+  //histDir->cd();
+  TH2F *this_hist =(TH2F *)file->Get("NUM_"+ID+"_DEN_TrackerMuons_abseta_pt")->Clone();
+  file->Close();
+  delete file;
+  //origDir->cd();
+  if(!this_hist){
+    if(IgnoreNoHist) return 1.;
+    else{
+      cerr << "[MCCorrection::MuonID_SF] No "<<"ID_SF_"+ID<<endl;
+      exit(ENODATA);
+    }
+  }
+
+  int this_bin(-999);
+
+  this_bin = this_hist->FindBin(eta,pt);
+
+  value = this_hist->GetBinContent(this_bin);
+  error = this_hist->GetBinError(this_bin);
+
+  //cout << "[MCCorrection::MuonID_SF] value = " << value << endl;
+
+  return value+double(sys)*error;
+
+}
+
 double MCCorrection::MuonISO_SF(TString ID, double eta, double pt, int sys){
 
   if(ID=="Default") return 1.;
