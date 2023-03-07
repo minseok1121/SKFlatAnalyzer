@@ -16,10 +16,11 @@ void CR_TTbarDiLepton::initializeAnalyzer(){
             "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
         };
         EMuTriggers = {
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
+            //"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+            //"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
             "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",
-            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"
+            "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v",
+            //"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"
         };
         MuonIDs = {"HcToWATight", "HcToWALoose", "HcToWAVeto"};
         ElectronIDs = {"HcToWATight16a", "HcToWALoose16a", "HcToWAVeto16a"};
@@ -28,11 +29,12 @@ void CR_TTbarDiLepton::initializeAnalyzer(){
         DblMuTriggers = {
             "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
             "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+            "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"
         };
         EMuTriggers = {
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+            //"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
             "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
-            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",
+            //"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",
             "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"
         };
         MuonIDs = {"HcToWATight", "HcToWALoose", "HcToWAVeto"};
@@ -41,7 +43,7 @@ void CR_TTbarDiLepton::initializeAnalyzer(){
     else if (DataEra == "2017") {
         DblMuTriggers = {
             "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
-            "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+            //"HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
             "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v"
         };
         EMuTriggers = {
@@ -53,12 +55,12 @@ void CR_TTbarDiLepton::initializeAnalyzer(){
     }
     else if (DataEra == "2018") {
         DblMuTriggers = {
-            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
-            "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+            //"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+            //"HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
             "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v"
         };
         EMuTriggers = {
-            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+            //"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
             "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
             "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v"
         };
@@ -66,7 +68,7 @@ void CR_TTbarDiLepton::initializeAnalyzer(){
         ElectronIDs = {"HcToWATight18", "HcToWALoose18", "HcToWAVeto18"};
     }
     else {
-        cerr << "[CR_TTbarDiLepton::initializeAnalyzer] Wrong era " << DataEra << endl;
+        cerr << "[CR_DiLepton::initializeAnalyzer] Wrong era " << DataEra << endl;
         exit(EXIT_FAILURE);
     }
 
